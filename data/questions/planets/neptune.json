@@ -1,0 +1,19 @@
+{
+    "planet_name": "Neptune",
+    "category": "Fractions with unlike denominators",
+    "questions": [
+        {
+            "id": 1, 
+            "question": "foo",
+            "answer_type": "free_response",
+            "correct_answer": "42"
+        },
+        {
+            "id": 2, 
+            "question": "bar",
+            "answer_type": "multiple_choice",
+            "choices": ["A", "B", "C", "D"],
+            "correct_answer": "C"
+        }
+    ]
+}
