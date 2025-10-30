@@ -50,6 +50,10 @@ export class MenuScreenView implements View {
 		startButtonGroup.add(startText);
 		startButtonGroup.on("click", onStartClick);
 		this.group.add(startButtonGroup);
+
+		// Menu view intentionally stays passive about movement/assets.
+		// Asset loading and movement are managed by the controller/manager.
+
 	}
 
 	/**

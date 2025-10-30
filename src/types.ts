@@ -29,6 +29,13 @@ export abstract class ScreenController {
 	hide(): void {
 		this.getView().hide();
 	}
+
+	/**
+	 * Update loop called by the App. deltaTime is milliseconds since last frame.
+	 */
+	update(_deltaTime: number): void {
+		// default no-op; override in controllers that need per-frame updates
+	}
 }
 
 export interface ScreenSwitcher {
