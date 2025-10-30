@@ -1,10 +1,10 @@
-import { ScreenController } from "../../types.ts";
-import type { ScreenSwitcher } from "../../types.ts";
-import { MenuScreenView } from "./MenuScreenView.ts";
-import { MenuScreenModel } from "./MenuScreenModel.ts";
-import { STAGE_WIDTH } from "../../constants.ts";
-import { PlayerManager } from "../../core/movement/PlayerManager";
-import { CollisionManager } from "../../core/collision/CollisionManager";
+import { ScreenController } from '../../types.ts';
+import type { ScreenSwitcher } from '../../types.ts';
+import { MenuScreenView } from './MenuScreenView.ts';
+import { MenuScreenModel } from './MenuScreenModel.ts';
+import { STAGE_WIDTH } from '../../constants.ts';
+import { PlayerManager } from '../../core/movement/PlayerManager';
+import { CollisionManager } from '../../core/collision/CollisionManager';
 
 /**
  * MenuScreenController - Handles menu interactions
@@ -26,7 +26,7 @@ export class MenuScreenController extends ScreenController {
 		this.collisionManager = new CollisionManager();
 		this.playerManager = new PlayerManager({
 			group: this.view.getGroup(),
-			imageUrl: "/assets/sprites/luffy.png",
+			imageUrl: '/assets/sprites/luffy.png',
 			scale: 0.2,
 			speed: 300,
 			model: this.model.player,
@@ -38,7 +38,7 @@ export class MenuScreenController extends ScreenController {
 	 * Handle start button click
 	 */
 	private handleStartClick(): void {
-		this.screenSwitcher.switchToScreen({ type: "game" });
+		this.screenSwitcher.switchToScreen({ type: 'game' });
 	}
 
 	/**

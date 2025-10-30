@@ -1,6 +1,6 @@
-import Konva from "konva";
-import type { View } from "../../types.ts";
-import { STAGE_WIDTH } from "../../constants.ts";
+import Konva from 'konva';
+import type { View } from '../../types.ts';
+import { STAGE_WIDTH } from '../../constants.ts';
 
 /**
  * MenuScreenView - Renders the menu screen
@@ -15,11 +15,11 @@ export class MenuScreenView implements View {
 		const title = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 150,
-			text: "MATH EXPLORERS: GALACTIC QUEST",
+			text: 'MATH EXPLORERS: GALACTIC QUEST',
 			fontSize: 48,
-			fontFamily: "Arial",
-			fill: "white",
-			align: "center",
+			fontFamily: 'Arial',
+			fill: 'white',
+			align: 'center',
 		});
 		// Center the text using offsetX
 		title.offsetX(title.width() / 2);
@@ -31,29 +31,28 @@ export class MenuScreenView implements View {
 			y: 300,
 			width: 200,
 			height: 60,
-			fill: "green",
+			fill: 'green',
 			cornerRadius: 10,
-			stroke: "darkgreen",
+			stroke: 'darkgreen',
 			strokeWidth: 3,
 		});
 		const startText = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 315,
-			text: "START GAME",
+			text: 'START GAME',
 			fontSize: 24,
-			fontFamily: "Arial",
-			fill: "white",
-			align: "center",
+			fontFamily: 'Arial',
+			fill: 'white',
+			align: 'center',
 		});
 		startText.offsetX(startText.width() / 2);
 		startButtonGroup.add(startButton);
 		startButtonGroup.add(startText);
-		startButtonGroup.on("click", onStartClick);
+		startButtonGroup.on('click', onStartClick);
 		this.group.add(startButtonGroup);
 
 		// Menu view intentionally stays passive about movement/assets.
 		// Asset loading and movement are managed by the controller/manager.
-
 	}
 
 	/**

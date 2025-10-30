@@ -1,4 +1,4 @@
-import type { Group } from "konva/lib/Group";
+import type { Group } from 'konva/lib/Group';
 
 export interface View {
 	getGroup(): Group;
@@ -14,10 +14,7 @@ export interface View {
  * - "result": Results screen with final score
  *   - score: Final score to display on results screen
  */
-export type Screen =
-	| { type: "menu" }
-	| { type: "game" }
-	| { type: "result"; score: number };
+export type Screen = { type: 'menu' } | { type: 'game' } | { type: 'result'; score: number };
 
 export abstract class ScreenController {
 	abstract getView(): View;

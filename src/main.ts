@@ -1,8 +1,7 @@
-import Konva from "konva";
-import { MenuScreenController } from "./screens/MenuScreen/MenuScreenController.ts";
-import type { ScreenSwitcher, Screen, ScreenController } from "./types.ts";
-import { STAGE_WIDTH, STAGE_HEIGHT } from "./constants.ts";
-
+import Konva from 'konva';
+import { MenuScreenController } from './screens/MenuScreen/MenuScreenController.ts';
+import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
+import { STAGE_WIDTH, STAGE_HEIGHT } from './constants.ts';
 
 // Space Math Adventure - Main Entry Point
 
@@ -22,7 +21,6 @@ import { STAGE_WIDTH, STAGE_HEIGHT } from "./constants.ts";
 //   const game = new Game();
 //   game.start();
 // });
-
 
 /**
  * Main Application - Coordinates all screens
@@ -72,7 +70,7 @@ class App implements ScreenSwitcher {
 		this.layer.draw();
 
 		// Start with menu screen visible and set it as the active controller
-		this.switchToScreen({ type: "menu" });
+		this.switchToScreen({ type: 'menu' });
 
 		// Start central game loop that updates only the active controller
 		let lastTime = performance.now();
@@ -106,7 +104,7 @@ class App implements ScreenSwitcher {
 
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
-			case "menu":
+			case 'menu':
 				this.menuController.show();
 				this.activeController = this.menuController;
 				break;
@@ -125,4 +123,4 @@ class App implements ScreenSwitcher {
 }
 
 // Initialize the application
-new App("container");
+new App('container');
