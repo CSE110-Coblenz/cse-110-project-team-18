@@ -3,56 +3,63 @@ import { Player } from '../objects/Player';
 import { CollisionManager } from '../collision/CollisionManager';
 import { preloadImage } from '../utils/AssetLoader';
 import { SpriteConfig } from '../movement/SpriteHelper';
-import { STAGE_WIDTH } from '../../constants';
-import { PlayerConfig } from '../config/PlayerConfig';
+import { PlayerConfig } from '../../configs/PlayerConfig';
 
+/**
+ * PlayerManagerOptions - Options for the PlayerManager
+ * @param group - The group to add the player to
+ * @param spriteConfig - The sprite configuration
+ * @param x - The x position of the player
+ * @param y - The y position of the player
+ * @param scale - The scale of the player
+ * @param walkSpeed - The walk speed of the player
+ * @param runSpeed - The run speed of the player
+ * @param model - The model of the player
+ * @param collisionManager - The collision manager
+ */
 export interface PlayerManagerOptions {
 	group: Konva.Group;
-	imageUrl?: string;
-	spriteConfig?: SpriteConfig;
-	x?: number;
-	y?: number;
-	scale?: number; // uniform scale
-	walkSpeed?: number; // walk speed in pixels per second
-	runSpeed?: number; // run speed in pixels per second
+	spriteConfig: SpriteConfig;
+	x: number;
+	y: number;
+	scale?: number;
+	walkSpeed: number;
+	runSpeed?: number;
 	model?: { x: number; y: number };
 	collisionManager?: CollisionManager | null;
 }
 
 /**
- * PlayerManager
- * Generic manager to load a player image/sprite, create a PlayerMovement,
+ * PlayerManager - Generic manager to load a player image/sprite, create a PlayerMovement,
  * and run a Konva.Animation updating the movement while started.
- *
  * Screens can instantiate this with different groups and configuration.
  */
 export class PlayerManager {
 	private group: Konva.Group;
-	private imageUrl?: string;
-	private spriteConfig?: SpriteConfig;
-	private node: Konva.Image | null = null;
+	private spriteConfig: SpriteConfig;
 	private sprite: Konva.Sprite | null = null;
 	private currentAnimation: string | null = null;
-
 	private player: Player | null = null;
 	private collisionManager?: CollisionManager | null;
-	private x: number | undefined;
-	private y: number | undefined;
+	private x: number;
+	private y: number;
 	private scale: number;
 	private walkSpeed: number;
 	private runSpeed?: number;
 	private externalModel?: { x: number; y: number } | undefined;
 	private lastFacing: 'left' | 'right' = 'right';
 
+	/**
+	 * Constructor for the PlayerManager
+	 * @param opts - The options for the PlayerManager
+	 */
 	constructor(opts: PlayerManagerOptions) {
 		this.group = opts.group;
-		this.imageUrl = opts.imageUrl;
 		this.spriteConfig = opts.spriteConfig;
 		this.x = opts.x;
 		this.y = opts.y;
 		this.scale = typeof opts.scale === 'number' ? opts.scale : PlayerConfig.MANAGER.DEFAULT_SCALE;
-		this.walkSpeed =
-			typeof opts.walkSpeed === 'number' ? opts.walkSpeed : PlayerConfig.MOVEMENT.WALK_SPEED;
+		this.walkSpeed = opts.walkSpeed;
 		this.runSpeed = opts.runSpeed;
 		this.externalModel = opts.model;
 		this.collisionManager = opts.collisionManager ?? null;
@@ -60,129 +67,84 @@ export class PlayerManager {
 		this.load();
 	}
 
+	/**
+	 * Load the player's sprite and create the player
+	 */
 	private async load() {
-		if (this.spriteConfig) {
-			try {
-				// Calculate initial position
-				const x = this.externalModel?.x ?? (typeof this.x === 'number' ? this.x : STAGE_WIDTH / 2);
-				const y =
-					this.externalModel?.y ??
-					(typeof this.y === 'number' ? this.y : PlayerConfig.MANAGER.DEFAULT_Y_POSITION);
+		try {
+			// Use provided position (model takes precedence if provided, otherwise use x/y)
+			const x = this.externalModel?.x ?? this.x;
+			const y = this.externalModel?.y ?? this.y;
 
-				console.log('[PlayerManager] Loading sprite:', {
-					url: this.spriteConfig.imageUrl,
-					position: { x, y },
-					config: this.spriteConfig,
-				});
+			// Load the image
+			const image = await preloadImage(this.spriteConfig.imageUrl);
 
-				// Load the image
-				const image = await preloadImage(this.spriteConfig.imageUrl);
-				console.log('[PlayerManager] Image loaded:', {
-					width: image.width,
-					height: image.height,
-					complete: image.complete,
-				});
+			// Create sprite
+			const sprite = new Konva.Sprite({
+				id: 'playerSprite',
+				x,
+				y,
+				image,
+				animation: this.spriteConfig.defaultAnimation,
+				animations: this.spriteConfig.animations,
+				frameRate: this.spriteConfig.frameRate || PlayerConfig.MANAGER.DEFAULT_FRAME_RATE,
+				frameIndex: 0,
+				width: this.spriteConfig.frameWidth,
+				height: this.spriteConfig.frameHeight,
+			});
 
-				// Create sprite
-				const sprite = new Konva.Sprite({
-					id: 'playerSprite',
-					x,
-					y,
-					image,
-					animation: this.spriteConfig.defaultAnimation,
-					animations: this.spriteConfig.animations,
-					frameRate: this.spriteConfig.frameRate || PlayerConfig.MANAGER.DEFAULT_FRAME_RATE,
-					frameIndex: 0,
-					width: this.spriteConfig.frameWidth,
-					height: this.spriteConfig.frameHeight,
-				});
+			// Apply scale
+			const totalScale = this.scale * (this.spriteConfig.scale || 1);
+			sprite.scale({ x: totalScale, y: totalScale });
 
-				// Apply scale
-				const totalScale = this.scale * (this.spriteConfig.scale || 1);
-				sprite.scale({ x: totalScale, y: totalScale });
+			// Center the sprite on its position
+			sprite.offset({
+				x: this.spriteConfig.frameWidth / 2,
+				y: this.spriteConfig.frameHeight / 2,
+			});
 
-				// Center the sprite on its position
-				sprite.offset({
-					x: this.spriteConfig.frameWidth / 2,
-					y: this.spriteConfig.frameHeight / 2,
-				});
+			// Add to scene
+			this.sprite = sprite;
+			this.group.add(sprite);
+			this.currentAnimation = this.spriteConfig.defaultAnimation;
 
-				// Add to scene
-				this.sprite = sprite;
-				this.group.add(sprite);
-				this.currentAnimation = this.spriteConfig.defaultAnimation;
-
-				// Set initial frame rate based on default animation
-				if (
-					this.spriteConfig.animationFrameRates &&
-					this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation] !== undefined
-				) {
-					sprite.frameRate(
-						this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation]
-					);
-				} else {
-					sprite.frameRate(this.spriteConfig.frameRate || PlayerConfig.MANAGER.DEFAULT_FRAME_RATE);
-				}
-
-				// Create player model
-				const model = { x: sprite.x(), y: sprite.y() };
-				const usedModel = this.externalModel ?? model;
-				this.player = new Player('player', usedModel, this.walkSpeed, this.runSpeed);
-				this.player.attachNode(sprite);
-
-				if (this.collisionManager && this.player.collidable) {
-					this.collisionManager.register(this.player.collidable);
-				}
-
-				// Start animation
-				sprite.start();
-
-				console.log('[PlayerManager] Sprite setup complete:', {
-					position: { x: sprite.x(), y: sprite.y() },
-					scale: sprite.scale(),
-					offset: sprite.offset(),
-					size: { w: sprite.width(), h: sprite.height() },
-				});
-
-				// Force immediate draw
-				this.group.getLayer()?.batchDraw();
-			} catch (e) {
-				console.error('Failed to load sprite:', e);
-			}
-			return;
-		}
-
-		// Fall back to static image if no sprite config
-		if (!this.imageUrl) return;
-
-		Konva.Image.fromURL(this.imageUrl, (image) => {
-			if (this.externalModel) {
-				image.x(this.externalModel.x);
-				image.y(this.externalModel.y);
+			// Set initial frame rate based on default animation
+			if (
+				this.spriteConfig.animationFrameRates &&
+				this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation] !== undefined
+			) {
+				sprite.frameRate(this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation]);
 			} else {
-				if (typeof this.x === 'number') image.x(this.x);
-				if (typeof this.y === 'number') image.y(this.y);
+				sprite.frameRate(this.spriteConfig.frameRate || PlayerConfig.MANAGER.DEFAULT_FRAME_RATE);
 			}
 
-			image.offsetX(image.width() / 2);
-			image.offsetY(image.height() / 2);
-			image.scaleX(this.scale);
-			image.scaleY(this.scale);
-
-			this.node = image;
-			this.group.add(this.node);
-
-			const model = { x: image.x(), y: image.y() };
+			// Create player model
+			const model = { x: sprite.x(), y: sprite.y() };
 			const usedModel = this.externalModel ?? model;
 			this.player = new Player('player', usedModel, this.walkSpeed, this.runSpeed);
-			this.player.attachNode(this.node);
+			this.player.attachNode(sprite);
 
 			if (this.collisionManager && this.player.collidable) {
 				this.collisionManager.register(this.player.collidable);
 			}
-		});
+
+			// Start animation
+			sprite.start();
+
+			// Force immediate draw
+			this.group.getLayer()?.batchDraw();
+		} catch (e) {
+			console.error('Failed to load sprite:', e);
+		}
 	}
 
+	/**
+	 * Get the movement state of the player
+	 * @param velocity - The velocity of the player
+	 * @param isJumping - Whether the player is jumping
+	 * @param isRunning - Whether the player is running
+	 * @returns The movement state of the player
+	 */
 	private getMovementState(
 		velocity: { x: number; y: number },
 		isJumping: boolean,
@@ -215,15 +177,28 @@ export class PlayerManager {
 	/**
 	 * Update must be called by the central game loop (App) or the owning controller.
 	 * deltaTimeMs is milliseconds since last frame.
+	 * @param deltaTimeMs - The time since the last frame in milliseconds
 	 */
 	update(deltaTimeMs: number): void {
 		if (!this.player || !this.player.movement) return;
 
+		// Check if player is trying to move (has input) before updating
+		const vx = this.player.movement.getVelocityX();
+		const vy = this.player.movement.getVelocityY();
+		const isJumping = this.player.movement.isJumping();
+		const hasInput = vx !== 0 || vy !== 0 || isJumping;
+
 		// update player (movement + node sync)
 		this.player.update(deltaTimeMs);
 
-		// update sprite animation if using spriteConfig
-		if (this.sprite && this.spriteConfig && this.player.movement) {
+		// Mark as moved if player has any input (trying to move)
+		// This handles cases where player is stuck but still pressing keys
+		if (hasInput && this.collisionManager && this.player.collidable) {
+			this.collisionManager.markMoved(this.player.collidable);
+		}
+
+		// update sprite animation
+		if (this.sprite && this.player.movement) {
 			const velocity = {
 				x: this.player.movement.getVelocityX(),
 				y: this.player.movement.getVelocityY(),
@@ -255,6 +230,9 @@ export class PlayerManager {
 		}
 	}
 
+	/**
+	 * Dispose of the player and sprite
+	 */
 	dispose() {
 		if (this.player) {
 			if (this.collisionManager && this.player.collidable) {
@@ -268,13 +246,13 @@ export class PlayerManager {
 			this.sprite.destroy();
 			this.sprite = null;
 		}
-		if (this.node) {
-			this.node.destroy();
-			this.node = null;
-		}
 	}
 
+	/**
+	 * Get the sprite node
+	 * @returns The sprite node
+	 */
 	getNode(): Konva.Node | null {
-		return this.sprite || this.node;
+		return this.sprite;
 	}
 }

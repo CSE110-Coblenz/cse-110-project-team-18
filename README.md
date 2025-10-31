@@ -6,7 +6,7 @@ An educational math game created for CSE 110.
 - npm run format
 
 ## run eslint and auto-fix fixable problems (forward --fix to the npm script)
-- npm run lint -- --fix
+- npm run lint --fix
 
 ## setup/start program
 - npm install

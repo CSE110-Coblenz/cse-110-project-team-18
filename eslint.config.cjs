@@ -13,6 +13,7 @@ module.exports = [
 			'.vscode/**',
 			'public/**',
 			'*.d.ts',
+			'README.md',
 		],
 	},
 
