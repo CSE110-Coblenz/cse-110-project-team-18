@@ -13,7 +13,11 @@ export class PlayerMovementModel {
 	private boundKeyDown: (e: KeyboardEvent) => void;
 	private boundKeyUp: (e: KeyboardEvent) => void;
 
-	constructor(model: { x: number; y: number }, walkSpeed: number = PlayerConfig.MOVEMENT.WALK_SPEED, runSpeed?: number) {
+	constructor(
+		model: { x: number; y: number },
+		walkSpeed: number = PlayerConfig.MOVEMENT.WALK_SPEED,
+		runSpeed?: number
+	) {
 		this.model = model;
 		this.walkSpeed = walkSpeed;
 		this.runSpeed = runSpeed ?? PlayerConfigHelpers.getDefaultRunSpeed(walkSpeed);
@@ -54,10 +58,10 @@ export class PlayerMovementModel {
 		let vx = 0;
 		let vy = 0;
 
-		if (PlayerConfig.CONTROLS.MOVE_UP.some(key => this.keys.has(key.toLowerCase()))) vy = -1;
-		if (PlayerConfig.CONTROLS.MOVE_DOWN.some(key => this.keys.has(key.toLowerCase()))) vy = 1;
-		if (PlayerConfig.CONTROLS.MOVE_LEFT.some(key => this.keys.has(key.toLowerCase()))) vx = -1;
-		if (PlayerConfig.CONTROLS.MOVE_RIGHT.some(key => this.keys.has(key.toLowerCase()))) vx = 1;
+		if (PlayerConfig.CONTROLS.MOVE_UP.some((key) => this.keys.has(key.toLowerCase()))) vy = -1;
+		if (PlayerConfig.CONTROLS.MOVE_DOWN.some((key) => this.keys.has(key.toLowerCase()))) vy = 1;
+		if (PlayerConfig.CONTROLS.MOVE_LEFT.some((key) => this.keys.has(key.toLowerCase()))) vx = -1;
+		if (PlayerConfig.CONTROLS.MOVE_RIGHT.some((key) => this.keys.has(key.toLowerCase()))) vx = 1;
 
 		// normalize diagonal movement
 		if (vx !== 0 && vy !== 0) {
@@ -92,17 +96,17 @@ export class PlayerMovementModel {
 	 */
 	getVelocityX(): number {
 		let vx = 0;
-		if (PlayerConfig.CONTROLS.MOVE_LEFT.some(key => this.keys.has(key.toLowerCase()))) vx = -1;
-		if (PlayerConfig.CONTROLS.MOVE_RIGHT.some(key => this.keys.has(key.toLowerCase()))) vx = 1;
-		
+		if (PlayerConfig.CONTROLS.MOVE_LEFT.some((key) => this.keys.has(key.toLowerCase()))) vx = -1;
+		if (PlayerConfig.CONTROLS.MOVE_RIGHT.some((key) => this.keys.has(key.toLowerCase()))) vx = 1;
+
 		// Check if there's also vertical movement for diagonal normalization
 		let vy = 0;
-		if (PlayerConfig.CONTROLS.MOVE_UP.some(key => this.keys.has(key.toLowerCase()))) vy = -1;
-		if (PlayerConfig.CONTROLS.MOVE_DOWN.some(key => this.keys.has(key.toLowerCase()))) vy = 1;
+		if (PlayerConfig.CONTROLS.MOVE_UP.some((key) => this.keys.has(key.toLowerCase()))) vy = -1;
+		if (PlayerConfig.CONTROLS.MOVE_DOWN.some((key) => this.keys.has(key.toLowerCase()))) vy = 1;
 		if (vx !== 0 && vy !== 0) {
 			vx *= PlayerConfig.CALCULATIONS.DIAGONAL_NORMALIZER;
 		}
-		
+
 		return vx;
 	}
 
@@ -112,17 +116,17 @@ export class PlayerMovementModel {
 	 */
 	getVelocityY(): number {
 		let vy = 0;
-		if (PlayerConfig.CONTROLS.MOVE_UP.some(key => this.keys.has(key.toLowerCase()))) vy = -1;
-		if (PlayerConfig.CONTROLS.MOVE_DOWN.some(key => this.keys.has(key.toLowerCase()))) vy = 1;
-		
+		if (PlayerConfig.CONTROLS.MOVE_UP.some((key) => this.keys.has(key.toLowerCase()))) vy = -1;
+		if (PlayerConfig.CONTROLS.MOVE_DOWN.some((key) => this.keys.has(key.toLowerCase()))) vy = 1;
+
 		// Check if there's also horizontal movement for diagonal normalization
 		let vx = 0;
-		if (PlayerConfig.CONTROLS.MOVE_LEFT.some(key => this.keys.has(key.toLowerCase()))) vx = -1;
-		if (PlayerConfig.CONTROLS.MOVE_RIGHT.some(key => this.keys.has(key.toLowerCase()))) vx = 1;
+		if (PlayerConfig.CONTROLS.MOVE_LEFT.some((key) => this.keys.has(key.toLowerCase()))) vx = -1;
+		if (PlayerConfig.CONTROLS.MOVE_RIGHT.some((key) => this.keys.has(key.toLowerCase()))) vx = 1;
 		if (vx !== 0 && vy !== 0) {
 			vy *= PlayerConfig.CALCULATIONS.DIAGONAL_NORMALIZER;
 		}
-		
+
 		return vy;
 	}
 
@@ -130,7 +134,7 @@ export class PlayerMovementModel {
 	 * Check if space bar (jump key) is currently pressed
 	 */
 	isJumping(): boolean {
-		return PlayerConfig.CONTROLS.JUMP.some(key => this.keys.has(key));
+		return PlayerConfig.CONTROLS.JUMP.some((key) => this.keys.has(key));
 	}
 
 	/**

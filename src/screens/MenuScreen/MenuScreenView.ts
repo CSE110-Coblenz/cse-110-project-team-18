@@ -9,9 +9,9 @@ export class MenuScreenView implements View {
 	private group: Konva.Group;
 
 	constructor(onStartClick: () => void) {
-		this.group = new Konva.Group({ 
+		this.group = new Konva.Group({
 			visible: true,
-			id: 'menuScreen'  // Add ID for debugging
+			id: 'menuScreen', // Add ID for debugging
 		});
 
 		// Title text

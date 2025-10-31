@@ -28,7 +28,7 @@ export class MenuScreenController extends ScreenController {
 		this.collisionManager = new CollisionManager();
 		this.playerManager = new PlayerManager({
 			group: this.view.getGroup(),
-			spriteConfig: greenAlienSprite,  // use sprite instead of imageUrl
+			spriteConfig: greenAlienSprite, // use sprite instead of imageUrl
 			walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
 			model: this.model.player,
 			collisionManager: this.collisionManager,

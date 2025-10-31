@@ -54,7 +54,9 @@ export const PlayerConfigHelpers = {
 			...PlayerConfig.CONTROLS.MOVE_DOWN,
 			...PlayerConfig.CONTROLS.MOVE_LEFT,
 			...PlayerConfig.CONTROLS.MOVE_RIGHT,
-		].map(k => k.toLowerCase()).includes(keyLower);
+		]
+			.map((k) => k.toLowerCase())
+			.includes(keyLower);
 	},
 
 	/**
@@ -71,4 +73,3 @@ export const PlayerConfigHelpers = {
 		return PlayerConfig.CONTROLS.JUMP.includes(key as any);
 	},
 } as const;
-

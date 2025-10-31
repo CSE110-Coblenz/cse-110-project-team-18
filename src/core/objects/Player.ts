@@ -11,7 +11,12 @@ export class Player extends GameObject {
 	private halfWidth = 0;
 	private halfHeight = 0;
 
-	constructor(id: string, model: { x: number; y: number }, walkSpeed: number = PlayerConfig.MOVEMENT.WALK_SPEED, runSpeed?: number) {
+	constructor(
+		id: string,
+		model: { x: number; y: number },
+		walkSpeed: number = PlayerConfig.MOVEMENT.WALK_SPEED,
+		runSpeed?: number
+	) {
 		super(id, model.x, model.y);
 		this.model = model;
 		this.movement = new PlayerMovementModel(this.model, walkSpeed, runSpeed);

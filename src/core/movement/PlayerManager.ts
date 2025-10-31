@@ -51,7 +51,8 @@ export class PlayerManager {
 		this.x = opts.x;
 		this.y = opts.y;
 		this.scale = typeof opts.scale === 'number' ? opts.scale : PlayerConfig.MANAGER.DEFAULT_SCALE;
-		this.walkSpeed = typeof opts.walkSpeed === 'number' ? opts.walkSpeed : PlayerConfig.MOVEMENT.WALK_SPEED;
+		this.walkSpeed =
+			typeof opts.walkSpeed === 'number' ? opts.walkSpeed : PlayerConfig.MOVEMENT.WALK_SPEED;
 		this.runSpeed = opts.runSpeed;
 		this.externalModel = opts.model;
 		this.collisionManager = opts.collisionManager ?? null;
@@ -64,12 +65,14 @@ export class PlayerManager {
 			try {
 				// Calculate initial position
 				const x = this.externalModel?.x ?? (typeof this.x === 'number' ? this.x : STAGE_WIDTH / 2);
-				const y = this.externalModel?.y ?? (typeof this.y === 'number' ? this.y : PlayerConfig.MANAGER.DEFAULT_Y_POSITION);
+				const y =
+					this.externalModel?.y ??
+					(typeof this.y === 'number' ? this.y : PlayerConfig.MANAGER.DEFAULT_Y_POSITION);
 
 				console.log('[PlayerManager] Loading sprite:', {
 					url: this.spriteConfig.imageUrl,
 					position: { x, y },
-					config: this.spriteConfig
+					config: this.spriteConfig,
 				});
 
 				// Load the image
@@ -77,7 +80,7 @@ export class PlayerManager {
 				console.log('[PlayerManager] Image loaded:', {
 					width: image.width,
 					height: image.height,
-					complete: image.complete
+					complete: image.complete,
 				});
 
 				// Create sprite
@@ -91,7 +94,7 @@ export class PlayerManager {
 					frameRate: this.spriteConfig.frameRate || PlayerConfig.MANAGER.DEFAULT_FRAME_RATE,
 					frameIndex: 0,
 					width: this.spriteConfig.frameWidth,
-					height: this.spriteConfig.frameHeight
+					height: this.spriteConfig.frameHeight,
 				});
 
 				// Apply scale
@@ -101,7 +104,7 @@ export class PlayerManager {
 				// Center the sprite on its position
 				sprite.offset({
 					x: this.spriteConfig.frameWidth / 2,
-					y: this.spriteConfig.frameHeight / 2
+					y: this.spriteConfig.frameHeight / 2,
 				});
 
 				// Add to scene
@@ -110,8 +113,13 @@ export class PlayerManager {
 				this.currentAnimation = this.spriteConfig.defaultAnimation;
 
 				// Set initial frame rate based on default animation
-				if (this.spriteConfig.animationFrameRates && this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation] !== undefined) {
-					sprite.frameRate(this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation]);
+				if (
+					this.spriteConfig.animationFrameRates &&
+					this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation] !== undefined
+				) {
+					sprite.frameRate(
+						this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation]
+					);
 				} else {
 					sprite.frameRate(this.spriteConfig.frameRate || PlayerConfig.MANAGER.DEFAULT_FRAME_RATE);
 				}
@@ -133,7 +141,7 @@ export class PlayerManager {
 					position: { x: sprite.x(), y: sprite.y() },
 					scale: sprite.scale(),
 					offset: sprite.offset(),
-					size: { w: sprite.width(), h: sprite.height() }
+					size: { w: sprite.width(), h: sprite.height() },
 				});
 
 				// Force immediate draw
@@ -175,22 +183,31 @@ export class PlayerManager {
 		});
 	}
 
-	private getMovementState(velocity: { x: number, y: number }, isJumping: boolean, isRunning: boolean): { state: string; facing: 'left' | 'right' } {
+	private getMovementState(
+		velocity: { x: number; y: number },
+		isJumping: boolean,
+		isRunning: boolean
+	): { state: string; facing: 'left' | 'right' } {
 		// Prioritize jump animation if space bar is pressed
 		if (isJumping) {
-			const facing = velocity.x < 0 ? 'left' : (velocity.x > 0 ? 'right' : this.lastFacing);
+			const facing = velocity.x < 0 ? 'left' : velocity.x > 0 ? 'right' : this.lastFacing;
 			this.lastFacing = facing;
 			return { state: 'jump', facing };
 		}
-		
+
 		const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 		// Keep last facing direction if not moving
-		const facing = speed < PlayerConfig.CALCULATIONS.MIN_VELOCITY_THRESHOLD ? this.lastFacing : (velocity.x < 0 ? 'left' : 'right');
+		const facing =
+			speed < PlayerConfig.CALCULATIONS.MIN_VELOCITY_THRESHOLD
+				? this.lastFacing
+				: velocity.x < 0
+					? 'left'
+					: 'right';
 		this.lastFacing = facing;
-		
+
 		// If not moving, use idle animation
 		if (speed < PlayerConfig.CALCULATIONS.MIN_VELOCITY_THRESHOLD) return { state: 'idle', facing };
-		
+
 		// If moving, use run or walk animation based on shift key
 		return { state: isRunning ? 'run' : 'walk', facing };
 	}
@@ -223,9 +240,12 @@ export class PlayerManager {
 			if (this.currentAnimation !== state) {
 				this.currentAnimation = state;
 				this.sprite.animation(state);
-				
+
 				// Update frame rate if this animation has a specific frame rate
-				if (this.spriteConfig.animationFrameRates && this.spriteConfig.animationFrameRates[state] !== undefined) {
+				if (
+					this.spriteConfig.animationFrameRates &&
+					this.spriteConfig.animationFrameRates[state] !== undefined
+				) {
 					this.sprite.frameRate(this.spriteConfig.animationFrameRates[state]);
 				} else {
 					// Use default frame rate
