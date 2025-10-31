@@ -5,6 +5,8 @@ import { MenuScreenModel } from './MenuScreenModel.ts';
 import { STAGE_WIDTH } from '../../constants.ts';
 import { PlayerManager } from '../../core/movement/PlayerManager';
 import { CollisionManager } from '../../core/collision/CollisionManager';
+import { greenAlienSprite } from '../../core/sprites/AlienSprite';
+import { PlayerConfig } from '../../core/config/PlayerConfig';
 
 /**
  * MenuScreenController - Handles menu interactions
@@ -26,9 +28,8 @@ export class MenuScreenController extends ScreenController {
 		this.collisionManager = new CollisionManager();
 		this.playerManager = new PlayerManager({
 			group: this.view.getGroup(),
-			imageUrl: '/assets/sprites/luffy.png',
-			scale: 0.2,
-			speed: 300,
+			spriteConfig: greenAlienSprite,  // use sprite instead of imageUrl
+			walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
 			model: this.model.player,
 			collisionManager: this.collisionManager,
 		});

@@ -3,6 +3,7 @@ import { GameObject } from './GameObject';
 import { PlayerMovementModel } from '../movement/PlayerMovementModel';
 import { Collidable } from './Collidable';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../constants';
+import { PlayerConfig } from '../config/PlayerConfig';
 
 export class Player extends GameObject {
 	movement: PlayerMovementModel | null = null;
@@ -10,10 +11,10 @@ export class Player extends GameObject {
 	private halfWidth = 0;
 	private halfHeight = 0;
 
-	constructor(id: string, model: { x: number; y: number }, speed = 150) {
+	constructor(id: string, model: { x: number; y: number }, walkSpeed: number = PlayerConfig.MOVEMENT.WALK_SPEED, runSpeed?: number) {
 		super(id, model.x, model.y);
 		this.model = model;
-		this.movement = new PlayerMovementModel(this.model, speed);
+		this.movement = new PlayerMovementModel(this.model, walkSpeed, runSpeed);
 		this.collidable = new Collidable(this);
 	}
 
