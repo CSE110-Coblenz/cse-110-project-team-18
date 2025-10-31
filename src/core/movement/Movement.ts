@@ -9,7 +9,12 @@ export class Movement {
 	protected speed: number;
 	protected position: { x: number; y: number };
 
-	constructor(sprite: Konva.Node, speed: number = 5) {
+	/**
+	 * Constructor for the Movement
+	 * @param sprite - The sprite of the movement
+	 * @param speed - The speed of the movement
+	 */
+	constructor(sprite: Konva.Node, speed: number) {
 		this.sprite = sprite;
 		this.speed = speed;
 		this.position = {
@@ -42,7 +47,7 @@ export class Movement {
 	 * Get current position
 	 */
 	getPosition(): { x: number; y: number } {
-		return { ...this.position };
+		return { x: this.position.x, y: this.position.y };
 	}
 
 	/**

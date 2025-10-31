@@ -1,7 +1,8 @@
 import Konva from 'konva';
 import { MenuScreenController } from './screens/MenuScreen/MenuScreenController.ts';
 import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
-import { STAGE_WIDTH, STAGE_HEIGHT } from './constants.ts';
+import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
+import { InputManager } from './core/input/InputManager';
 
 // Space Math Adventure - Main Entry Point
 /**
@@ -25,6 +26,9 @@ class App implements ScreenSwitcher {
 	// private resultsController: ResultsScreenController;
 
 	constructor(container: string) {
+		// Initialize centralized input manager (single event listener system)
+		InputManager.getInstance().initialize();
+
 		// Initialize Konva stage (the main canvas)
 		this.stage = new Konva.Stage({
 			container,

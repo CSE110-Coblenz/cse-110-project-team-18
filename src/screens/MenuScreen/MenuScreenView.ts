@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
-import { STAGE_WIDTH } from '../../constants.ts';
+import { STAGE_WIDTH } from '../../configs/GameConfig';
 
 /**
  * MenuScreenView - Renders the menu screen
@@ -8,6 +8,10 @@ import { STAGE_WIDTH } from '../../constants.ts';
 export class MenuScreenView implements View {
 	private group: Konva.Group;
 
+	/**
+	 * Constructor for the MenuScreenView
+	 * @param onStartClick - The function to call when the start button is clicked
+	 */
 	constructor(onStartClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
@@ -74,6 +78,10 @@ export class MenuScreenView implements View {
 		this.group.getLayer()?.draw();
 	}
 
+	/**
+	 * Get the group of the menu screen view
+	 * @returns The group of the menu screen view
+	 */
 	getGroup(): Konva.Group {
 		return this.group;
 	}

@@ -1,44 +1,31 @@
 import { Vector2d } from 'konva/lib/types';
 
+/**
+ * SpriteConfig - Configuration for a sprite
+ * @param imageUrl - The URL of the image for the sprite
+ * @param animations - The animations for the sprite
+ * @param defaultAnimation - The default animation for the sprite
+ * @param frameRate - The frame rate for the sprite
+ * @param animationFrameRates - The frame rates for the animations
+ * @param scale - The scale for the sprite
+ * @param frameWidth - The width of the frame for the sprite
+ * @param frameHeight - The height of the frame for the sprite
+ */
 export interface SpriteConfig {
-	/**
-	 * Path to the spritesheet image (relative to public/)
-	 */
 	imageUrl: string;
-	/**
-	 * Map of animation names to arrays of frame data
-	 * Each animation is an array: [x, y, width, height, x, y, width, height, ...]
-	 * Where each frame is defined by 4 consecutive numbers: x position, y position, frame width, frame height
-	 */
-	animations: Record<string, number[]>;
-	/**
-	 * Default animation to play
-	 */
+	animations: Record<string, number[]>; // Map of animation names to arrays of frame data (x, y, width, height)
 	defaultAnimation: string;
-	/**
-	 * Frames per second for animations (default for all animations)
-	 */
 	frameRate?: number;
-	/**
-	 * Optional: Per-animation frame rates (overrides default frameRate for specific animations)
-	 */
-	animationFrameRates?: Record<string, number>;
-	/**
-	 * Scale to apply to the sprite
-	 */
+	animationFrameRates?: Record<string, number>; // Optional: Per-animation frame rates (overrides default frameRate for specific animations)
 	scale?: number;
-	/**
-	 * Width of each frame in the spritesheet
-	 */
 	frameWidth: number;
-	/**
-	 * Height of each frame in the spritesheet
-	 */
 	frameHeight: number;
 }
 
 /**
  * Get movement state and facing direction from a velocity vector
+ * @param velocity - The velocity vector
+ * @returns The movement state and facing direction
  */
 export function getMovementState(velocity: Vector2d): { state: string; facing: 'left' | 'right' } {
 	const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);

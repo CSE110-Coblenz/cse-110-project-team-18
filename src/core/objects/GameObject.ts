@@ -12,25 +12,45 @@ export abstract class GameObject {
 	visible: boolean;
 	protected node: Konva.Node | null = null;
 
+	/**
+	 * Constructor for the GameObject
+	 * @param id - The id of the game object
+	 * @param x - The x position of the game object
+	 * @param y - The y position of the game object
+	 */
 	constructor(id: string, x = 0, y = 0) {
 		this.id = id;
 		this.model = { x, y };
 		this.visible = true;
 	}
 
-	/** Called each frame with delta time in ms */
+	/**
+	 * Update the game object
+	 * @param deltaTimeMs - The time since the last frame in milliseconds
+	 */
 	update(_deltaTimeMs: number): void {
 		// default no-op
 	}
 
+	/**
+	 * Attach a node to the game object
+	 * @param node - The node to attach
+	 */
 	attachNode(node: Konva.Node): void {
 		this.node = node;
 	}
 
+	/**
+	 * Get the node of the game object
+	 * @returns The node of the game object
+	 */
 	getNode(): Konva.Node | null {
 		return this.node;
 	}
 
+	/**
+	 * Dispose of the game object
+	 */
 	dispose(): void {
 		if (this.node) {
 			this.node.destroy();
@@ -38,6 +58,9 @@ export abstract class GameObject {
 		}
 	}
 
-	// collision hook
+	/**
+	 * Collision hook
+	 * @param other - The other game object
+	 */
 	onCollision?(other: GameObject): void;
 }

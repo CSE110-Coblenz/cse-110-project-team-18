@@ -1,16 +1,25 @@
 import Konva from 'konva';
 import { GameObject } from './GameObject';
-import { PlayerMovementModel } from '../movement/PlayerMovementModel';
+import { PlayerMovement } from '../movement/PlayerMovement';
 import { Collidable } from './Collidable';
-import { STAGE_WIDTH, STAGE_HEIGHT } from '../../constants';
-import { PlayerConfig } from '../config/PlayerConfig';
+import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
+import { PlayerConfig } from '../../configs/PlayerConfig';
 
 export class Player extends GameObject {
-	movement: PlayerMovementModel | null = null;
+	movement: PlayerMovement | null = null;
 	collidable: Collidable | null = null;
 	private halfWidth = 0;
 	private halfHeight = 0;
+	private walkSpeed: number;
+	private runSpeed?: number;
 
+	/**
+	 * Constructor for the Player
+	 * @param id - The id of the player
+	 * @param model - The model of the player
+	 * @param walkSpeed - The walk speed of the player
+	 * @param runSpeed - The run speed of the player
+	 */
 	constructor(
 		id: string,
 		model: { x: number; y: number },
@@ -19,13 +28,21 @@ export class Player extends GameObject {
 	) {
 		super(id, model.x, model.y);
 		this.model = model;
-		this.movement = new PlayerMovementModel(this.model, walkSpeed, runSpeed);
+		this.walkSpeed = walkSpeed;
+		this.runSpeed = runSpeed;
 		this.collidable = new Collidable(this);
 	}
 
+	/**
+	 * Attach a node to the player
+	 * @param node - The node to attach
+	 */
 	attachNode(node: Konva.Node): void {
 		super.attachNode(node);
-		// if node has size, set default collidable rect around it (centered at model)
+		if (!this.movement) {
+			this.movement = new PlayerMovement(this.model, node, this.walkSpeed, this.runSpeed);
+		}
+
 		try {
 			const image: any = node as any;
 			const w = (image.width && image.width() * (image.scaleX ? image.scaleX() : 1)) || 0;
@@ -46,6 +63,10 @@ export class Player extends GameObject {
 		}
 	}
 
+	/**
+	 * Update the player
+	 * @param deltaTimeMs - The time since the last frame in milliseconds
+	 */
 	update(deltaTimeMs: number): void {
 		if (this.movement) this.movement.update(deltaTimeMs);
 		// sync node to model
@@ -75,6 +96,9 @@ export class Player extends GameObject {
 		}
 	}
 
+	/**
+	 * Dispose of the player
+	 */
 	dispose(): void {
 		this.movement?.dispose();
 		this.movement = null;
