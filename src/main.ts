@@ -1,29 +1,9 @@
-import Konva from "konva";
-import { MenuScreenController } from "./screens/MenuScreen/MenuScreenController.ts";
-import type { ScreenSwitcher, Screen } from "./types.ts";
-import { STAGE_WIDTH, STAGE_HEIGHT } from "./constants.ts";
-
+import Konva from 'konva';
+import { MenuScreenController } from './screens/MenuScreen/MenuScreenController.ts';
+import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
+import { STAGE_WIDTH, STAGE_HEIGHT } from './constants.ts';
 
 // Space Math Adventure - Main Entry Point
-
-// // Game initialization will go here
-// class Game {
-//   constructor() {
-//     console.log('Space Math Adventure initialized');
-//   }
-
-//   start() {
-//     // Game loop and initialization logic will be implemented here
-//   }
-// }
-
-// // Start the game when the window loads
-// window.addEventListener('load', () => {
-//   const game = new Game();
-//   game.start();
-// });
-
-
 /**
  * Main Application - Coordinates all screens
  *
@@ -37,6 +17,8 @@ import { STAGE_WIDTH, STAGE_HEIGHT } from "./constants.ts";
 class App implements ScreenSwitcher {
 	private stage: Konva.Stage;
 	private layer: Konva.Layer;
+
+	private activeController?: ScreenController | null;
 
 	private menuController: MenuScreenController;
 	// private gameController: GameScreenController;
@@ -69,8 +51,22 @@ class App implements ScreenSwitcher {
 		// Draw the layer (render everything to the canvas)
 		this.layer.draw();
 
-		// Start with menu screen visible
-		this.menuController.getView().show();
+		// Start with menu screen visible and set it as the active controller
+		this.switchToScreen({ type: 'menu' });
+
+		// Start central game loop that updates only the active controller
+		let lastTime = performance.now();
+		const loop = (now: number) => {
+			const dt = now - lastTime; // ms
+			lastTime = now;
+			if (this.activeController) {
+				this.activeController.update(dt);
+			}
+			requestAnimationFrame(loop);
+		};
+		requestAnimationFrame(loop);
+
+		console.log('Space Math Adventure initialized');
 	}
 
 	/**
@@ -90,8 +86,9 @@ class App implements ScreenSwitcher {
 
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
-			case "menu":
+			case 'menu':
 				this.menuController.show();
+				this.activeController = this.menuController;
 				break;
 
 			// case "game":
@@ -108,4 +105,4 @@ class App implements ScreenSwitcher {
 }
 
 // Initialize the application
-new App("container");
+new App('container');

@@ -1,4 +1,4 @@
-import type { Group } from "konva/lib/Group";
+import type { Group } from 'konva/lib/Group';
 
 export interface View {
 	getGroup(): Group;
@@ -14,10 +14,7 @@ export interface View {
  * - "result": Results screen with final score
  *   - score: Final score to display on results screen
  */
-export type Screen =
-	| { type: "menu" }
-	| { type: "game" }
-	| { type: "result"; score: number };
+export type Screen = { type: 'menu' } | { type: 'game' } | { type: 'result'; score: number };
 
 export abstract class ScreenController {
 	abstract getView(): View;
@@ -28,6 +25,13 @@ export abstract class ScreenController {
 
 	hide(): void {
 		this.getView().hide();
+	}
+
+	/**
+	 * Update loop called by the App. deltaTime is milliseconds since last frame.
+	 */
+	update(_deltaTime: number): void {
+		// default no-op; override in controllers that need per-frame updates
 	}
 }
 
