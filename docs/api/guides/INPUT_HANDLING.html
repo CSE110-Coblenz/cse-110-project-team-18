@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Handling Guide - Math Explorers: Galactic Quest</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/highlight.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.7;
+            color: #333;
+            background: #fff;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1a1a1a;
+                color: #e0e0e0;
+            }
+        }
+        /* Smooth scrolling for anchor links */
+        h1, h2, h3, h4, h5, h6 {
+            scroll-margin-top: 20px;
+        }
+        /* Style anchor links */
+        a[href^="#"] {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a[href^="#"]:hover {
+            text-decoration: underline;
+        }
+        @media (prefers-color-scheme: dark) {
+            a[href^="#"] {
+                color: #60a5fa;
+            }
+        }
+        .guide-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .guide-header h1 {
+            margin: 0 0 10px 0;
+            color: #2563eb;
+        }
+        .guide-content {
+            font-size: 16px;
+        }
+        .guide-content h1 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2563eb;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+        .guide-content h2 {
+            font-size: 1.5em;
+            margin-top: 1.3em;
+            margin-bottom: 0.5em;
+            color: #2563eb;
+        }
+        .guide-content h3 {
+            font-size: 1.2em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #4a5568;
+        }
+        .guide-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        @media (prefers-color-scheme: dark) {
+            .guide-content code {
+                background: #2d2d2d;
+                color: #f8f8f2;
+            }
+        }
+        .guide-content pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #2563eb;
+        }
+        @media (prefers-color-scheme: dark) {
+            .guide-content pre {
+                background: #2d2d2d;
+            }
+        }
+        .guide-content pre code {
+            background: none;
+            padding: 0;
+        }
+        .guide-content ul, .guide-content ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        .guide-content li {
+            margin: 0.5em 0;
+        }
+        .guide-content blockquote {
+            border-left: 4px solid #2563eb;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #666;
+            font-style: italic;
+        }
+        .guide-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+        .guide-content table th,
+        .guide-content table td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .guide-content table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            background: #1d4ed8;
+        }
+        .guide-nav {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .guide-nav a {
+            color: #2563eb;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .guide-nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-header">
+        <a href="../guides.html" class="back-link">← Back to Guides</a>
+        <h1>Input Handling Guide</h1>
+    </div>
+    
+    <div class="guide-content">
+        <p>This guide explains how to handle user input in Math Explorers: Galactic Quest, including keyboard input and mouse/click events.</p>
+<h2 id="overview">Overview</h2>
+<p>The project uses two main approaches for input:</p>
+<ol>
+<li><strong>InputManager</strong>: Centralized keyboard input handling (singleton pattern)</li>
+<li><strong>Konva Events</strong>: Direct event handling for mouse clicks and interactions on Konva nodes</li>
+</ol>
+<h2 id="keyboard-input">Keyboard Input</h2>
+<h3 id="inputmanager">InputManager</h3>
+<p>The <code>InputManager</code> is a singleton that tracks keyboard state across the entire application.</p>
+<h4 id="initialization">Initialization</h4>
+<p>The <code>InputManager</code> is initialized once in <code>src/main.ts</code>:</p>
+<pre><code class="language-typescript">InputManager.getInstance().initialize();
+</code></pre>
+<h4 id="checking-key-states">Checking Key States</h4>
+<p>Use <code>InputManager</code> to check if keys are currently pressed:</p>
+<pre><code class="language-typescript">import { InputManager } from &#39;../core/input/InputManager&#39;;
+
+const inputManager = InputManager.getInstance();
+
+// In your update loop
+if (inputManager.isKeyPressed(&#39;w&#39;)) {
+    // Move up
+}
+
+if (inputManager.isKeyPressed(&#39;a&#39;)) {
+    // Move left
+}
+
+// Check multiple keys
+if (inputManager.isAnyKeyPressed([&#39;w&#39;, &#39;arrowup&#39;])) {
+    // Move up (either W or Up Arrow)
+}
+</code></pre>
+<h4 id="example-player-movement">Example: Player Movement</h4>
+<p>The player movement system uses <code>InputManager</code> in <code>PlayerMovement.ts</code>:</p>
+<pre><code class="language-typescript">const inputManager = InputManager.getInstance();
+
+// Check movement keys
+const moveUp = inputManager.isAnyKeyPressed(PlayerConfig.CONTROLS.MOVE_UP);
+const moveDown = inputManager.isAnyKeyPressed(PlayerConfig.CONTROLS.MOVE_DOWN);
+const moveLeft = inputManager.isAnyKeyPressed(PlayerConfig.CONTROLS.MOVE_LEFT);
+const moveRight = inputManager.isAnyKeyPressed(PlayerConfig.CONTROLS.MOVE_RIGHT);
+const jump = inputManager.isAnyKeyPressed(PlayerConfig.CONTROLS.JUMP);
+const run = inputManager.isAnyKeyPressed(PlayerConfig.CONTROLS.RUN);
+</code></pre>
+<h4 id="available-methods">Available Methods</h4>
+<ul>
+<li><code>isKeyPressed(key: string)</code>: Check if a specific key is pressed</li>
+<li><code>isAnyKeyPressed(keys: readonly string[])</code>: Check if any of the given keys are pressed</li>
+<li><code>getPressedKeys()</code>: Get all currently pressed keys (read-only Set)</li>
+<li><code>clear()</code>: Clear all key states (useful for pause/reset)</li>
+</ul>
+<h4 id="key-names">Key Names</h4>
+<p>Keys are stored in lowercase for consistency. Common keys:</p>
+<ul>
+<li>Letters: <code>&#39;a&#39;</code>, <code>&#39;b&#39;</code>, <code>&#39;w&#39;</code>, <code>&#39;d&#39;</code>, etc.</li>
+<li>Arrows: <code>&#39;arrowup&#39;</code>, <code>&#39;arrowdown&#39;</code>, <code>&#39;arrowleft&#39;</code>, <code>&#39;arrowright&#39;</code></li>
+<li>Space: <code>&#39; &#39;</code></li>
+<li>Modifiers: <code>&#39;shift&#39;</code>, <code>&#39;ctrl&#39;</code>, <code>&#39;alt&#39;</code></li>
+</ul>
+<h3 id="using-inputmanager-in-controllers">Using InputManager in Controllers</h3>
+<p>Example from a game screen controller:</p>
+<pre><code class="language-typescript">export class GameScreenController extends ScreenController {
+    override update(deltaTime: number): void {
+        const inputManager = InputManager.getInstance();
+        
+        // Check for pause
+        if (inputManager.isKeyPressed(&#39;escape&#39;)) {
+            this.pauseGame();
+        }
+        
+        // Check for menu
+        if (inputManager.isKeyPressed(&#39;m&#39;)) {
+            this.screenSwitcher.switchToScreen({ type: &#39;menu&#39; });
+        }
+        
+        // Update game logic
+        // ...
+    }
+}
+</code></pre>
+<h2 id="mouse-and-click-events">Mouse and Click Events</h2>
+<h3 id="konva-event-system">Konva Event System</h3>
+<p>For mouse clicks, hover, and other interactions on Konva nodes, use Konva&#39;s built-in event system directly.</p>
+<h4 id="basic-click-event">Basic Click Event</h4>
+<pre><code class="language-typescript">const button = new Konva.Rect({
+    x: 100,
+    y: 100,
+    width: 200,
+    height: 50,
+    fill: &#39;blue&#39;,
+});
+
+button.on(&#39;click&#39;, () =&gt; {
+    console.log(&#39;Button clicked!&#39;);
+    // Handle click
+});
+
+group.add(button);
+</code></pre>
+<h4 id="example-menu-start-button">Example: Menu Start Button</h4>
+<p>From <code>MenuScreenView.ts</code>:</p>
+<pre><code class="language-typescript">const startButtonGroup = new Konva.Group();
+const startButton = new Konva.Rect({
+    x: STAGE_WIDTH / 2 - 100,
+    y: 300,
+    width: 200,
+    height: 60,
+    fill: &#39;green&#39;,
+});
+
+startButtonGroup.add(startButton);
+startButtonGroup.on(&#39;click&#39;, onStartClick); // Handler passed from controller
+this.group.add(startButtonGroup);
+</code></pre>
+<h4 id="available-mouse-events">Available Mouse Events</h4>
+<p>Konva supports many mouse events:</p>
+<ul>
+<li><code>&#39;click&#39;</code>: Single click</li>
+<li><code>&#39;dblclick&#39;</code>: Double click</li>
+<li><code>&#39;mousedown&#39;</code>: Mouse button pressed</li>
+<li><code>&#39;mouseup&#39;</code>: Mouse button released</li>
+<li><code>&#39;mouseover&#39;</code>: Mouse enters node</li>
+<li><code>&#39;mouseout&#39;</code>: Mouse leaves node</li>
+<li><code>&#39;mousemove&#39;</code>: Mouse moves over node</li>
+<li><code>&#39;contextmenu&#39;</code>: Right-click</li>
+</ul>
+<h4 id="getting-mouse-position">Getting Mouse Position</h4>
+<pre><code class="language-typescript">button.on(&#39;click&#39;, (e) =&gt; {
+    const stage = e.target.getStage();
+    const pointerPos = stage.getPointerPosition();
+    console.log(&#39;Clicked at:&#39;, pointerPos.x, pointerPos.y);
+});
+</code></pre>
+<h4 id="event-object">Event Object</h4>
+<p>The event handler receives a Konva event object:</p>
+<pre><code class="language-typescript">button.on(&#39;click&#39;, (e) =&gt; {
+    const target = e.target; // The Konva node that was clicked
+    const evt = e.evt; // Original browser event
+    const stage = e.target.getStage(); // The Konva stage
+});
+</code></pre>
+<h2 id="step-by-step-adding-click-events">Step-by-Step: Adding Click Events</h2>
+<h3 id="step-1-create-the-konva-node">Step 1: Create the Konva Node</h3>
+<pre><code class="language-typescript">const clickableRect = new Konva.Rect({
+    x: 50,
+    y: 50,
+    width: 100,
+    height: 50,
+    fill: &#39;red&#39;,
+});
+</code></pre>
+<h3 id="step-2-add-event-listener">Step 2: Add Event Listener</h3>
+<pre><code class="language-typescript">clickableRect.on(&#39;click&#39;, () =&gt; {
+    // Your click handler
+    this.handleClick();
+});
+</code></pre>
+<h3 id="step-3-add-to-group">Step 3: Add to Group</h3>
+<pre><code class="language-typescript">this.group.add(clickableRect);
+</code></pre>
+<h3 id="step-4-make-it-interactive-optional">Step 4: Make it Interactive (Optional)</h3>
+<p>For better UX, add hover effects:</p>
+<pre><code class="language-typescript">clickableRect.on(&#39;mouseover&#39;, () =&gt; {
+    clickableRect.fill(&#39;darkred&#39;);
+});
+
+clickableRect.on(&#39;mouseout&#39;, () =&gt; {
+    clickableRect.fill(&#39;red&#39;);
+});
+</code></pre>
+<h2 id="advanced-interactive-objects">Advanced: Interactive Objects</h2>
+<h3 id="creating-clickable-game-objects">Creating Clickable Game Objects</h3>
+<pre><code class="language-typescript">export class ClickableObject {
+    private shape: Konva.Rect;
+    
+    constructor(x: number, y: number, onClick: () =&gt; void) {
+        this.shape = new Konva.Rect({
+            x,
+            y,
+            width: 50,
+            height: 50,
+            fill: &#39;blue&#39;,
+        });
+        
+        this.shape.on(&#39;click&#39;, onClick);
+        this.shape.on(&#39;mouseover&#39;, () =&gt; {
+            this.shape.fill(&#39;lightblue&#39;);
+        });
+        this.shape.on(&#39;mouseout&#39;, () =&gt; {
+            this.shape.fill(&#39;blue&#39;);
+        });
+    }
+    
+    addToGroup(group: Konva.Group) {
+        group.add(this.shape);
+    }
+}
+</code></pre>
+<h3 id="removing-event-listeners">Removing Event Listeners</h3>
+<pre><code class="language-typescript">// Remove specific listener
+button.off(&#39;click&#39;, handler);
+
+// Remove all listeners of a type
+button.off(&#39;click&#39;);
+
+// Remove all listeners
+button.off();
+</code></pre>
+<h2 id="best-practices">Best Practices</h2>
+<ol>
+<li><strong>Use InputManager for keyboard</strong>: Centralized keyboard input</li>
+<li><strong>Use Konva events for mouse</strong>: Direct event handling on Konva nodes</li>
+<li><strong>Check input in update loop</strong>: For continuous keyboard input</li>
+<li><strong>Use event handlers for clicks</strong>: For one-time interactions</li>
+<li><strong>Remove listeners on cleanup</strong>: Prevent memory leaks</li>
+<li><strong>Use PlayerConfig for controls</strong>: Centralize control mappings</li>
+</ol>
+<h2 id="configuration">Configuration</h2>
+<p>Player controls are defined in <code>src/configs/PlayerConfig.ts</code>:</p>
+<pre><code class="language-typescript">export const PlayerConfig = {
+    CONTROLS: {
+        MOVE_UP: [&#39;w&#39;, &#39;arrowup&#39;],
+        MOVE_DOWN: [&#39;s&#39;, &#39;arrowdown&#39;],
+        MOVE_LEFT: [&#39;a&#39;, &#39;arrowleft&#39;],
+        MOVE_RIGHT: [&#39;d&#39;, &#39;arrowright&#39;],
+        JUMP: [&#39; &#39;],
+        RUN: [&#39;shift&#39;, &#39;Shift&#39;, &#39;ShiftLeft&#39;, &#39;ShiftRight&#39;],
+    },
+};
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="keys-not-registering">Keys not registering</h3>
+<ul>
+<li>✅ Ensure <code>InputManager.getInstance().initialize()</code> is called</li>
+<li>✅ Check key names are lowercase</li>
+<li>✅ Verify you&#39;re checking keys in the update loop</li>
+</ul>
+<h3 id="click-events-not-firing">Click events not firing</h3>
+<ul>
+<li>✅ Ensure node is added to a group that&#39;s in the layer</li>
+<li>✅ Check that group is visible</li>
+<li>✅ Verify node is not behind another node (z-index)</li>
+<li>✅ Ensure stage is listening to events</li>
+</ul>
+<h3 id="multiple-clicks-firing">Multiple clicks firing</h3>
+<ul>
+<li>✅ Check for duplicate event listeners</li>
+<li>✅ Verify event propagation (use <code>e.cancelBubble = true</code> if needed)</li>
+</ul>
+
+    </div>
+    
+    <div class="guide-nav">
+        <a href="../guides.html">← Back to Guides</a>
+        <a href="../index.html">← API Documentation</a>
+    </div>
+</body>
+</html>

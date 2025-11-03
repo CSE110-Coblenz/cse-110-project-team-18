@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Loading Guide - Math Explorers: Galactic Quest</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/highlight.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.7;
+            color: #333;
+            background: #fff;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1a1a1a;
+                color: #e0e0e0;
+            }
+        }
+        /* Smooth scrolling for anchor links */
+        h1, h2, h3, h4, h5, h6 {
+            scroll-margin-top: 20px;
+        }
+        /* Style anchor links */
+        a[href^="#"] {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a[href^="#"]:hover {
+            text-decoration: underline;
+        }
+        @media (prefers-color-scheme: dark) {
+            a[href^="#"] {
+                color: #60a5fa;
+            }
+        }
+        .guide-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .guide-header h1 {
+            margin: 0 0 10px 0;
+            color: #2563eb;
+        }
+        .guide-content {
+            font-size: 16px;
+        }
+        .guide-content h1 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2563eb;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+        .guide-content h2 {
+            font-size: 1.5em;
+            margin-top: 1.3em;
+            margin-bottom: 0.5em;
+            color: #2563eb;
+        }
+        .guide-content h3 {
+            font-size: 1.2em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #4a5568;
+        }
+        .guide-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        @media (prefers-color-scheme: dark) {
+            .guide-content code {
+                background: #2d2d2d;
+                color: #f8f8f2;
+            }
+        }
+        .guide-content pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #2563eb;
+        }
+        @media (prefers-color-scheme: dark) {
+            .guide-content pre {
+                background: #2d2d2d;
+            }
+        }
+        .guide-content pre code {
+            background: none;
+            padding: 0;
+        }
+        .guide-content ul, .guide-content ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        .guide-content li {
+            margin: 0.5em 0;
+        }
+        .guide-content blockquote {
+            border-left: 4px solid #2563eb;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #666;
+            font-style: italic;
+        }
+        .guide-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+        .guide-content table th,
+        .guide-content table td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .guide-content table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            background: #1d4ed8;
+        }
+        .guide-nav {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .guide-nav a {
+            color: #2563eb;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .guide-nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-header">
+        <a href="../guides.html" class="back-link">← Back to Guides</a>
+        <h1>Character Loading Guide</h1>
+    </div>
+    
+    <div class="guide-content">
+        <p>This guide explains how to load characters, sprites, and animations in Math Explorers: Galactic Quest.</p>
+<h2 id="overview">Overview</h2>
+<p>Characters are loaded using the <code>PlayerManager</code> class, which handles:</p>
+<ul>
+<li>Loading sprite images</li>
+<li>Creating Konva sprites with animations</li>
+<li>Managing player movement and animations</li>
+<li>Handling collision detection</li>
+</ul>
+<h2 id="architecture">Architecture</h2>
+<h3 id="components">Components</h3>
+<ol>
+<li><strong>SpriteConfig</strong>: Configuration object defining sprite properties and animations</li>
+<li><strong>PlayerManager</strong>: Manages sprite loading, animation, and player state</li>
+<li><strong>AssetLoader</strong>: Utility for loading images asynchronously</li>
+<li><strong>Player</strong>: GameObject representing the player character</li>
+</ol>
+<h2 id="step-by-step-loading-a-character">Step-by-Step: Loading a Character</h2>
+<h3 id="step-1-prepare-your-sprite-sheet">Step 1: Prepare Your Sprite Sheet</h3>
+<p>Place your sprite sheet image in <code>public/assets/sprites/</code> (e.g., <code>my_character.png</code>).</p>
+<p>Requirements:</p>
+<ul>
+<li>Sprite sheet should be horizontal (frames left to right)</li>
+<li>All frames should be the same height</li>
+<li>Frame widths can vary</li>
+</ul>
+<h3 id="step-2-create-sprite-configuration">Step 2: Create Sprite Configuration</h3>
+<p>Create a new file in <code>src/core/sprites/</code> (e.g., <code>MyCharacterSprite.ts</code>):</p>
+<pre><code class="language-typescript">import { SpriteConfig } from &#39;../movement/SpriteHelper&#39;;
+
+const frameHeight = 100; // Height of each frame in pixels
+const frameWidth = 100;  // Width of each frame (or average if varying)
+
+// Define frame X coordinates (start of each frame in sprite sheet)
+const frameXCoordinates = [0, 100, 200, 300, 400, 500];
+
+// Calculate frame widths
+function calculateFrameWidths(): number[] {
+    const widths: number[] = [];
+    for (let i = 0; i &lt; frameXCoordinates.length - 1; i++) {
+        widths.push(frameXCoordinates[i + 1] - frameXCoordinates[i]);
+    }
+    // For last frame, use average or specific width
+    widths.push(100); // Last frame width
+    return widths;
+}
+
+const frameWidths = calculateFrameWidths();
+const averageFrameWidth = Math.round(
+    frameWidths.reduce((sum, w) =&gt; sum + w, 0) / frameWidths.length
+);
+
+// Helper to create animation frames
+function createFrames(startFrameIndex: number, count: number): number[] {
+    const frames: number[] = [];
+    for (let i = 0; i &lt; count &amp;&amp; startFrameIndex + i &lt; frameXCoordinates.length; i++) {
+        const frameIndex = startFrameIndex + i;
+        const x = frameXCoordinates[frameIndex];
+        const width = frameWidths[frameIndex];
+        frames.push(x, 0, width, frameHeight); // [x, y, width, height]
+    }
+    return frames;
+}
+
+export const myCharacterSprite: SpriteConfig = {
+    imageUrl: &#39;/assets/sprites/my_character.png&#39;,
+    animations: {
+        idle: createFrames(0, 4),   // Frames 0-3
+        walk: createFrames(4, 6),   // Frames 4-9
+        run: createFrames(10, 6),   // Frames 10-15
+        jump: createFrames(16, 4),  // Frames 16-19
+    },
+    defaultAnimation: &#39;idle&#39;,
+    frameRate: 8, // Default frame rate
+    animationFrameRates: {
+        idle: 4,   // Slower for idle
+        walk: 8,
+        run: 10,   // Faster for run
+        jump: 8,
+    },
+    scale: 0.5, // Scale factor (0.5 = 50% size)
+    frameWidth: averageFrameWidth,
+    frameHeight: frameHeight,
+};
+</code></pre>
+<h3 id="step-3-use-playermanager-in-your-controller">Step 3: Use PlayerManager in Your Controller</h3>
+<p>In your screen controller (e.g., <code>GameScreenController.ts</code>):</p>
+<pre><code class="language-typescript">import { PlayerManager } from &#39;../../core/movement/PlayerManager&#39;;
+import { CollisionManager } from &#39;../../core/collision/CollisionManager&#39;;
+import { myCharacterSprite } from &#39;../../core/sprites/MyCharacterSprite&#39;;
+import { PlayerConfig } from &#39;../../configs/PlayerConfig&#39;;
+
+export class GameScreenController extends ScreenController {
+    private playerManager?: PlayerManager | null;
+    private collisionManager?: CollisionManager | null;
+    
+    constructor(screenSwitcher: ScreenSwitcher) {
+        super();
+        // ... other initialization
+        
+        // Create collision manager
+        this.collisionManager = new CollisionManager();
+        
+        // Create player manager
+        this.playerManager = new PlayerManager({
+            group: this.view.getGroup(), // Add to screen&#39;s Konva group
+            spriteConfig: myCharacterSprite,
+            x: 100, // Starting X position
+            y: 300, // Starting Y position
+            walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
+            runSpeed: PlayerConfig.MOVEMENT.WALK_SPEED * PlayerConfig.MOVEMENT.RUN_SPEED_MULTIPLIER,
+            collisionManager: this.collisionManager,
+        });
+    }
+    
+    override update(deltaTime: number): void {
+        // Update player manager (handles movement and animations)
+        if (this.view.getGroup().visible()) {
+            this.playerManager?.update(deltaTime);
+            this.collisionManager?.update();
+            this.view.getGroup().getLayer()?.draw();
+        }
+    }
+}
+</code></pre>
+<h3 id="step-4-example-from-menuscreen">Step 4: Example from MenuScreen</h3>
+<p>Here&#39;s how it&#39;s done in <code>MenuScreenController.ts</code>:</p>
+<pre><code class="language-typescript">import { greenAlienSprite } from &#39;../../core/sprites/AlienSprite&#39;;
+
+constructor(screenSwitcher: ScreenSwitcher) {
+    // Create model
+    this.model = new MenuScreenModel(STAGE_WIDTH / 4, 250);
+    
+    // Create collision manager
+    this.collisionManager = new CollisionManager();
+    
+    // Create player manager
+    this.playerManager = new PlayerManager({
+        group: this.view.getGroup(),
+        spriteConfig: greenAlienSprite,
+        x: this.model.player.x,
+        y: this.model.player.y,
+        walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
+        model: this.model.player, // Optional: sync with external model
+        collisionManager: this.collisionManager,
+    });
+}
+</code></pre>
+<h2 id="spriteconfig-interface">SpriteConfig Interface</h2>
+<p>The <code>SpriteConfig</code> interface defines all sprite properties:</p>
+<pre><code class="language-typescript">interface SpriteConfig {
+    imageUrl: string;                    // Path to sprite sheet
+    animations: Record&lt;string, number[]&gt;; // Animation name -&gt; frame data
+    defaultAnimation: string;            // Animation to play on load
+    frameRate?: number;                  // Default frames per second
+    animationFrameRates?: Record&lt;string, number&gt;; // Per-animation frame rates
+    scale?: number;                      // Scale factor (0-1)
+    frameWidth: number;                  // Width of frames
+    frameHeight: number;                 // Height of frames
+}
+</code></pre>
+<h3 id="frame-data-format">Frame Data Format</h3>
+<p>Animation frames are arrays of numbers: <code>[x, y, width, height, x2, y2, width2, height2, ...]</code></p>
+<p>Each frame is defined by 4 numbers:</p>
+<ul>
+<li><code>x</code>: X position in sprite sheet</li>
+<li><code>y</code>: Y position in sprite sheet (usually 0)</li>
+<li><code>width</code>: Frame width</li>
+<li><code>height</code>: Frame height</li>
+</ul>
+<h2 id="playermanager-options">PlayerManager Options</h2>
+<pre><code class="language-typescript">interface PlayerManagerOptions {
+    group: Konva.Group;              // Konva group to add sprite to
+    spriteConfig: SpriteConfig;       // Sprite configuration
+    x: number;                       // Starting X position
+    y: number;                       // Starting Y position
+    scale?: number;                  // Additional scale (optional)
+    walkSpeed: number;               // Movement speed (pixels/second)
+    runSpeed?: number;               // Running speed (optional)
+    model?: { x: number; y: number }; // External model to sync with (optional)
+    collisionManager?: CollisionManager; // Collision manager (optional)
+}
+</code></pre>
+<h2 id="animation-system">Animation System</h2>
+<h3 id="automatic-animations">Automatic Animations</h3>
+<p><code>PlayerManager</code> automatically switches animations based on player state:</p>
+<ul>
+<li><strong>idle</strong>: When not moving</li>
+<li><strong>walk</strong>: When moving at walk speed</li>
+<li><strong>run</strong>: When moving with shift held</li>
+<li><strong>jump</strong>: When jumping</li>
+<li><strong>turn</strong>: When changing direction</li>
+</ul>
+<h3 id="manual-animation-control">Manual Animation Control</h3>
+<p>You can access the sprite node for manual control:</p>
+<pre><code class="language-typescript">const spriteNode = this.playerManager?.getNode() as Konva.Sprite;
+if (spriteNode) {
+    spriteNode.animation(&#39;customAnimation&#39;);
+    spriteNode.start();
+}
+</code></pre>
+<h2 id="character-positioning">Character Positioning</h2>
+<h3 id="initial-position">Initial Position</h3>
+<p>Set in <code>PlayerManager</code> constructor:</p>
+<pre><code class="language-typescript">this.playerManager = new PlayerManager({
+    // ...
+    x: 100, // Starting X
+    y: 300, // Starting Y
+});
+</code></pre>
+<h3 id="using-a-model">Using a Model</h3>
+<p>For persistent state, use a model:</p>
+<pre><code class="language-typescript">// In your model
+export class GameScreenModel {
+    player: PlayerModel = { x: 100, y: 300 };
+}
+
+// In controller
+this.model = new GameScreenModel();
+this.playerManager = new PlayerManager({
+    // ...
+    model: this.model.player, // Syncs with model
+});
+</code></pre>
+<h2 id="collision-detection">Collision Detection</h2>
+<p>Characters automatically register with <code>CollisionManager</code> if provided:</p>
+<pre><code class="language-typescript">this.collisionManager = new CollisionManager();
+this.playerManager = new PlayerManager({
+    // ...
+    collisionManager: this.collisionManager,
+});
+
+// In update loop
+this.collisionManager?.update();
+</code></pre>
+<h2 id="best-practices">Best Practices</h2>
+<ol>
+<li><strong>Consistent frame heights</strong>: All frames should have the same height</li>
+<li><strong>Use helper functions</strong>: <code>createFrames()</code> simplifies frame definition</li>
+<li><strong>Calculate frame widths</strong>: If frames vary in width, calculate them</li>
+<li><strong>Set appropriate frame rates</strong>: Idle should be slower, run faster</li>
+<li><strong>Use models for state</strong>: Sync position with external models</li>
+<li><strong>Clean up on dispose</strong>: Call <code>playerManager.dispose()</code> when removing</li>
+</ol>
+<h2 id="example-complete-character-setup">Example: Complete Character Setup</h2>
+<pre><code class="language-typescript">// 1. Sprite config (MyCharacterSprite.ts)
+export const heroSprite: SpriteConfig = {
+    imageUrl: &#39;/assets/sprites/hero.png&#39;,
+    animations: {
+        idle: createFrames(0, 4),
+        walk: createFrames(4, 6),
+    },
+    defaultAnimation: &#39;idle&#39;,
+    frameRate: 8,
+    scale: 0.5,
+    frameWidth: 100,
+    frameHeight: 100,
+};
+
+// 2. Controller setup
+this.collisionManager = new CollisionManager();
+this.playerManager = new PlayerManager({
+    group: this.view.getGroup(),
+    spriteConfig: heroSprite,
+    x: 200,
+    y: 400,
+    walkSpeed: 150,
+    collisionManager: this.collisionManager,
+});
+
+// 3. Update loop
+override update(deltaTime: number): void {
+    if (this.view.getGroup().visible()) {
+        this.playerManager?.update(deltaTime);
+        this.collisionManager?.update();
+        this.view.getGroup().getLayer()?.draw();
+    }
+}
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="character-not-appearing">Character not appearing</h3>
+<ul>
+<li>✅ Check sprite image path (relative to <code>public/</code>)</li>
+<li>✅ Verify sprite sheet is loaded (check browser console)</li>
+<li>✅ Ensure group is visible and added to layer</li>
+<li>✅ Check frame dimensions match sprite sheet</li>
+</ul>
+<h3 id="animations-not-playing">Animations not playing</h3>
+<ul>
+<li>✅ Verify animation names match sprite config</li>
+<li>✅ Check frame data is correct (x, y, width, height)</li>
+<li>✅ Ensure sprite is started: <code>sprite.start()</code></li>
+</ul>
+<h3 id="character-position-wrong">Character position wrong</h3>
+<ul>
+<li>✅ Check X/Y coordinates are correct</li>
+<li>✅ Verify sprite offset is set correctly</li>
+<li>✅ Check scale is applied properly</li>
+</ul>
+<h3 id="performance-issues">Performance issues</h3>
+<ul>
+<li>✅ Optimize frame rates (lower = better performance)</li>
+<li>✅ Reduce number of frames per animation</li>
+<li>✅ Use appropriate sprite sheet sizes</li>
+</ul>
+
+    </div>
+    
+    <div class="guide-nav">
+        <a href="../guides.html">← Back to Guides</a>
+        <a href="../index.html">← API Documentation</a>
+    </div>
+</body>
+</html>

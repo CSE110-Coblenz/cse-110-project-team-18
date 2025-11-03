@@ -1,13 +1,44 @@
 # MATH EXPLORERS: GALACTIC QUEST
+
 An educational math game created for CSE 110.
 
-## format all files with Prettier
-- npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-import prettier eslint-plugin-prettier eslint-config-prettier
-- npm run format
+## Setup & Start
 
-## run eslint and auto-fix fixable problems (forward --fix to the npm script)
-- npm run lint --fix
+```bash
+npm install
+npm run dev
+```
 
-## setup/start program
-- npm install
-- npm run dev
+The application will be available at `http://localhost:5173` (or the port Vite assigns).
+
+## Code Quality
+
+### Format Files
+
+```bash
+npm run format
+```
+
+### Lint & Fix
+
+```bash
+npm run lint --fix
+```
+
+## Documentation
+
+### Generate Documentation
+
+```bash
+npm run docs
+```
+
+Generates API documentation and developer guides in `docs/api/`. View the guides as HTML by running `npm run docs:serve` and navigating to the guides page.
+
+### Serve Documentation
+
+```bash
+npm run docs:serve
+```
+
+Serves documentation on `http://localhost:3000`. Includes API documentation and interactive developer guides.
