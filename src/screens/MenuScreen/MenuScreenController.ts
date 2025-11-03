@@ -7,6 +7,7 @@ import { PlayerManager } from '../../core/movement/PlayerManager';
 import { CollisionManager } from '../../core/collision/CollisionManager';
 import { greenAlienSprite } from '../../core/sprites/AlienSprite';
 import { PlayerConfig } from '../../configs/PlayerConfig';
+import { ThemePanel } from '../../ui/ThemePanel';
 
 /**
  * MenuScreenController - Handles menu interactions
@@ -17,6 +18,7 @@ export class MenuScreenController extends ScreenController {
 	private playerManager?: PlayerManager | null;
 	private collisionManager?: CollisionManager | null;
 	private model: MenuScreenModel;
+	private themePanel: ThemePanel;
 
 	/**
 	 * Constructor for the MenuScreenController
@@ -39,6 +41,10 @@ export class MenuScreenController extends ScreenController {
 			model: this.model.player,
 			collisionManager: this.collisionManager,
 		});
+
+		// Add theme panel
+		this.themePanel = new ThemePanel();
+		this.view.getGroup().add(this.themePanel.getGroup());
 	}
 
 	/**
@@ -56,9 +62,17 @@ export class MenuScreenController extends ScreenController {
 		return this.view;
 	}
 
+<<<<<<< HEAD
+	destroy(): void {
+		super.destroy();
+		this.themePanel.destroy();
+	}
+
+=======
 	/**
 	 * Show the menu screen controller
 	 */
+>>>>>>> origin/main
 	override show(): void {
 		super.show();
 		// nothing else here; per-frame updates run from App's central loop

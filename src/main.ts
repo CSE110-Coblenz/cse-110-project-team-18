@@ -1,4 +1,4 @@
-import Konva from 'konva';
+import Konva from "konva";
 import { MenuScreenController } from './screens/MenuScreen/MenuScreenController.ts';
 import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';

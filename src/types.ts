@@ -19,6 +19,10 @@ export type Screen = { type: 'menu' } | { type: 'game' } | { type: 'result'; sco
 export abstract class ScreenController {
 	abstract getView(): View;
 
+	destroy(): void {
+		// Base implementation - override in child classes
+	}
+
 	show(): void {
 		this.getView().show();
 	}

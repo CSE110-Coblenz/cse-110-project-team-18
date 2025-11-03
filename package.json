@@ -13,16 +13,20 @@
 		"lint": "eslint src --ext ts,tsx"
 	},
 	"dependencies": {
-		"konva": "^10.0.2"
+		"konva": "^10.0.8"
 	},
 	"devDependencies": {
+		"@types/jest": "^30.0.0",
 		"@typescript-eslint/eslint-plugin": "^8.46.2",
 		"@typescript-eslint/parser": "^8.46.2",
 		"eslint": "^9.38.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-import": "^2.32.0",
 		"eslint-plugin-prettier": "^5.5.4",
+		"jest": "^30.2.0",
+		"jest-environment-jsdom": "^30.2.0",
 		"prettier": "^3.6.2",
+		"ts-jest": "^29.4.5",
 		"typescript": "~5.9.3",
 		"vite": "^7.1.7"
 	}
