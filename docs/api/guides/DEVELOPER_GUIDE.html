@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Guide - Math Explorers: Galactic Quest</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/highlight.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.7;
+            color: #333;
+            background: #fff;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1a1a1a;
+                color: #e0e0e0;
+            }
+        }
+        /* Smooth scrolling for anchor links */
+        h1, h2, h3, h4, h5, h6 {
+            scroll-margin-top: 20px;
+        }
+        /* Style anchor links */
+        a[href^="#"] {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a[href^="#"]:hover {
+            text-decoration: underline;
+        }
+        @media (prefers-color-scheme: dark) {
+            a[href^="#"] {
+                color: #60a5fa;
+            }
+        }
+        .guide-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .guide-header h1 {
+            margin: 0 0 10px 0;
+            color: #2563eb;
+        }
+        .guide-content {
+            font-size: 16px;
+        }
+        .guide-content h1 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2563eb;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+        .guide-content h2 {
+            font-size: 1.5em;
+            margin-top: 1.3em;
+            margin-bottom: 0.5em;
+            color: #2563eb;
+        }
+        .guide-content h3 {
+            font-size: 1.2em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #4a5568;
+        }
+        .guide-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        @media (prefers-color-scheme: dark) {
+            .guide-content code {
+                background: #2d2d2d;
+                color: #f8f8f2;
+            }
+        }
+        .guide-content pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #2563eb;
+        }
+        @media (prefers-color-scheme: dark) {
+            .guide-content pre {
+                background: #2d2d2d;
+            }
+        }
+        .guide-content pre code {
+            background: none;
+            padding: 0;
+        }
+        .guide-content ul, .guide-content ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        .guide-content li {
+            margin: 0.5em 0;
+        }
+        .guide-content blockquote {
+            border-left: 4px solid #2563eb;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #666;
+            font-style: italic;
+        }
+        .guide-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+        .guide-content table th,
+        .guide-content table td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .guide-content table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            background: #1d4ed8;
+        }
+        .guide-nav {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .guide-nav a {
+            color: #2563eb;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .guide-nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-header">
+        <a href="../guides.html" class="back-link">← Back to Guides</a>
+        <h1>Developer Guide</h1>
+    </div>
+    
+    <div class="guide-content">
+        <p>Welcome to the Math Explorers: Galactic Quest developer guide! This document provides an overview of the codebase architecture and guides you through common development tasks.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#architecture-overview">Architecture Overview</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#common-tasks">Common Tasks</a></li>
+<li><a href="#project-structure">Project Structure</a></li>
+<li><a href="#related-guides">Related Guides</a></li>
+</ul>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<p>This project follows a <strong>Model-View-Controller (MVC)</strong> architecture pattern with the following key components:</p>
+<ul>
+<li><strong>Models</strong>: Store game state and data (e.g., <code>MenuScreenModel</code>, <code>PlayerModel</code>)</li>
+<li><strong>Views</strong>: Handle rendering using Konva.js (e.g., <code>MenuScreenView</code>)</li>
+<li><strong>Controllers</strong>: Coordinate between models and views, handle user input (e.g., <code>MenuScreenController</code>)</li>
+<li><strong>Managers</strong>: Handle complex subsystems (e.g., <code>PlayerManager</code>, <code>InputManager</code>, <code>CollisionManager</code>)</li>
+</ul>
+<h3 id="key-technologies">Key Technologies</h3>
+<ul>
+<li><strong>Konva.js</strong>: 2D canvas library for rendering</li>
+<li><strong>TypeScript</strong>: Type-safe JavaScript</li>
+<li><strong>Vite</strong>: Build tool and dev server</li>
+</ul>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Node.js (v18 or higher recommended)</li>
+<li>npm</li>
+</ul>
+<h3 id="setup">Setup</h3>
+<pre><code class="language-bash">npm install
+npm run dev
+</code></pre>
+<p>The application will be available at <code>http://localhost:5173</code> (or the port Vite assigns).</p>
+<h3 id="building">Building</h3>
+<pre><code class="language-bash">npm run build
+</code></pre>
+<h3 id="code-quality">Code Quality</h3>
+<pre><code class="language-bash"># Format code
+npm run format
+
+# Lint code
+npm run lint
+
+# Fix linting issues
+npm run lint -- --fix
+</code></pre>
+<h3 id="documentation">Documentation</h3>
+<pre><code class="language-bash"># Generate API documentation and developer guides
+npm run docs
+
+# Serve documentation on localhost (http://localhost:3000)
+npm run docs:serve
+</code></pre>
+<p>The documentation includes:</p>
+<ul>
+<li><strong>API Documentation</strong>: Auto-generated TypeDoc documentation for all TypeScript classes, interfaces, and functions</li>
+<li><strong>Developer Guides</strong>: Step-by-step guides for common development tasks<ul>
+<li><a href="./DEVELOPER_GUIDE.md">Developer Guide</a> - This guide</li>
+<li><a href="./SCREEN_SWITCHING.md">Screen Switching Guide</a></li>
+<li><a href="./INPUT_HANDLING.md">Input Handling Guide</a></li>
+<li><a href="./CHARACTER_LOADING.md">Character Loading Guide</a></li>
+</ul>
+</li>
+</ul>
+<p>Access the documentation by:</p>
+<ol>
+<li>Running <code>npm run docs</code> to generate the documentation</li>
+<li>Running <code>npm run docs:serve</code> to start the local server</li>
+<li>Opening <code>http://localhost:3000</code> in your browser</li>
+</ol>
+<h2 id="common-tasks">Common Tasks</h2>
+<h3 id="adding-a-new-screen">Adding a New Screen</h3>
+<ol>
+<li>Create a new folder in <code>src/screens/</code> (e.g., <code>GameScreen/</code>)</li>
+<li>Create three files:<ul>
+<li><code>GameScreenModel.ts</code> - Define the model/state</li>
+<li><code>GameScreenView.ts</code> - Define the view/rendering</li>
+<li><code>GameScreenController.ts</code> - Define the controller</li>
+</ul>
+</li>
+<li>Register the screen in <code>src/main.ts</code>:<ul>
+<li>Add controller instance</li>
+<li>Add screen group to layer</li>
+<li>Add case in <code>switchToScreen()</code></li>
+</ul>
+</li>
+</ol>
+<p>See <a href="./SCREEN_SWITCHING.md">SCREEN_SWITCHING.md</a> for detailed instructions.</p>
+<h3 id="loading-a-character">Loading a Character</h3>
+<ol>
+<li>Create a sprite configuration file (e.g., <code>src/core/sprites/YourSprite.ts</code>)</li>
+<li>Define the <code>SpriteConfig</code> with animations and frame data</li>
+<li>Use <code>PlayerManager</code> in your controller to load the character</li>
+</ol>
+<p>See <a href="./CHARACTER_LOADING.md">CHARACTER_LOADING.md</a> for detailed instructions.</p>
+<h3 id="adding-click-events">Adding Click Events</h3>
+<p>Use Konva&#39;s event system directly on Konva nodes:</p>
+<pre><code class="language-typescript">const button = new Konva.Rect({ /* ... */ });
+button.on(&#39;click&#39;, () =&gt; {
+    // Handle click
+});
+</code></pre>
+<p>See <a href="./INPUT_HANDLING.md">INPUT_HANDLING.md</a> for detailed instructions.</p>
+<h3 id="switching-between-screens">Switching Between Screens</h3>
+<p>Use the <code>ScreenSwitcher</code> interface:</p>
+<pre><code class="language-typescript">this.screenSwitcher.switchToScreen({ type: &#39;game&#39; });
+</code></pre>
+<p>See <a href="./SCREEN_SWITCHING.md">SCREEN_SWITCHING.md</a> for detailed instructions.</p>
+<h2 id="project-structure">Project Structure</h2>
+<pre><code>src/
+├── configs/          # Configuration files (GameConfig, PlayerConfig)
+├── core/             # Core game systems
+│   ├── collision/    # Collision detection
+│   ├── input/        # Input handling (InputManager)
+│   ├── movement/     # Movement system (PlayerManager, PlayerMovement)
+│   ├── objects/      # Game objects (GameObject, Player, Collidable)
+│   ├── sprites/      # Sprite configurations
+│   └── utils/        # Utility functions (AssetLoader)
+├── screens/          # Screen implementations (MVC pattern)
+│   └── MenuScreen/   # Example screen
+├── main.ts           # Application entry point
+└── types.ts          # TypeScript type definitions
+</code></pre>
+<h2 id="related-guides">Related Guides</h2>
+<ul>
+<li><a href="./SCREEN_SWITCHING.md">Screen Switching Guide</a> - Detailed guide on screen management</li>
+<li><a href="./INPUT_HANDLING.md">Input Handling Guide</a> - Keyboard and mouse input</li>
+<li><a href="./CHARACTER_LOADING.md">Character Loading Guide</a> - Sprites and animations</li>
+<li><a href="./api/index.html">API Documentation</a> - Auto-generated API docs (run <code>npm run docs</code>)</li>
+</ul>
+<h2 id="best-practices">Best Practices</h2>
+<ol>
+<li><strong>Follow MVC Pattern</strong>: Keep models, views, and controllers separate</li>
+<li><strong>Use TypeScript Types</strong>: Leverage TypeScript for type safety</li>
+<li><strong>Centralize Input</strong>: Use <code>InputManager</code> for keyboard input</li>
+<li><strong>Use Konva Events</strong>: For click/hover events on Konva nodes</li>
+<li><strong>Async Asset Loading</strong>: Use <code>preloadImage()</code> from <code>AssetLoader</code> for images</li>
+<li><strong>Collision Management</strong>: Register collidable objects with <code>CollisionManager</code></li>
+<li><strong>Screen Lifecycle</strong>: Implement <code>show()</code>, <code>hide()</code>, and <code>update()</code> in controllers</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="screen-not-showing">Screen Not Showing</h3>
+<ul>
+<li>Check that the screen&#39;s group is added to the layer in <code>main.ts</code></li>
+<li>Verify <code>switchToScreen()</code> is called with the correct screen type</li>
+<li>Ensure the view&#39;s <code>show()</code> method sets <code>group.visible(true)</code></li>
+</ul>
+<h3 id="character-not-loading">Character Not Loading</h3>
+<ul>
+<li>Verify sprite image path is correct (relative to <code>public/</code>)</li>
+<li>Check browser console for loading errors</li>
+<li>Ensure <code>SpriteConfig</code> has correct frame dimensions</li>
+</ul>
+<h3 id="input-not-working">Input Not Working</h3>
+<ul>
+<li>Verify <code>InputManager.getInstance().initialize()</code> is called in <code>main.ts</code></li>
+<li>Check that you&#39;re checking for keys in the update loop</li>
+<li>For mouse clicks, use Konva&#39;s <code>.on(&#39;click&#39;)</code> directly on nodes</li>
+</ul>
+<h2 id="getting-help">Getting Help</h2>
+<ul>
+<li>Check the other documentation files in <code>docs/</code></li>
+<li>Review existing screen implementations as examples</li>
+<li>Check TypeScript types in <code>src/types.ts</code> for interface definitions</li>
+<li>Generate and view full documentation: <code>npm run docs &amp;&amp; npm run docs:serve</code></li>
+</ul>
+
+    </div>
+    
+    <div class="guide-nav">
+        <a href="../guides.html">← Back to Guides</a>
+        <a href="../index.html">← API Documentation</a>
+    </div>
+</body>
+</html>

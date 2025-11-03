@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Guides - Math Explorers: Galactic Quest</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #1a1d29;
+            color: #e2e8f0;
+        }
+        .guides-header {
+            border-bottom: 2px solid #374151;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .guides-header h1 {
+            margin: 0;
+            color: #f3f4f6;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        .guides-header p {
+            color: #9ca3af;
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+        }
+        .guides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+        .guide-card {
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 24px;
+            background: #252936;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .guide-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            transform: translateY(-2px);
+            border-color: #4b5563;
+            background: #2d3142;
+        }
+        .guide-card h2 {
+            margin: 0 0 12px 0;
+            color: #60a5fa;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        .guide-card p {
+            color: #d1d5db;
+            margin: 0 0 18px 0;
+            line-height: 1.6;
+        }
+        .guide-link {
+            display: inline-block;
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: color 0.2s;
+        }
+        .guide-link:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .back-link:hover {
+            background: #2563eb;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="guides-header">
+        <h1>Developer Guides</h1>
+        <p>Step-by-step guides for developing Math Explorers: Galactic Quest</p>
+    </div>
+    
+    <div class="guides-grid">
+        <div class="guide-card">
+            <h2>Developer Guide</h2>
+            <p>Overview of the codebase architecture, quick start guide, and common development tasks.</p>
+            <a href="guides/DEVELOPER_GUIDE.html" class="guide-link">Read Guide →</a>
+        </div>
+        
+        <div class="guide-card">
+            <h2>Screen Switching</h2>
+            <p>Learn how the screen management system works and how to add new screens to the game.</p>
+            <a href="guides/SCREEN_SWITCHING.html" class="guide-link">Read Guide →</a>
+        </div>
+        
+        <div class="guide-card">
+            <h2>Input Handling</h2>
+            <p>Guide to handling keyboard input with InputManager and mouse/click events with Konva.</p>
+            <a href="guides/INPUT_HANDLING.html" class="guide-link">Read Guide →</a>
+        </div>
+        
+        <div class="guide-card">
+            <h2>Character Loading</h2>
+            <p>Complete guide to loading sprites, creating animations, and managing characters.</p>
+            <a href="guides/CHARACTER_LOADING.html" class="guide-link">Read Guide →</a>
+        </div>
+    </div>
+    
+    <a href="index.html" class="back-link">← Back to API Documentation</a>
+</body>
+</html>

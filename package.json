@@ -10,7 +10,9 @@
 		"preview": "vite preview",
 		"test": "jest",
 		"format": "prettier --write .",
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src --ext ts,tsx",
+		"docs": "typedoc --entryPointStrategy expand --out docs/api src && node scripts/post-process-docs.js",
+		"docs:serve": "serve docs/api -l 3000"
 	},
 	"dependencies": {
 		"konva": "^10.0.2"
@@ -22,7 +24,10 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-import": "^2.32.0",
 		"eslint-plugin-prettier": "^5.5.4",
+		"marked": "^16.4.1",
 		"prettier": "^3.6.2",
+		"serve": "^14.2.5",
+		"typedoc": "^0.28.14",
 		"typescript": "~5.9.3",
 		"vite": "^7.1.7"
 	}

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Switching Guide - Math Explorers: Galactic Quest</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/highlight.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.7;
+            color: #333;
+            background: #fff;
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1a1a1a;
+                color: #e0e0e0;
+            }
+        }
+        /* Smooth scrolling for anchor links */
+        h1, h2, h3, h4, h5, h6 {
+            scroll-margin-top: 20px;
+        }
+        /* Style anchor links */
+        a[href^="#"] {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a[href^="#"]:hover {
+            text-decoration: underline;
+        }
+        @media (prefers-color-scheme: dark) {
+            a[href^="#"] {
+                color: #60a5fa;
+            }
+        }
+        .guide-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .guide-header h1 {
+            margin: 0 0 10px 0;
+            color: #2563eb;
+        }
+        .guide-content {
+            font-size: 16px;
+        }
+        .guide-content h1 {
+            font-size: 2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2563eb;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.3em;
+        }
+        .guide-content h2 {
+            font-size: 1.5em;
+            margin-top: 1.3em;
+            margin-bottom: 0.5em;
+            color: #2563eb;
+        }
+        .guide-content h3 {
+            font-size: 1.2em;
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            color: #4a5568;
+        }
+        .guide-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        @media (prefers-color-scheme: dark) {
+            .guide-content code {
+                background: #2d2d2d;
+                color: #f8f8f2;
+            }
+        }
+        .guide-content pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #2563eb;
+        }
+        @media (prefers-color-scheme: dark) {
+            .guide-content pre {
+                background: #2d2d2d;
+            }
+        }
+        .guide-content pre code {
+            background: none;
+            padding: 0;
+        }
+        .guide-content ul, .guide-content ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        .guide-content li {
+            margin: 0.5em 0;
+        }
+        .guide-content blockquote {
+            border-left: 4px solid #2563eb;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #666;
+            font-style: italic;
+        }
+        .guide-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+        .guide-content table th,
+        .guide-content table td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .guide-content table th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            background: #1d4ed8;
+        }
+        .guide-nav {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .guide-nav a {
+            color: #2563eb;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .guide-nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-header">
+        <a href="../guides.html" class="back-link">← Back to Guides</a>
+        <h1>Screen Switching Guide</h1>
+    </div>
+    
+    <div class="guide-content">
+        <p>This guide explains how screen switching works in Math Explorers: Galactic Quest and how to add new screens.</p>
+<h2 id="overview">Overview</h2>
+<p>The application uses a screen management system where:</p>
+<ul>
+<li>All screens exist simultaneously but only one is visible at a time</li>
+<li>Each screen is a Konva Group that can be shown/hidden</li>
+<li>Screen controllers manage the Model-View-Controller pattern for each screen</li>
+<li>The main <code>App</code> class coordinates screen switching</li>
+</ul>
+<h2 id="how-screen-switching-works">How Screen Switching Works</h2>
+<h3 id="architecture">Architecture</h3>
+<ol>
+<li><p><strong>ScreenSwitcher Interface</strong>: Defines the contract for switching screens</p>
+<pre><code class="language-typescript">interface ScreenSwitcher {
+    switchToScreen(screen: Screen): void;
+}
+</code></pre>
+</li>
+<li><p><strong>Screen Types</strong>: Defined in <code>src/types.ts</code></p>
+<pre><code class="language-typescript">type Screen = 
+    | { type: &#39;menu&#39; } 
+    | { type: &#39;game&#39; } 
+    | { type: &#39;result&#39;; score: number };
+</code></pre>
+</li>
+<li><p><strong>Screen Controllers</strong>: Each screen extends <code>ScreenController</code> and implements:</p>
+<ul>
+<li><code>getView()</code>: Returns the view</li>
+<li><code>show()</code>: Shows the screen</li>
+<li><code>hide()</code>: Hides the screen</li>
+<li><code>update(deltaTime)</code>: Updates the screen (called by game loop)</li>
+</ul>
+</li>
+<li><p><strong>App Class</strong>: Implements <code>ScreenSwitcher</code> and manages all controllers</p>
+</li>
+</ol>
+<h3 id="the-switch-process">The Switch Process</h3>
+<p>When <code>switchToScreen()</code> is called:</p>
+<ol>
+<li><strong>Hide all screens</strong>: All screen controllers&#39; <code>hide()</code> methods are called</li>
+<li><strong>Show target screen</strong>: The target screen&#39;s <code>show()</code> method is called</li>
+<li><strong>Set active controller</strong>: The active controller is updated for the game loop</li>
+</ol>
+<p>Example from <code>src/main.ts</code>:</p>
+<pre><code class="language-typescript">switchToScreen(screen: Screen): void {
+    // Hide all screens
+    this.menuController.hide();
+    // this.gameController.hide();
+    // this.resultsController.hide();
+
+    // Show the requested screen
+    switch (screen.type) {
+        case &#39;menu&#39;:
+            this.menuController.show();
+            this.activeController = this.menuController;
+            break;
+        // ... other cases
+    }
+}
+</code></pre>
+<h2 id="step-by-step-adding-a-new-screen">Step-by-Step: Adding a New Screen</h2>
+<h3 id="step-1-create-screen-files">Step 1: Create Screen Files</h3>
+<p>Create a new folder in <code>src/screens/</code> (e.g., <code>GameScreen/</code>) and create three files:</p>
+<h4 id="gamescreenmodelts">GameScreenModel.ts</h4>
+<pre><code class="language-typescript">/**
+ * GameScreenModel - The model for the game screen
+ */
+export class GameScreenModel {
+    // Add your game state here
+    score: number = 0;
+    
+    constructor() {
+        // Initialize model
+    }
+}
+</code></pre>
+<h4 id="gamescreenviewts">GameScreenView.ts</h4>
+<pre><code class="language-typescript">import Konva from &#39;konva&#39;;
+import type { View } from &#39;../../types.ts&#39;;
+
+/**
+ * GameScreenView - Renders the game screen
+ */
+export class GameScreenView implements View {
+    private group: Konva.Group;
+
+    constructor() {
+        this.group = new Konva.Group({
+            visible: false, // Start hidden
+            id: &#39;gameScreen&#39;,
+        });
+
+        // Add your UI elements here
+        const title = new Konva.Text({
+            x: 100,
+            y: 50,
+            text: &#39;Game Screen&#39;,
+            fontSize: 32,
+            fill: &#39;white&#39;,
+        });
+        this.group.add(title);
+    }
+
+    show(): void {
+        this.group.visible(true);
+        this.group.getLayer()?.draw();
+    }
+
+    hide(): void {
+        this.group.visible(false);
+        this.group.getLayer()?.draw();
+    }
+
+    getGroup(): Konva.Group {
+        return this.group;
+    }
+}
+</code></pre>
+<h4 id="gamescreencontrollerts">GameScreenController.ts</h4>
+<pre><code class="language-typescript">import { ScreenController } from &#39;../../types.ts&#39;;
+import type { ScreenSwitcher } from &#39;../../types.ts&#39;;
+import { GameScreenView } from &#39;./GameScreenView.ts&#39;;
+import { GameScreenModel } from &#39;./GameScreenModel.ts&#39;;
+
+/**
+ * GameScreenController - Handles game screen interactions
+ */
+export class GameScreenController extends ScreenController {
+    private view: GameScreenView;
+    private screenSwitcher: ScreenSwitcher;
+    private model: GameScreenModel;
+
+    constructor(screenSwitcher: ScreenSwitcher) {
+        super();
+        this.screenSwitcher = screenSwitcher;
+        this.view = new GameScreenView();
+        this.model = new GameScreenModel();
+    }
+
+    getView(): GameScreenView {
+        return this.view;
+    }
+
+    override show(): void {
+        super.show();
+        // Add any initialization logic here
+    }
+
+    override hide(): void {
+        super.hide();
+        // Add any cleanup logic here
+    }
+
+    override update(deltaTime: number): void {
+        // Update game logic here
+        // This is called every frame by the game loop
+    }
+}
+</code></pre>
+<h3 id="step-2-register-screen-in-maints">Step 2: Register Screen in main.ts</h3>
+<ol>
+<li><p><strong>Import the controller</strong>:</p>
+<pre><code class="language-typescript">import { GameScreenController } from &#39;./screens/GameScreen/GameScreenController.ts&#39;;
+</code></pre>
+</li>
+<li><p><strong>Add controller property</strong>:</p>
+<pre><code class="language-typescript">class App implements ScreenSwitcher {
+    // ... existing code
+    private gameController: GameScreenController;
+}
+</code></pre>
+</li>
+<li><p><strong>Initialize in constructor</strong>:</p>
+<pre><code class="language-typescript">constructor(container: string) {
+    // ... existing initialization
+    
+    this.gameController = new GameScreenController(this);
+    
+    // ... rest of constructor
+}
+</code></pre>
+</li>
+<li><p><strong>Add screen group to layer</strong>:</p>
+<pre><code class="language-typescript">// In constructor, after creating controllers
+this.layer.add(this.gameController.getView().getGroup());
+</code></pre>
+</li>
+<li><p><strong>Add case in switchToScreen()</strong>:</p>
+<pre><code class="language-typescript">switchToScreen(screen: Screen): void {
+    // Hide all screens
+    this.menuController.hide();
+    this.gameController.hide();
+    
+    // Show requested screen
+    switch (screen.type) {
+        case &#39;menu&#39;:
+            this.menuController.show();
+            this.activeController = this.menuController;
+            break;
+            
+        case &#39;game&#39;:
+            this.gameController.show();
+            this.activeController = this.gameController;
+            break;
+    }
+}
+</code></pre>
+</li>
+</ol>
+<h3 id="step-3-update-screen-type">Step 3: Update Screen Type</h3>
+<p>Add your new screen type to <code>src/types.ts</code>:</p>
+<pre><code class="language-typescript">export type Screen = 
+    | { type: &#39;menu&#39; } 
+    | { type: &#39;game&#39; }      // Your new screen
+    | { type: &#39;result&#39;; score: number };
+</code></pre>
+<h3 id="step-4-switch-to-your-screen">Step 4: Switch to Your Screen</h3>
+<p>From any controller, you can switch to your screen:</p>
+<pre><code class="language-typescript">this.screenSwitcher.switchToScreen({ type: &#39;game&#39; });
+</code></pre>
+<h2 id="example-menu-to-game-screen">Example: Menu to Game Screen</h2>
+<p>Here&#39;s how the menu screen switches to the game screen:</p>
+<pre><code class="language-typescript">// In MenuScreenController.ts
+private handleStartClick(): void {
+    this.screenSwitcher.switchToScreen({ type: &#39;game&#39; });
+}
+
+// In MenuScreenView.ts
+startButtonGroup.on(&#39;click&#39;, onStartClick);
+</code></pre>
+<h2 id="screen-lifecycle">Screen Lifecycle</h2>
+<h3 id="initialization">Initialization</h3>
+<ul>
+<li>Constructor called when <code>App</code> is created</li>
+<li>Screen groups are added to the layer</li>
+<li>Screens start hidden (except the initial screen)</li>
+</ul>
+<h3 id="showing">Showing</h3>
+<ul>
+<li><code>show()</code> is called by <code>switchToScreen()</code></li>
+<li>View&#39;s group visibility is set to <code>true</code></li>
+<li>Controller can initialize resources here</li>
+</ul>
+<h3 id="active-visible">Active (Visible)</h3>
+<ul>
+<li><code>update(deltaTime)</code> is called every frame</li>
+<li>Only the active screen&#39;s <code>update()</code> is called</li>
+<li>Handle game logic, input, animations here</li>
+</ul>
+<h3 id="hiding">Hiding</h3>
+<ul>
+<li><code>hide()</code> is called when switching away</li>
+<li>View&#39;s group visibility is set to <code>false</code></li>
+<li>Controller can pause/cleanup here</li>
+</ul>
+<h2 id="best-practices">Best Practices</h2>
+<ol>
+<li><strong>Start screens hidden</strong>: Set <code>visible: false</code> in view constructor</li>
+<li><strong>Clean up in hide()</strong>: Stop animations, clear timers, etc.</li>
+<li><strong>Initialize in show()</strong>: Load resources when screen becomes visible</li>
+<li><strong>Update only when visible</strong>: Check visibility in <code>update()</code> if needed</li>
+<li><strong>Use the model</strong>: Store screen state in the model, not the view</li>
+<li><strong>Handle async loading</strong>: Use async/await for asset loading</li>
+</ol>
+<h2 id="common-patterns">Common Patterns</h2>
+<h3 id="passing-data-between-screens">Passing Data Between Screens</h3>
+<p>Use the <code>Screen</code> type to pass data:</p>
+<pre><code class="language-typescript">// In types.ts
+export type Screen = 
+    | { type: &#39;game&#39;; level: number }
+    | { type: &#39;result&#39;; score: number };
+
+// When switching
+this.screenSwitcher.switchToScreen({ type: &#39;game&#39;, level: 5 });
+
+// In controller
+case &#39;game&#39;:
+    if (screen.level !== undefined) {
+        this.gameController.setLevel(screen.level);
+    }
+    break;
+</code></pre>
+<h3 id="conditional-screen-switching">Conditional Screen Switching</h3>
+<pre><code class="language-typescript">if (player.hasWon()) {
+    this.screenSwitcher.switchToScreen({ type: &#39;result&#39;, score: player.score });
+} else {
+    this.screenSwitcher.switchToScreen({ type: &#39;game&#39; });
+}
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="screen-not-showing">Screen not showing</h3>
+<ul>
+<li>✅ Check that screen group is added to layer</li>
+<li>✅ Verify <code>switchToScreen()</code> case is implemented</li>
+<li>✅ Ensure <code>show()</code> sets <code>group.visible(true)</code></li>
+</ul>
+<h3 id="screen-not-updating">Screen not updating</h3>
+<ul>
+<li>✅ Verify controller is set as <code>activeController</code></li>
+<li>✅ Check that <code>update()</code> is implemented</li>
+<li>✅ Ensure game loop is running</li>
+</ul>
+<h3 id="screen-not-hiding">Screen not hiding</h3>
+<ul>
+<li>✅ Check that <code>hide()</code> is called in <code>switchToScreen()</code></li>
+<li>✅ Verify <code>hide()</code> sets <code>group.visible(false)</code></li>
+</ul>
+
+    </div>
+    
+    <div class="guide-nav">
+        <a href="../guides.html">← Back to Guides</a>
+        <a href="../index.html">← API Documentation</a>
+    </div>
+</body>
+</html>
