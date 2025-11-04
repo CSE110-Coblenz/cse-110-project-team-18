@@ -14,7 +14,14 @@ class ThemeManagerClass {
   }
 
   getTheme(): Theme {
-    return this.current
+    // return a deep copy so callers cannot mutate internal state
+    try {
+      // prefer structuredClone when available
+      const sc = (globalThis as any).structuredClone
+      return sc ? sc(this.current) : JSON.parse(JSON.stringify(this.current))
+    } catch {
+      return JSON.parse(JSON.stringify(this.current))
+    }
   }
 
   setTheme(next: Theme): void {
@@ -22,7 +29,16 @@ class ThemeManagerClass {
     applyThemeToRoot(this.current)
     for (const cb of Array.from(this.listeners)) {
       try {
-        cb(this.current)
+        // give listeners a copy to avoid accidental mutation
+        const payload = (() => {
+          try {
+            const sc = (globalThis as any).structuredClone
+            return sc ? sc(this.current) : JSON.parse(JSON.stringify(this.current))
+          } catch {
+            return JSON.parse(JSON.stringify(this.current))
+          }
+        })()
+        cb(payload)
       } catch {
         // swallow listener errors to avoid breaking other listeners
       }
