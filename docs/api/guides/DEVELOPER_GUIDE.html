@@ -256,14 +256,14 @@ npm run docs:serve
 </ul>
 </li>
 </ol>
-<p>See <a href="./SCREEN_SWITCHING.md">SCREEN_SWITCHING.md</a> for detailed instructions.</p>
+<p>See <a href="./SCREEN_SWITCHING.md">Screen Switching Guide</a> for detailed instructions.</p>
 <h3 id="loading-a-character">Loading a Character</h3>
 <ol>
 <li>Create a sprite configuration file (e.g., <code>src/core/sprites/YourSprite.ts</code>)</li>
 <li>Define the <code>SpriteConfig</code> with animations and frame data</li>
 <li>Use <code>PlayerManager</code> in your controller to load the character</li>
 </ol>
-<p>See <a href="./CHARACTER_LOADING.md">CHARACTER_LOADING.md</a> for detailed instructions.</p>
+<p>See <a href="./CHARACTER_LOADING.md">Character Loading Guide</a> for detailed instructions.</p>
 <h3 id="adding-click-events">Adding Click Events</h3>
 <p>Use Konva&#39;s event system directly on Konva nodes:</p>
 <pre><code class="language-typescript">const button = new Konva.Rect({ /* ... */ });
@@ -271,12 +271,12 @@ button.on(&#39;click&#39;, () =&gt; {
     // Handle click
 });
 </code></pre>
-<p>See <a href="./INPUT_HANDLING.md">INPUT_HANDLING.md</a> for detailed instructions.</p>
+<p>See <a href="./INPUT_HANDLING.md">Input Handling Guide</a> for detailed instructions.</p>
 <h3 id="switching-between-screens">Switching Between Screens</h3>
 <p>Use the <code>ScreenSwitcher</code> interface:</p>
 <pre><code class="language-typescript">this.screenSwitcher.switchToScreen({ type: &#39;game&#39; });
 </code></pre>
-<p>See <a href="./SCREEN_SWITCHING.md">SCREEN_SWITCHING.md</a> for detailed instructions.</p>
+<p>See <a href="./SCREEN_SWITCHING.md">Screen Switching Guide</a> for detailed instructions.</p>
 <h2 id="project-structure">Project Structure</h2>
 <pre><code>src/
 ├── configs/          # Configuration files (GameConfig, PlayerConfig)
