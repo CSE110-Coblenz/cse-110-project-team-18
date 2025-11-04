@@ -98,11 +98,13 @@ class App implements ScreenSwitcher {
 			case 'menu':
 				this.menuController.show();
 				this.activeController = this.menuController;
+				console.log('Showing menu screen');
 				break;
 
 			case 'asteroid field game':
 				this.asteroidFieldGameController.show();
 				this.activeController = this.asteroidFieldGameController;
+				console.log('Showing asteroid field game screen');
 				break;
 
 			// case "game":

@@ -7,12 +7,13 @@ import { STAGE_WIDTH } from '../../configs/GameConfig';
  */
 export class MenuScreenView implements View {
 	private group: Konva.Group;
+	private buttonGroup?: Konva.Group;
 
 	/**
 	 * Constructor for the MenuScreenView
 	 * @param onStartClick - The function to call when the start button is clicked
 	 */
-	constructor(onStartClick: () => void, onAsteriodFieldClick: () => void) {
+	constructor(onAsteriodFieldClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
 			id: 'menuScreen', // Add ID for debugging
@@ -32,35 +33,10 @@ export class MenuScreenView implements View {
 		title.offsetX(title.width() / 2);
 		this.group.add(title);
 
-		// Start Game Button
-		const startButtonGroup = new Konva.Group();
-		const startButton = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 100,
-			y: 300,
-			width: 200,
-			height: 60,
-			fill: 'green',
-			cornerRadius: 10,
-			stroke: 'darkgreen',
-			strokeWidth: 3,
-		});
-		const startText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 315,
-			text: 'START GAME',
-			fontSize: 24,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
-		});
-		startText.offsetX(startText.width() / 2);
-		startButtonGroup.add(startButton);
-		startButtonGroup.add(startText);
-		startButtonGroup.on('click', onStartClick);
-		this.group.add(startButtonGroup);
-
 		// Asteroid Field Game Start Button
-		const asteriodFieldButtonGroup = new Konva.Group();
+		const asteriodFieldButtonGroup = new Konva.Group({
+			listening: true, // Explicitly enable listening for the button group
+		});
 		const asteriodFieldStartButton = new Konva.Rect({
 			x: STAGE_WIDTH / 2 - 200,
 			y: 375,
@@ -70,8 +46,9 @@ export class MenuScreenView implements View {
 			cornerRadius: 10,
 			stroke: 'darkgreen',
 			strokeWidth: 3,
+			listening: true, // Ensure the rect itself listens to clicks
 		});
-		
+
 		const asteriodFieldStartText = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 390,
@@ -80,15 +57,27 @@ export class MenuScreenView implements View {
 			fontFamily: 'Arial',
 			fill: 'white',
 			align: 'center',
+			listening: false,
 		});
 		asteriodFieldStartText.offsetX(asteriodFieldStartText.width() / 2);
 		asteriodFieldButtonGroup.add(asteriodFieldStartButton);
 		asteriodFieldButtonGroup.add(asteriodFieldStartText);
 		asteriodFieldButtonGroup.on('click', onAsteriodFieldClick);
+		this.buttonGroup = asteriodFieldButtonGroup;
 		this.group.add(asteriodFieldButtonGroup);
+		asteriodFieldButtonGroup.moveToTop();
 
 		// Menu view intentionally stays passive about movement/assets.
 		// Asset loading and movement are managed by the controller/manager.
+	}
+
+	/**
+	 * Ensure buttons are always on top (call this after sprite loads)
+	 */
+	ensureButtonsOnTop(): void {
+		if (this.buttonGroup) {
+			this.buttonGroup.moveToTop();
+		}
 	}
 
 	/**

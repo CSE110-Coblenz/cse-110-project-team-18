@@ -54,4 +54,3 @@ export class AsteroidFieldGameView implements View {
 		return this.group;
 	}
 }
-

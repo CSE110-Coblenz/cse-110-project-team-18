@@ -91,6 +91,8 @@ export class PlayerManager {
 				frameIndex: 0,
 				width: this.spriteConfig.frameWidth,
 				height: this.spriteConfig.frameHeight,
+				listening: false,
+				hitFunc: () => null, // Disable hit detection completely - sprite will never block clicks
 			});
 
 			// Apply scale
@@ -106,6 +108,16 @@ export class PlayerManager {
 			// Add to scene
 			this.sprite = sprite;
 			this.group.add(sprite);
+
+			// CRITICAL: Move all non-sprite groups to top to ensure buttons are always clickable
+			// This must happen after sprite is added to maintain proper z-ordering
+			const children = Array.from(this.group.children || []);
+			children.forEach((child: Konva.Node) => {
+				if (child !== sprite && child.id() !== 'playerSprite') {
+					child.moveToTop();
+				}
+			});
+
 			this.currentAnimation = this.spriteConfig.defaultAnimation;
 
 			// Set initial frame rate based on default animation

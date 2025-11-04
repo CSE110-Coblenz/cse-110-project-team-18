@@ -6,4 +6,3 @@ export class AsteroidFieldGameModel {
 		// Model initialization can be added here as needed
 	}
 }
-

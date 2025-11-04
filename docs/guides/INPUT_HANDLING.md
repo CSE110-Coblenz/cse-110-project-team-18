@@ -32,16 +32,16 @@ const inputManager = InputManager.getInstance();
 
 // In your update loop
 if (inputManager.isKeyPressed('w')) {
-    // Move up
+	// Move up
 }
 
 if (inputManager.isKeyPressed('a')) {
-    // Move left
+	// Move left
 }
 
 // Check multiple keys
 if (inputManager.isAnyKeyPressed(['w', 'arrowup'])) {
-    // Move up (either W or Up Arrow)
+	// Move up (either W or Up Arrow)
 }
 ```
 
@@ -71,6 +71,7 @@ const run = inputManager.isAnyKeyPressed(PlayerConfig.CONTROLS.RUN);
 #### Key Names
 
 Keys are stored in lowercase for consistency. Common keys:
+
 - Letters: `'a'`, `'b'`, `'w'`, `'d'`, etc.
 - Arrows: `'arrowup'`, `'arrowdown'`, `'arrowleft'`, `'arrowright'`
 - Space: `' '`
@@ -82,22 +83,22 @@ Example from a game screen controller:
 
 ```typescript
 export class GameScreenController extends ScreenController {
-    override update(deltaTime: number): void {
-        const inputManager = InputManager.getInstance();
-        
-        // Check for pause
-        if (inputManager.isKeyPressed('escape')) {
-            this.pauseGame();
-        }
-        
-        // Check for menu
-        if (inputManager.isKeyPressed('m')) {
-            this.screenSwitcher.switchToScreen({ type: 'menu' });
-        }
-        
-        // Update game logic
-        // ...
-    }
+	override update(deltaTime: number): void {
+		const inputManager = InputManager.getInstance();
+
+		// Check for pause
+		if (inputManager.isKeyPressed('escape')) {
+			this.pauseGame();
+		}
+
+		// Check for menu
+		if (inputManager.isKeyPressed('m')) {
+			this.screenSwitcher.switchToScreen({ type: 'menu' });
+		}
+
+		// Update game logic
+		// ...
+	}
 }
 ```
 
@@ -111,16 +112,16 @@ For mouse clicks, hover, and other interactions on Konva nodes, use Konva's buil
 
 ```typescript
 const button = new Konva.Rect({
-    x: 100,
-    y: 100,
-    width: 200,
-    height: 50,
-    fill: 'blue',
+	x: 100,
+	y: 100,
+	width: 200,
+	height: 50,
+	fill: 'blue',
 });
 
 button.on('click', () => {
-    console.log('Button clicked!');
-    // Handle click
+	console.log('Button clicked!');
+	// Handle click
 });
 
 group.add(button);
@@ -133,11 +134,11 @@ From `MenuScreenView.ts`:
 ```typescript
 const startButtonGroup = new Konva.Group();
 const startButton = new Konva.Rect({
-    x: STAGE_WIDTH / 2 - 100,
-    y: 300,
-    width: 200,
-    height: 60,
-    fill: 'green',
+	x: STAGE_WIDTH / 2 - 100,
+	y: 300,
+	width: 200,
+	height: 60,
+	fill: 'green',
 });
 
 startButtonGroup.add(startButton);
@@ -162,9 +163,9 @@ Konva supports many mouse events:
 
 ```typescript
 button.on('click', (e) => {
-    const stage = e.target.getStage();
-    const pointerPos = stage.getPointerPosition();
-    console.log('Clicked at:', pointerPos.x, pointerPos.y);
+	const stage = e.target.getStage();
+	const pointerPos = stage.getPointerPosition();
+	console.log('Clicked at:', pointerPos.x, pointerPos.y);
 });
 ```
 
@@ -174,9 +175,9 @@ The event handler receives a Konva event object:
 
 ```typescript
 button.on('click', (e) => {
-    const target = e.target; // The Konva node that was clicked
-    const evt = e.evt; // Original browser event
-    const stage = e.target.getStage(); // The Konva stage
+	const target = e.target; // The Konva node that was clicked
+	const evt = e.evt; // Original browser event
+	const stage = e.target.getStage(); // The Konva stage
 });
 ```
 
@@ -186,11 +187,11 @@ button.on('click', (e) => {
 
 ```typescript
 const clickableRect = new Konva.Rect({
-    x: 50,
-    y: 50,
-    width: 100,
-    height: 50,
-    fill: 'red',
+	x: 50,
+	y: 50,
+	width: 100,
+	height: 50,
+	fill: 'red',
 });
 ```
 
@@ -198,8 +199,8 @@ const clickableRect = new Konva.Rect({
 
 ```typescript
 clickableRect.on('click', () => {
-    // Your click handler
-    this.handleClick();
+	// Your click handler
+	this.handleClick();
 });
 ```
 
@@ -215,11 +216,11 @@ For better UX, add hover effects:
 
 ```typescript
 clickableRect.on('mouseover', () => {
-    clickableRect.fill('darkred');
+	clickableRect.fill('darkred');
 });
 
 clickableRect.on('mouseout', () => {
-    clickableRect.fill('red');
+	clickableRect.fill('red');
 });
 ```
 
@@ -229,29 +230,29 @@ clickableRect.on('mouseout', () => {
 
 ```typescript
 export class ClickableObject {
-    private shape: Konva.Rect;
-    
-    constructor(x: number, y: number, onClick: () => void) {
-        this.shape = new Konva.Rect({
-            x,
-            y,
-            width: 50,
-            height: 50,
-            fill: 'blue',
-        });
-        
-        this.shape.on('click', onClick);
-        this.shape.on('mouseover', () => {
-            this.shape.fill('lightblue');
-        });
-        this.shape.on('mouseout', () => {
-            this.shape.fill('blue');
-        });
-    }
-    
-    addToGroup(group: Konva.Group) {
-        group.add(this.shape);
-    }
+	private shape: Konva.Rect;
+
+	constructor(x: number, y: number, onClick: () => void) {
+		this.shape = new Konva.Rect({
+			x,
+			y,
+			width: 50,
+			height: 50,
+			fill: 'blue',
+		});
+
+		this.shape.on('click', onClick);
+		this.shape.on('mouseover', () => {
+			this.shape.fill('lightblue');
+		});
+		this.shape.on('mouseout', () => {
+			this.shape.fill('blue');
+		});
+	}
+
+	addToGroup(group: Konva.Group) {
+		group.add(this.shape);
+	}
 }
 ```
 
@@ -283,30 +284,33 @@ Player controls are defined in `src/configs/PlayerConfig.ts`:
 
 ```typescript
 export const PlayerConfig = {
-    CONTROLS: {
-        MOVE_UP: ['w', 'arrowup'],
-        MOVE_DOWN: ['s', 'arrowdown'],
-        MOVE_LEFT: ['a', 'arrowleft'],
-        MOVE_RIGHT: ['d', 'arrowright'],
-        JUMP: [' '],
-        RUN: ['shift', 'Shift', 'ShiftLeft', 'ShiftRight'],
-    },
+	CONTROLS: {
+		MOVE_UP: ['w', 'arrowup'],
+		MOVE_DOWN: ['s', 'arrowdown'],
+		MOVE_LEFT: ['a', 'arrowleft'],
+		MOVE_RIGHT: ['d', 'arrowright'],
+		JUMP: [' '],
+		RUN: ['shift', 'Shift', 'ShiftLeft', 'ShiftRight'],
+	},
 };
 ```
 
 ## Troubleshooting
 
 ### Keys not registering
+
 - ✅ Ensure `InputManager.getInstance().initialize()` is called
 - ✅ Check key names are lowercase
 - ✅ Verify you're checking keys in the update loop
 
 ### Click events not firing
+
 - ✅ Ensure node is added to a group that's in the layer
 - ✅ Check that group is visible
 - ✅ Verify node is not behind another node (z-index)
 - ✅ Ensure stage is listening to events
 
 ### Multiple clicks firing
+
 - ✅ Check for duplicate event listeners
 - ✅ Verify event propagation (use `e.cancelBubble = true` if needed)
