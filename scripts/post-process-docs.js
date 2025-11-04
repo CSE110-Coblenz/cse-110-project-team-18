@@ -7,8 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 const docsDir = join(projectRoot, 'docs');
+const guidesSourceDir = join(docsDir, 'guides'); // Source markdown files
 const apiDir = join(docsDir, 'api');
-const guidesDir = join(apiDir, 'guides');
+const guidesDir = join(apiDir, 'guides'); // Output HTML files
 
 // Create guides directory if it doesn't exist
 if (!existsSync(guidesDir)) {
@@ -72,7 +73,7 @@ const guideFiles = [
 
 // Convert markdown to HTML and create HTML pages
 guideFiles.forEach(({ file, title }) => {
-	const source = join(docsDir, file);
+	const source = join(guidesSourceDir, file);
 	if (existsSync(source)) {
 		// Read markdown content
 		const markdown = readFileSync(source, 'utf8');

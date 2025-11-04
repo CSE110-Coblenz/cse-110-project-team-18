@@ -95,7 +95,7 @@ Access the documentation by:
    - Add screen group to layer
    - Add case in `switchToScreen()`
 
-See [SCREEN_SWITCHING.md](./SCREEN_SWITCHING.md) for detailed instructions.
+See [Screen Switching Guide](./SCREEN_SWITCHING.md) for detailed instructions.
 
 ### Loading a Character
 
@@ -103,7 +103,7 @@ See [SCREEN_SWITCHING.md](./SCREEN_SWITCHING.md) for detailed instructions.
 2. Define the `SpriteConfig` with animations and frame data
 3. Use `PlayerManager` in your controller to load the character
 
-See [CHARACTER_LOADING.md](./CHARACTER_LOADING.md) for detailed instructions.
+See [Character Loading Guide](./CHARACTER_LOADING.md) for detailed instructions.
 
 ### Adding Click Events
 
@@ -116,7 +116,7 @@ button.on('click', () => {
 });
 ```
 
-See [INPUT_HANDLING.md](./INPUT_HANDLING.md) for detailed instructions.
+See [Input Handling Guide](./INPUT_HANDLING.md) for detailed instructions.
 
 ### Switching Between Screens
 
@@ -126,7 +126,7 @@ Use the `ScreenSwitcher` interface:
 this.screenSwitcher.switchToScreen({ type: 'game' });
 ```
 
-See [SCREEN_SWITCHING.md](./SCREEN_SWITCHING.md) for detailed instructions.
+See [Screen Switching Guide](./SCREEN_SWITCHING.md) for detailed instructions.
 
 ## Project Structure
 
