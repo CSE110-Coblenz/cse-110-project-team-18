@@ -1,7 +1,7 @@
 class PlanetManager {
-    private planet: string;
+	private planet: string;
 
-    constructor(planet: string) {
-        this.planet = planet;
-    }
+	constructor(planet: string) {
+		this.planet = planet;
+	}
 }
