@@ -7,6 +7,7 @@ import { PlayerManager } from '../../core/movement/PlayerManager';
 import { CollisionManager } from '../../core/collision/CollisionManager';
 import { greenAlienSprite } from '../../core/sprites/AlienSprite';
 import { PlayerConfig } from '../../configs/PlayerConfig';
+import mountThemePanel from '../../ui/ThemePanel'
 
 /**
  * MenuScreenController - Handles menu interactions
@@ -26,6 +27,11 @@ export class MenuScreenController extends ScreenController {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.view = new MenuScreenView(() => this.handleStartClick());
+
+		// mount a small dev Theme panel non-invasively
+		try {
+			mountThemePanel()
+		} catch {}
 		// create model for the menu and pass player model into the player manager
 		this.model = new MenuScreenModel(STAGE_WIDTH / 4, 250);
 		// Controller owns the PlayerManager wiring; pass the model so state persists here
