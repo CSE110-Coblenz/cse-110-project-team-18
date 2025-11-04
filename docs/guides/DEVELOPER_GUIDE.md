@@ -69,6 +69,7 @@ npm run docs:serve
 ```
 
 The documentation includes:
+
 - **API Documentation**: Auto-generated TypeDoc documentation for all TypeScript classes, interfaces, and functions
 - **Developer Guides**: Step-by-step guides for common development tasks
   - [Developer Guide](./DEVELOPER_GUIDE.md) - This guide
@@ -77,6 +78,7 @@ The documentation includes:
   - [Character Loading Guide](./CHARACTER_LOADING.md)
 
 Access the documentation by:
+
 1. Running `npm run docs` to generate the documentation
 2. Running `npm run docs:serve` to start the local server
 3. Opening `http://localhost:3000` in your browser
@@ -110,9 +112,11 @@ See [Character Loading Guide](./CHARACTER_LOADING.md) for detailed instructions.
 Use Konva's event system directly on Konva nodes:
 
 ```typescript
-const button = new Konva.Rect({ /* ... */ });
+const button = new Konva.Rect({
+	/* ... */
+});
 button.on('click', () => {
-    // Handle click
+	// Handle click
 });
 ```
 
