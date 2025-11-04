@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { MenuScreenController } from './screens/MenuScreen/MenuScreenController.ts';
+import { AsteroidFieldGameController } from './screens/AsteroidFieldGameScreen/AsteroidFieldGameController.ts';
 import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
@@ -22,6 +23,7 @@ class App implements ScreenSwitcher {
 	private activeController?: ScreenController | null;
 
 	private menuController: MenuScreenController;
+	private asteroidFieldGameController: AsteroidFieldGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
 

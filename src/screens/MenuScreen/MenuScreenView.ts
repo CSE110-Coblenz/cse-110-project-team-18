@@ -12,7 +12,7 @@ export class MenuScreenView implements View {
 	 * Constructor for the MenuScreenView
 	 * @param onStartClick - The function to call when the start button is clicked
 	 */
-	constructor(onStartClick: () => void) {
+	constructor(onStartClick: () => void, onAsteriodFieldClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
 			id: 'menuScreen', // Add ID for debugging
@@ -32,6 +32,7 @@ export class MenuScreenView implements View {
 		title.offsetX(title.width() / 2);
 		this.group.add(title);
 
+		// Start Game Button
 		const startButtonGroup = new Konva.Group();
 		const startButton = new Konva.Rect({
 			x: STAGE_WIDTH / 2 - 100,
@@ -57,6 +58,34 @@ export class MenuScreenView implements View {
 		startButtonGroup.add(startText);
 		startButtonGroup.on('click', onStartClick);
 		this.group.add(startButtonGroup);
+
+		// Asteroid Field Game Start Button
+		const asteriodFieldButtonGroup = new Konva.Group();
+		const asteriodFieldStartButton = new Konva.Rect({
+			x: STAGE_WIDTH / 2 - 200,
+			y: 375,
+			width: 400,
+			height: 60,
+			fill: 'green',
+			cornerRadius: 10,
+			stroke: 'darkgreen',
+			strokeWidth: 3,
+		});
+		
+		const asteriodFieldStartText = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: 390,
+			text: 'START ASTEROID FIELD GAME',
+			fontSize: 24,
+			fontFamily: 'Arial',
+			fill: 'white',
+			align: 'center',
+		});
+		asteriodFieldStartText.offsetX(asteriodFieldStartText.width() / 2);
+		asteriodFieldButtonGroup.add(asteriodFieldStartButton);
+		asteriodFieldButtonGroup.add(asteriodFieldStartText);
+		asteriodFieldButtonGroup.on('click', onAsteriodFieldClick);
+		this.group.add(asteriodFieldButtonGroup);
 
 		// Menu view intentionally stays passive about movement/assets.
 		// Asset loading and movement are managed by the controller/manager.
