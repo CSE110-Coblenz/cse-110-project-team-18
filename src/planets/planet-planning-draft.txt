@@ -1,0 +1,68 @@
+Build Interface: interface Planet
+- run()
+- examineAnswer()
+
+Build Manager: class PlanetManager
+var planet: string;
+
+- constructor(planet: string)
+
+- displayPlanetView(planet: string)
+    - display current planet detail view
+    - handlePlanetViewInput()
+- handlePlanetViewInput()
+    - click go back -> go back to main screen
+    - click level checkpoint -> display
+
+- displayNote(): click to the level checkpoint to answer question
+    - display a note saying where to enter the level
+    - handleNoteViewInput()
+- handleNoteViewInput()
+    - click 'x' to close the notification section
+
+- displayQuestion()
+    - display the current counted question into the window
+    - handleQuestionViewInput()
+- handleQuestionViewInput()
+    - click 'x' to close the level, back to planet detail view
+    - click 'enter' to submit the answer
+        - if input is valid, displayLevelResult()
+        - else, prompt to re-type
+
+- displayLevelResult()
+    - display the result of the answer (correct or incorrect) 
+    and the answer below the prompt
+    - handleLevelResultViewInput()
+- handleLevelResultViewInput()
+    - click 'x' to exit the result view (level still updates)
+    - click 'next level' to go into next level 
+
+- displayPlanetSummary()
+    - display the planet overall performance
+    - OPEN the new planet
+    - handleSummaryViewInput()
+- handleSummaryViewInput()
+    - click 'x' to exit the summary 
+    - click 'Go back Main Game' to go back to main game
+
+Build Class: Mercury
+- const questionBank[Question]: load random 5 questions
+- var answerBank[]:
+- const maxQuestion = 5
+- var countQuestion
+
+- constructor()
+    - init questionBank[Question] = load from database
+    - init countQuestions = 0
+    - calculate the answer for questions in questionBank 
+
+- run()
+
+- examineAnswer()
+
+Notes:
+- need a View File to handle display
+- need Manager to flow controller
+- planet 
+- focus on game logic 
+- work on the interface
