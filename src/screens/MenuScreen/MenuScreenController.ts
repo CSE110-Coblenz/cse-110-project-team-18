@@ -25,7 +25,7 @@ export class MenuScreenController extends ScreenController {
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
-		this.view = new MenuScreenView(() => this.handleStartClick());
+		this.view = new MenuScreenView(() => this.handleAsteriodFieldClick());
 		// create model for the menu and pass player model into the player manager
 		this.model = new MenuScreenModel(STAGE_WIDTH / 4, 250);
 		// Controller owns the PlayerManager wiring; pass the model so state persists here
@@ -33,8 +33,8 @@ export class MenuScreenController extends ScreenController {
 		this.playerManager = new PlayerManager({
 			group: this.view.getGroup(),
 			spriteConfig: greenAlienSprite,
-			x: this.model.player.x,
-			y: this.model.player.y,
+			x: this.model.player?.x ?? STAGE_WIDTH / 4,
+			y: this.model.player?.y ?? 250,
 			walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
 			model: this.model.player,
 			collisionManager: this.collisionManager,
@@ -42,10 +42,11 @@ export class MenuScreenController extends ScreenController {
 	}
 
 	/**
-	 * Handle start button click
+	 * Handle asteroid field game start button click
 	 */
-	private handleStartClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'game' });
+	private handleAsteriodFieldClick(): void {
+		this.playerManager?.dispose();
+		this.screenSwitcher.switchToScreen({ type: 'asteroid field game' });
 	}
 
 	/**
@@ -62,6 +63,7 @@ export class MenuScreenController extends ScreenController {
 	override show(): void {
 		super.show();
 		// nothing else here; per-frame updates run from App's central loop
+		this.view.ensureButtonsOnTop(); // Ensure buttons are always on top
 	}
 
 	/**

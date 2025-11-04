@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { MenuScreenController } from './screens/MenuScreen/MenuScreenController.ts';
+import { AsteroidFieldGameController } from './screens/AsteriodFieldGameScreen/AsteroidFieldGameController.ts';
 import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
@@ -22,6 +23,7 @@ class App implements ScreenSwitcher {
 	private activeController?: ScreenController | null;
 
 	private menuController: MenuScreenController;
+	private asteroidFieldGameController: AsteroidFieldGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
 
@@ -43,12 +45,14 @@ class App implements ScreenSwitcher {
 		// Initialize all screen controllers
 		// Each controller manages a Model, View, and handles user interactions
 		this.menuController = new MenuScreenController(this);
+		this.asteroidFieldGameController = new AsteroidFieldGameController(this);
 		// this.gameController = new GameScreenController(this);
 		// this.resultsController = new ResultsScreenController(this);
 
 		// Add all screen groups to the layer
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
+		this.layer.add(this.asteroidFieldGameController.getView().getGroup());
 		// this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
 
@@ -85,6 +89,7 @@ class App implements ScreenSwitcher {
 	switchToScreen(screen: Screen): void {
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
+		this.asteroidFieldGameController.hide();
 		// this.gameController.hide();
 		// this.resultsController.hide();
 
@@ -93,6 +98,13 @@ class App implements ScreenSwitcher {
 			case 'menu':
 				this.menuController.show();
 				this.activeController = this.menuController;
+				console.log('Showing menu screen');
+				break;
+
+			case 'asteroid field game':
+				this.asteroidFieldGameController.show();
+				this.activeController = this.asteroidFieldGameController;
+				console.log('Showing asteroid field game screen');
 				break;
 
 			// case "game":
