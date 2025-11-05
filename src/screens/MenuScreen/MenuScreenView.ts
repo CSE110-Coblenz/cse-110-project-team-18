@@ -2,8 +2,6 @@ import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { STAGE_WIDTH } from '../../configs/GameConfig';
 
-
-
 /**
  * MenuScreenView - Renders the menu screen
  */
