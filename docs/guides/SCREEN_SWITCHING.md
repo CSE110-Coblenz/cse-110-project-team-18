@@ -211,6 +211,7 @@ export class GameScreenController extends ScreenController {
    ```
 
 5. **Add case in switchToScreen()**:
+
    ```typescript
    switchToScreen(screen: Screen): void {
        // Hide all screens
