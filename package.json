@@ -1,36 +1,36 @@
 {
-  "name": "space-math-adventure",
-  "private": true,
-  "version": "0.0.0",
-  "description": "An educational space-themed math game for elementary school students",
-  "type": "module",
-  "scripts": {
-  "dev": "vite",
-  "build": "tsc && vite build",
-  "preview": "vite preview",
-  "test": "jest",
-  "format": "prettier --write .",
-  "lint": "eslint src --ext ts,tsx",
-  "docs": "typedoc --entryPointStrategy expand --out docs/api src && node scripts/post-process-docs.js",
-  "docs:serve": "serve docs/api -l 3000"
-  },
-  "dependencies": {
-  "konva": "^10.0.8",
-  "better-sqlite3": "^12.4.1"
-  },
-  "devDependencies": {
-  "@typescript-eslint/eslint-plugin": "^8.46.2",
-  "@typescript-eslint/parser": "^8.46.2",
-  "eslint": "^9.38.0",
-  "eslint-config-prettier": "^10.1.8",
-  "eslint-plugin-import": "^2.32.0",
-  "eslint-plugin-prettier": "^5.5.4",
-  "marked": "^16.4.1",
-  "prettier": "^3.6.2",
-  "serve": "^14.2.5",
-  "typedoc": "^0.28.14",
-  "typescript": "~5.9.3",
-  "vite": "^7.1.12",
-  "@types/better-sqlite3": "^7.6.13"
-  }
+	"name": "space-math-adventure",
+	"private": true,
+	"version": "0.0.0",
+	"description": "An educational space-themed math game for elementary school students",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"test": "jest",
+		"format": "prettier --write .",
+		"lint": "eslint src --ext ts,tsx",
+		"docs": "typedoc --entryPointStrategy expand --out docs/api src && node scripts/post-process-docs.js",
+		"docs:serve": "serve docs/api -l 3000"
+	},
+	"dependencies": {
+		"konva": "^10.0.8",
+		"better-sqlite3": "^12.4.1"
+	},
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^8.46.2",
+		"@typescript-eslint/parser": "^8.46.2",
+		"eslint": "^9.38.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-import": "^2.32.0",
+		"eslint-plugin-prettier": "^5.5.4",
+		"marked": "^16.4.1",
+		"prettier": "^3.6.2",
+		"serve": "^14.2.5",
+		"typedoc": "^0.28.14",
+		"typescript": "~5.9.3",
+		"vite": "^7.1.12",
+		"@types/better-sqlite3": "^7.6.13"
+	}
 }
