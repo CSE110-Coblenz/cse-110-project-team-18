@@ -1,5 +1,5 @@
-import { setStageWidth, setDefaultTheme } from "../ui";
-import { theme } from "./ThemeConfig";
+import { setStageWidth, setDefaultTheme } from '../ui';
+import { theme } from './ThemeConfig';
 
 // Stage dimensions
 export const STAGE_WIDTH = 1500;

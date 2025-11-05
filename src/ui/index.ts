@@ -1,2 +1,2 @@
-export * from "./theme/Theme";
-export * from "./factory/ElementFactory";
+export * from './theme/Theme';
+export * from './factory/ElementFactory';
