@@ -25,7 +25,10 @@ export class MenuScreenController extends ScreenController {
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
-		this.view = new MenuScreenView(() => this.handleStartClick());
+		this.view = new MenuScreenView(
+			() => this.handleStartClick(),
+			() => this.handleEarthClick()
+		);
 		// create model for the menu and pass player model into the player manager
 		this.model = new MenuScreenModel(STAGE_WIDTH / 4, 250);
 		// Controller owns the PlayerManager wiring; pass the model so state persists here
@@ -46,6 +49,13 @@ export class MenuScreenController extends ScreenController {
 	 */
 	private handleStartClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'game' });
+	}
+
+	/*
+	 * Handle Earth button click
+	 */
+	private handleEarthClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'earth' });
 	}
 
 	/**

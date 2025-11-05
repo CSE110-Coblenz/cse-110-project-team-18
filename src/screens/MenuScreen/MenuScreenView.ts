@@ -12,7 +12,7 @@ export class MenuScreenView implements View {
 	 * Constructor for the MenuScreenView
 	 * @param onStartClick - The function to call when the start button is clicked
 	 */
-	constructor(onStartClick: () => void) {
+	constructor(onStartClick: () => void, onEarthClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
 			id: 'menuScreen', // Add ID for debugging
@@ -60,6 +60,32 @@ export class MenuScreenView implements View {
 
 		// Menu view intentionally stays passive about movement/assets.
 		// Asset loading and movement are managed by the controller/manager.
+
+		const earthButtonGroup = new Konva.Group();
+		const earthButton = new Konva.Rect({
+			x: STAGE_WIDTH / 2 - 100,
+			y: 400,
+			width: 200,
+			height: 60,
+			fill: 'blue',
+			cornerRadius: 10,
+			stroke: 'darkblue',
+			strokeWidth: 3,
+		});
+		const earthText = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: 415,
+			text: 'EARTH SCREEN',
+			fontSize: 24,
+			fontFamily: 'Arial',
+			fill: 'white',
+			align: 'center',
+		});
+		earthText.offsetX(earthText.width() / 2);
+		earthButtonGroup.add(earthButton);
+		earthButtonGroup.add(earthText);
+		earthButtonGroup.on('click', onEarthClick); // Handle the click event
+		this.group.add(earthButtonGroup); // Add Earth button to the main group
 	}
 
 	/**
