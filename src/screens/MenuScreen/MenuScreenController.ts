@@ -48,7 +48,6 @@ export class MenuScreenController extends ScreenController {
 	 * Handle asteroid field game start button click
 	 */
 	private handleAsteriodFieldClick(): void {
-		this.playerManager?.dispose();
 		this.screenSwitcher.switchToScreen({ type: 'asteroid field game' });
 	}
 
@@ -73,8 +72,6 @@ export class MenuScreenController extends ScreenController {
 	 */
 	override show(): void {
 		super.show();
-		// nothing else here; per-frame updates run from App's central loop
-		this.view.ensureButtonsOnTop(); // Ensure buttons are always on top
 	}
 
 	/**
@@ -93,9 +90,8 @@ export class MenuScreenController extends ScreenController {
 		// Only update the player manager when the view is visible
 		if (this.view.getGroup().visible()) {
 			this.playerManager?.update(deltaTime);
-			// run collision checks for this screen
 			this.collisionManager?.update();
-			// redraw layer
+			this.view.ensureButtonsOnTop();
 			this.view.getGroup().getLayer()?.draw();
 		}
 	}

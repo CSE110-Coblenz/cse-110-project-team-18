@@ -9,16 +9,25 @@ import { AsteroidFieldGameView } from './AsteroidFieldGameView.ts';
 export class AsteroidFieldGameController extends ScreenController {
 	private view: AsteroidFieldGameView;
 	// private _model: AsteroidFieldGameModel;  // Changed: model -> _model
+	private screenSwitcher: ScreenSwitcher;
 
 	/**
 	 * Constructor for the AsteroidFieldGameController
 	 * @param screenSwitcher - The screen switcher
 	 */
-	constructor(_screenSwitcher: ScreenSwitcher) {
+	constructor(screenSwitcher: ScreenSwitcher) {
 		// Changed: screenSwitcher -> _screenSwitcher
 		super();
-		this.view = new AsteroidFieldGameView();
+		this.view = new AsteroidFieldGameView(() => this.handleMenuClick());
+		this.screenSwitcher = screenSwitcher;
 		// this._model = new AsteroidFieldGameModel();
+	}
+
+	/**
+	 * Handle menu click
+	 */
+	private handleMenuClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'menu' });
 	}
 
 	/**
