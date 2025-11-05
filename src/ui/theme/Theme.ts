@@ -2,7 +2,6 @@
   Put the Theme class + setStageWidth, and the invariants here (corner radius, stroke width). 
   Export Theme, setStageWidth, and a setDefaultTheme/getDefaultTheme.
 */
-import Konva from 'konva';
 // import { STAGE_WIDTH } from '../../configs/GameConfig';
 
 let STAGE_WIDTH = 1500;
