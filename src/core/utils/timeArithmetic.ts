@@ -15,7 +15,7 @@ export interface TimeQuestion {
 export function generateTimeQuestion(): TimeQuestion {
 	// Start time
 	const startHour = Math.floor(Math.random() * 12) || 12;
-	const minuteOptions = [0, 15, 30, 45];
+	const minuteOptions = [15, 30, 45];
 	const startMinute = minuteOptions[Math.floor(Math.random() * minuteOptions.length)];
 	const startPeriod: 'AM' | 'PM' = Math.random() < 0.5 ? 'AM' : 'PM';
 
