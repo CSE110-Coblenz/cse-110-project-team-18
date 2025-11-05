@@ -102,18 +102,26 @@ export class EarthScreenController extends ScreenController {
 
 		const input = document.createElement('input');
 		input.type = 'text';
-		input.placeholder = 'Enter your answer (e.g. 12:30)';
+		input.placeholder = 'Enter your answer (e.g. 12:30 PM)';
 		input.style.position = 'absolute';
-		input.style.width = '320px';
-		input.style.padding = '12px';
+		//input.style.width = '380';
+		input.style.padding = '14px';
 		input.style.fontSize = '20px';
 		input.style.border = '2px solid white';
 		input.style.borderRadius = '10px';
 		input.style.background = '#1a1a1a';
 		input.style.color = 'white';
 		input.style.textAlign = 'center';
-		input.style.left = `${STAGE_WIDTH / 2 - 160}px`;
-		input.style.top = `${STAGE_HEIGHT / 2 + 190}px`;
+		//input.style.left = `${STAGE_WIDTH / 2 - 190}px`;
+		//input.style.top = `${STAGE_HEIGHT / 2 + 190}px`;
+		const boxWidth = 420; // wider input
+		input.style.width = `${boxWidth}px`;
+		input.style.padding = '14px';
+		input.style.fontSize = '20px';
+
+		// place it below the clock
+		input.style.left = `calc(50% - ${boxWidth / 2}px)`; // dynamically centers
+		input.style.top = `${STAGE_HEIGHT / 2 + 180}px`;
 
 		container.style.position = 'relative';
 		container.appendChild(input);
@@ -173,20 +181,27 @@ export class EarthScreenController extends ScreenController {
 	// --------------------------------------------------------
 
 	private handleAnswer(userInput: string): void {
-		const match = /^(\d{1,2}):(\d{2})$/.exec(userInput);
+		// Normalize input (remove spaces and make uppercase)
+		const cleaned = userInput.replace(/\s+/g, '').toUpperCase();
+
+		// Match flexible format like "12:30PM" or "12:30 PM"
+		const match = /^(\d{1,2}):(\d{2})(AM|PM)$/.exec(cleaned);
 		if (!match) {
-			this.showFeedback('❌ Please enter a valid time like 12:30');
+			this.showFeedback('❌ Please enter a valid time like "12:30 PM"');
 			return;
 		}
 
-		const userHour = parseInt(match[1], 10) % 12;
+		const userHour = parseInt(match[1], 10);
 		const userMinute = parseInt(match[2], 10);
-		const { correctHour, correctMinute, maxAttempts } = this.model;
+		const userPeriod = match[3].toUpperCase();
+
+		const { correctHour, correctMinute, correctPeriod, maxAttempts } = this.model;
 
 		this.model.attempts += 1;
 		this.updateAttemptIndicator();
 
-		const isCorrect = userHour === correctHour && userMinute === correctMinute;
+		const isCorrect =
+			userHour === correctHour && userMinute === correctMinute && userPeriod === correctPeriod;
 
 		if (isCorrect) {
 			this.showFeedback('✅ Correct!');
@@ -196,9 +211,17 @@ export class EarthScreenController extends ScreenController {
 			setTimeout(() => this.nextQuestion(), 1500);
 		} else if (this.model.attempts < maxAttempts) {
 			const remaining = maxAttempts - this.model.attempts;
-			this.showFeedback(`❌ Try again! You have ${remaining} attempt${remaining > 1 ? 's' : ''} left.`);
+			this.showFeedback(
+				`❌ Try again! You have ${remaining} attempt${remaining > 1 ? 's' : ''} left.`
+			);
 		} else {
-			this.showFeedback(`❌ Out of attempts! The correct time was ${this.formatTime(correctHour, correctMinute)}.`);
+			this.showFeedback(
+				`❌ Out of attempts! The correct time was ${this.formatTime(
+					correctHour,
+					correctMinute,
+					correctPeriod
+				)}.`
+			);
 			this.animateClockTo(correctHour, correctMinute);
 			setTimeout(() => this.nextQuestion(), 2000);
 			this.model.attempts = 0;
@@ -210,9 +233,7 @@ export class EarthScreenController extends ScreenController {
 	// --------------------------------------------------------
 
 	private updateAttemptIndicator(): void {
-		this.attemptsIndicator.text(
-			`Attempts: ${this.model.attempts} / ${this.model.maxAttempts}`
-		);
+		this.attemptsIndicator.text(`Attempts: ${this.model.attempts} / ${this.model.maxAttempts}`);
 		this.attemptsIndicator.offsetX(this.attemptsIndicator.width() / 2);
 		this.view.getGroup().getLayer()?.batchDraw();
 	}
@@ -258,10 +279,10 @@ export class EarthScreenController extends ScreenController {
 		if (this.inputBox) this.inputBox.disabled = true;
 	}
 
-	private formatTime(hour: number, minute: number): string {
+	private formatTime(hour: number, minute: number, period: 'AM' | 'PM'): string {
 		const h = hour === 0 ? 12 : hour;
 		const m = minute.toString().padStart(2, '0');
-		return `${h}:${m}`;
+		return `${h}:${m} ${period}`;
 	}
 
 	// --------------------------------------------------------

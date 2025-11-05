@@ -1,16 +1,20 @@
 /**
- * EarthScreenModel - Stores game state for the Earth screen
+ * EarthScreenModel - Stores state for the Earth Time Game
  */
 export class EarthScreenModel {
-	question: string = '';
-	correctAnswers: number = 0;
-	correctHour: number = 0;
-	correctMinute: number = 0;
+	// Current question index
+	currentQuestion = 1;
+	totalQuestions = 15;
 
-	attempts: number = 0;
-	maxAttempts: number = 3;
+	// Attempts tracking
+	attempts = 0;
+	maxAttempts = 3;
 
-	// quiz progression
-	currentQuestion: number = 1;
-	totalQuestions: number = 15;
+	// Scoring
+	correctAnswers = 0;
+
+	// Correct answer for the current question
+	correctHour = 0;
+	correctMinute = 0;
+	correctPeriod: 'AM' | 'PM' = 'AM'; // ✅ added this line
 }

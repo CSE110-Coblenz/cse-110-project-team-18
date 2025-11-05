@@ -2,70 +2,66 @@ export interface TimeQuestion {
 	question: string;
 	startHour: number;
 	startMinute: number;
-	deltaMinutes: number;
+	startPeriod: 'AM' | 'PM';
 	correctHour: number;
 	correctMinute: number;
+	correctPeriod: 'AM' | 'PM';
+	deltaMinutes: number;
 }
 
 /**
- * Generate a random time arithmetic question
- * - Excludes 0 hours
- * - Uses only 15, 30, or 45 minute increments
- * - Formats hours/minutes naturally
+ * Generate a random time arithmetic question (with AM/PM)
  */
 export function generateTimeQuestion(): TimeQuestion {
-	// Random start time
-	const startHour = Math.floor(Math.random() * 12);
-	const startMinute = [0, 15, 30, 45][Math.floor(Math.random() * 4)];
+	// Start time
+	const startHour = Math.floor(Math.random() * 12) || 12;
+	const minuteOptions = [0, 15, 30, 45];
+	const startMinute = minuteOptions[Math.floor(Math.random() * minuteOptions.length)];
+	const startPeriod: 'AM' | 'PM' = Math.random() < 0.5 ? 'AM' : 'PM';
 
-	// Randomly decide to add or subtract time
+	// Add or subtract time
 	const add = Math.random() < 0.5;
+	const deltaHours = Math.floor(Math.random() * 5) + (Math.random() < 0.5 ? 0.5 : 0);
+	const deltaMinutes = Math.round(deltaHours * 60) * (add ? 1 : -1);
 
-	// Allowed time changes (in minutes)
-	const validIncrements = [
-		15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240,
-	];
-	const deltaMinutesRaw = validIncrements[Math.floor(Math.random() * validIncrements.length)];
-	const deltaMinutes = add ? deltaMinutesRaw : -deltaMinutesRaw;
+	// Convert start time to total minutes (24-hour clock)
+	let totalMinutes =
+		(startHour % 12) * 60 + startMinute + (startPeriod === 'PM' ? 12 * 60 : 0) + deltaMinutes;
 
-	// Compute resulting time (wraps around 12 hours)
-	let totalMinutes = startHour * 60 + startMinute + deltaMinutes;
-	totalMinutes = ((totalMinutes % (12 * 60)) + 12 * 60) % (12 * 60);
-	const correctHour = Math.floor(totalMinutes / 60);
+	// Normalize within 24 hours
+	totalMinutes = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
+
+	// Compute resulting time
+	const correct24Hour = Math.floor(totalMinutes / 60);
 	const correctMinute = totalMinutes % 60;
+	const correctPeriod: 'AM' | 'PM' = correct24Hour >= 12 ? 'PM' : 'AM';
+	const correctHour = correct24Hour % 12 === 0 ? 12 : correct24Hour % 12;
 
-	// Generate readable question
-	const absMinutes = Math.abs(deltaMinutesRaw);
-	let question = '';
+	// Question formatting
+	const deltaLabel = Math.abs(deltaHours).toFixed(1);
 
-	if (absMinutes < 60) {
-		// Less than 1 hour → say minutes
-		const minutesText = `${absMinutes} minute${absMinutes === 15 ? 's' : ''}`;
-		question = add
-			? `It is ${formatTime(startHour, startMinute)}. What time will it be in ${minutesText}?`
-			: `It is ${formatTime(startHour, startMinute)}. What time was it ${minutesText} ago?`;
-	} else {
-		// 1 hour or more → say hours + minutes
-		const hours = Math.floor(absMinutes / 60);
-		const mins = absMinutes % 60;
-		let timePhrase = '';
+	const startTimeStr = formatTime(startHour, startMinute, startPeriod);
+	const question = add
+		? `It is ${startTimeStr}. What time will it be in ${deltaLabel} hour${deltaLabel === '1.0' ? '' : 's'}?`
+		: `It is ${startTimeStr}. What time was it ${deltaLabel} hour${deltaLabel === '1.0' ? '' : 's'} ago?`;
 
-		if (mins === 0) {
-			timePhrase = `${hours} hour${hours > 1 ? 's' : ''}`;
-		} else {
-			timePhrase = `${hours} hour${hours > 1 ? 's' : ''} and ${mins} minutes`;
-		}
-
-		question = add
-			? `It is ${formatTime(startHour, startMinute)}. What time will it be in ${timePhrase}?`
-			: `It is ${formatTime(startHour, startMinute)}. What time was it ${timePhrase} ago?`;
-	}
-
-	return { question, startHour, startMinute, deltaMinutes, correctHour, correctMinute };
+	return {
+		question,
+		startHour,
+		startMinute,
+		startPeriod,
+		correctHour,
+		correctMinute,
+		correctPeriod,
+		deltaMinutes,
+	};
 }
 
-function formatTime(hour: number, minute: number): string {
+/**
+ * Format time as "H:MM AM/PM"
+ */
+function formatTime(hour: number, minute: number, period: 'AM' | 'PM'): string {
 	const h = hour === 0 ? 12 : hour;
 	const m = minute.toString().padStart(2, '0');
-	return `${h}:${m}`;
+	return `${h}:${m} ${period}`;
 }

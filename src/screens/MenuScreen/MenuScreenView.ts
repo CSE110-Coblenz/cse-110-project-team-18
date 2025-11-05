@@ -61,31 +61,39 @@ export class MenuScreenView implements View {
 		// Menu view intentionally stays passive about movement/assets.
 		// Asset loading and movement are managed by the controller/manager.
 
-		const earthButtonGroup = new Konva.Group();
-		const earthButton = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 100,
-			y: 400,
-			width: 200,
-			height: 60,
-			fill: 'blue',
-			cornerRadius: 10,
-			stroke: 'darkblue',
-			strokeWidth: 3,
+		// earth button here
+		// Earth button (image)
+		const earthButtonGroup = new Konva.Group({
+			x: STAGE_WIDTH / 2 - 50, // centers horizontally
+			y: 400, // same vertical placement as before
 		});
-		const earthText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 415,
-			text: 'EARTH SCREEN',
-			fontSize: 24,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
-		});
-		earthText.offsetX(earthText.width() / 2);
-		earthButtonGroup.add(earthButton);
-		earthButtonGroup.add(earthText);
-		earthButtonGroup.on('click', onEarthClick); // Handle the click event
-		this.group.add(earthButtonGroup); // Add Earth button to the main group
+
+		const earthImageObj = new Image();
+		earthImageObj.src = '/assets/planets/earth.png'; // path inside public folder
+
+		earthImageObj.onload = () => {
+			const earthImage = new Konva.Image({
+				image: earthImageObj,
+				width: 100,
+				height: 100,
+			});
+
+			// Hover animation
+			earthImage.on('mouseenter', () => {
+				document.body.style.cursor = 'pointer';
+				earthImage.to({ scaleX: 1.1, scaleY: 1.1, duration: 0.15 });
+			});
+			earthImage.on('mouseleave', () => {
+				document.body.style.cursor = 'default';
+				earthImage.to({ scaleX: 1, scaleY: 1, duration: 0.15 });
+			});
+
+			// Click handler
+			earthImage.on('click', onEarthClick);
+
+			earthButtonGroup.add(earthImage);
+			this.group.add(earthButtonGroup);
+		};
 	}
 
 	/**
