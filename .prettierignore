@@ -1,0 +1,27 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+dist-ssr
+*.local
+
+# Package manager files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Logs
+*.log
+
+# Generated files
+*.min.js
+*.min.css
+
+# Other
+.DS_Store
+README.md
+
+# Meeting notes
+meeting_notes/
+
