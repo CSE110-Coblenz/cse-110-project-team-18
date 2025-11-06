@@ -21,7 +21,8 @@ export function generateTimeQuestion(): TimeQuestion {
 
 	// Add or subtract time
 	const add = Math.random() < 0.5;
-	const deltaHours = Math.floor(Math.random() * 5) + (Math.random() < 0.5 ? 0.5 : 0);
+	const deltaHourOptions = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+	const deltaHours = deltaHourOptions[Math.floor(Math.random() * deltaHourOptions.length)];
 	const deltaMinutes = Math.round(deltaHours * 60) * (add ? 1 : -1);
 
 	// Convert start time to total minutes (24-hour clock)
@@ -38,7 +39,7 @@ export function generateTimeQuestion(): TimeQuestion {
 	const correctHour = correct24Hour % 12 === 0 ? 12 : correct24Hour % 12;
 
 	// Question formatting
-	const deltaLabel = Math.abs(deltaHours).toFixed(1);
+	const deltaLabel = Math.abs(deltaHours).toFixed(2).replace(/\.00$/, '').replace(/0$/, '');
 
 	const startTimeStr = formatTime(startHour, startMinute, startPeriod);
 	const question = add
