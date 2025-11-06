@@ -3,6 +3,10 @@ This guide explains how screen switching works in Math Explorers: Galactic Quest
 ## Overview
 
 The application uses a screen management system where:
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 - All screens exist simultaneously but only one is visible at a time
 - Each screen is a Konva Group that can be shown/hidden
 - Screen controllers manage the Model-View-Controller pattern for each screen
@@ -13,18 +17,31 @@ The application uses a screen management system where:
 ### Architecture
 
 1. **ScreenSwitcher Interface**: Defines the contract for switching screens
+<<<<<<< HEAD
    ```typescript
    interface ScreenSwitcher {
        switchToScreen(screen: Screen): void;
+=======
+
+   ```typescript
+   interface ScreenSwitcher {
+   	switchToScreen(screen: Screen): void;
+>>>>>>> origin/main
    }
    ```
 
 2. **Screen Types**: Defined in `src/types.ts`
+<<<<<<< HEAD
    ```typescript
    type Screen = 
        | { type: 'menu' } 
        | { type: 'game' } 
        | { type: 'result'; score: number };
+=======
+
+   ```typescript
+   type Screen = { type: 'menu' } | { type: 'game' } | { type: 'result'; score: number };
+>>>>>>> origin/main
    ```
 
 3. **Screen Controllers**: Each screen extends `ScreenController` and implements:
@@ -44,6 +61,10 @@ When `switchToScreen()` is called:
 3. **Set active controller**: The active controller is updated for the game loop
 
 Example from `src/main.ts`:
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 ```typescript
 switchToScreen(screen: Screen): void {
     // Hide all screens
@@ -69,21 +90,38 @@ switchToScreen(screen: Screen): void {
 Create a new folder in `src/screens/` (e.g., `GameScreen/`) and create three files:
 
 #### GameScreenModel.ts
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 ```typescript
 /**
  * GameScreenModel - The model for the game screen
  */
 export class GameScreenModel {
+<<<<<<< HEAD
     // Add your game state here
     score: number = 0;
     
     constructor() {
         // Initialize model
     }
+=======
+	// Add your game state here
+	score: number = 0;
+
+	constructor() {
+		// Initialize model
+	}
+>>>>>>> origin/main
 }
 ```
 
 #### GameScreenView.ts
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 ```typescript
 import Konva from 'konva';
 import type { View } from '../../types.ts';
@@ -92,6 +130,7 @@ import type { View } from '../../types.ts';
  * GameScreenView - Renders the game screen
  */
 export class GameScreenView implements View {
+<<<<<<< HEAD
     private group: Konva.Group;
 
     constructor() {
@@ -124,10 +163,48 @@ export class GameScreenView implements View {
     getGroup(): Konva.Group {
         return this.group;
     }
+=======
+	private group: Konva.Group;
+
+	constructor() {
+		this.group = new Konva.Group({
+			visible: false, // Start hidden
+			id: 'gameScreen',
+		});
+
+		// Add your UI elements here
+		const title = new Konva.Text({
+			x: 100,
+			y: 50,
+			text: 'Game Screen',
+			fontSize: 32,
+			fill: 'white',
+		});
+		this.group.add(title);
+	}
+
+	show(): void {
+		this.group.visible(true);
+		this.group.getLayer()?.draw();
+	}
+
+	hide(): void {
+		this.group.visible(false);
+		this.group.getLayer()?.draw();
+	}
+
+	getGroup(): Konva.Group {
+		return this.group;
+	}
+>>>>>>> origin/main
 }
 ```
 
 #### GameScreenController.ts
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 ```typescript
 import { ScreenController } from '../../types.ts';
 import type { ScreenSwitcher } from '../../types.ts';
@@ -138,6 +215,7 @@ import { GameScreenModel } from './GameScreenModel.ts';
  * GameScreenController - Handles game screen interactions
  */
 export class GameScreenController extends ScreenController {
+<<<<<<< HEAD
     private view: GameScreenView;
     private screenSwitcher: ScreenSwitcher;
     private model: GameScreenModel;
@@ -167,55 +245,124 @@ export class GameScreenController extends ScreenController {
         // Update game logic here
         // This is called every frame by the game loop
     }
+=======
+	private view: GameScreenView;
+	private screenSwitcher: ScreenSwitcher;
+	private model: GameScreenModel;
+
+	constructor(screenSwitcher: ScreenSwitcher) {
+		super();
+		this.screenSwitcher = screenSwitcher;
+		this.view = new GameScreenView();
+		this.model = new GameScreenModel();
+	}
+
+	getView(): GameScreenView {
+		return this.view;
+	}
+
+	override show(): void {
+		super.show();
+		// Add any initialization logic here
+	}
+
+	override hide(): void {
+		super.hide();
+		// Add any cleanup logic here
+	}
+
+	override update(deltaTime: number): void {
+		// Update game logic here
+		// This is called every frame by the game loop
+	}
+>>>>>>> origin/main
 }
 ```
 
 ### Step 2: Register Screen in main.ts
 
 1. **Import the controller**:
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
    ```typescript
    import { GameScreenController } from './screens/GameScreen/GameScreenController.ts';
    ```
 
 2. **Add controller property**:
+<<<<<<< HEAD
    ```typescript
    class App implements ScreenSwitcher {
        // ... existing code
        private gameController: GameScreenController;
+=======
+
+   ```typescript
+   class App implements ScreenSwitcher {
+   	// ... existing code
+   	private gameController: GameScreenController;
+>>>>>>> origin/main
    }
    ```
 
 3. **Initialize in constructor**:
+<<<<<<< HEAD
    ```typescript
    constructor(container: string) {
        // ... existing initialization
        
        this.gameController = new GameScreenController(this);
        
+=======
+
+   ```typescript
+   constructor(container: string) {
+       // ... existing initialization
+
+       this.gameController = new GameScreenController(this);
+
+>>>>>>> origin/main
        // ... rest of constructor
    }
    ```
 
 4. **Add screen group to layer**:
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
    ```typescript
    // In constructor, after creating controllers
    this.layer.add(this.gameController.getView().getGroup());
    ```
 
 5. **Add case in switchToScreen()**:
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
    ```typescript
    switchToScreen(screen: Screen): void {
        // Hide all screens
        this.menuController.hide();
        this.gameController.hide();
+<<<<<<< HEAD
        
+=======
+
+>>>>>>> origin/main
        // Show requested screen
        switch (screen.type) {
            case 'menu':
                this.menuController.show();
                this.activeController = this.menuController;
                break;
+<<<<<<< HEAD
                
+=======
+
+>>>>>>> origin/main
            case 'game':
                this.gameController.show();
                this.activeController = this.gameController;
@@ -229,10 +376,17 @@ export class GameScreenController extends ScreenController {
 Add your new screen type to `src/types.ts`:
 
 ```typescript
+<<<<<<< HEAD
 export type Screen = 
     | { type: 'menu' } 
     | { type: 'game' }      // Your new screen
     | { type: 'result'; score: number };
+=======
+export type Screen =
+	| { type: 'menu' }
+	| { type: 'game' } // Your new screen
+	| { type: 'result'; score: number };
+>>>>>>> origin/main
 ```
 
 ### Step 4: Switch to Your Screen
@@ -260,21 +414,37 @@ startButtonGroup.on('click', onStartClick);
 ## Screen Lifecycle
 
 ### Initialization
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 - Constructor called when `App` is created
 - Screen groups are added to the layer
 - Screens start hidden (except the initial screen)
 
 ### Showing
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 - `show()` is called by `switchToScreen()`
 - View's group visibility is set to `true`
 - Controller can initialize resources here
 
 ### Active (Visible)
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 - `update(deltaTime)` is called every frame
 - Only the active screen's `update()` is called
 - Handle game logic, input, animations here
 
 ### Hiding
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 - `hide()` is called when switching away
 - View's group visibility is set to `false`
 - Controller can pause/cleanup here
@@ -296,7 +466,11 @@ Use the `Screen` type to pass data:
 
 ```typescript
 // In types.ts
+<<<<<<< HEAD
 export type Screen = 
+=======
+export type Screen =
+>>>>>>> origin/main
     | { type: 'game'; level: number }
     | { type: 'result'; score: number };
 
@@ -315,24 +489,42 @@ case 'game':
 
 ```typescript
 if (player.hasWon()) {
+<<<<<<< HEAD
     this.screenSwitcher.switchToScreen({ type: 'result', score: player.score });
 } else {
     this.screenSwitcher.switchToScreen({ type: 'game' });
+=======
+	this.screenSwitcher.switchToScreen({ type: 'result', score: player.score });
+} else {
+	this.screenSwitcher.switchToScreen({ type: 'game' });
+>>>>>>> origin/main
 }
 ```
 
 ## Troubleshooting
 
 ### Screen not showing
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 - ✅ Check that screen group is added to layer
 - ✅ Verify `switchToScreen()` case is implemented
 - ✅ Ensure `show()` sets `group.visible(true)`
 
 ### Screen not updating
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 - ✅ Verify controller is set as `activeController`
 - ✅ Check that `update()` is implemented
 - ✅ Ensure game loop is running
 
 ### Screen not hiding
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 - ✅ Check that `hide()` is called in `switchToScreen()`
 - ✅ Verify `hide()` sets `group.visible(false)`

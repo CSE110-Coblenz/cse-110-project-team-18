@@ -10,12 +10,14 @@ export interface PlayerModel {
 
 /**
  * MenuScreenModel - The model for the menu screen
- * @param player - The player model
+ * @param player - The player model (optional)
  */
 export class MenuScreenModel {
-	player: PlayerModel;
+	player?: PlayerModel;
 
-	constructor(x = 0, y = 0) {
-		this.player = { x, y };
+	constructor(x?: number, y?: number) {
+		if (x !== undefined && y !== undefined) {
+			this.player = { x, y };
+		}
 	}
 }

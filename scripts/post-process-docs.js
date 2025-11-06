@@ -1,4 +1,12 @@
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'fs';
+import {
+	readFileSync,
+	writeFileSync,
+	mkdirSync,
+	copyFileSync,
+	existsSync,
+	readdirSync,
+	statSync,
+} from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { marked } from 'marked';
@@ -40,7 +48,7 @@ const renderer = Object.assign(defaultRenderer, {
 	heading(text, level) {
 		// First, get the default rendered heading HTML
 		const defaultHtml = originalHeading(text, level);
-		
+
 		// Extract plain text from the heading for ID generation
 		// Remove HTML tags to get plain text
 		const plainText = defaultHtml
@@ -48,12 +56,12 @@ const renderer = Object.assign(defaultRenderer, {
 			.replace(/^<h\d+[^>]*>/, '') // Remove opening tag
 			.replace(/<\/h\d+>$/, '') // Remove closing tag
 			.trim();
-		
+
 		const id = slugify(plainText);
-		
+
 		// Add ID to the heading tag
 		return defaultHtml.replace(/^(<h\d+)([^>]*>)/, `$1 id="${id}"$2`);
-	}
+	},
 });
 
 // Configure marked with all options at once
@@ -77,7 +85,7 @@ guideFiles.forEach(({ file, title }) => {
 	if (existsSync(source)) {
 		// Read markdown content
 		const markdown = readFileSync(source, 'utf8');
-		
+
 		// Convert to HTML - marked.parse() returns a string
 		let htmlContent;
 		try {
@@ -90,7 +98,7 @@ guideFiles.forEach(({ file, title }) => {
 			console.error(`Error parsing ${file}:`, error);
 			htmlContent = `<p>Error loading guide content.</p>`;
 		}
-		
+
 		// Create HTML page with styling
 		const htmlPage = `<!DOCTYPE html>
 <html lang="en">
@@ -271,13 +279,13 @@ guideFiles.forEach(({ file, title }) => {
     </div>
 </body>
 </html>`;
-		
+
 		// Write HTML file (without .md extension)
 		const htmlFileName = file.replace('.md', '.html');
 		const htmlPath = join(guidesDir, htmlFileName);
 		writeFileSync(htmlPath, htmlPage);
 		console.log(`Created HTML page: ${htmlFileName}`);
-		
+
 		// Also copy the markdown file for reference
 		const mdPath = join(guidesDir, file);
 		copyFileSync(source, mdPath);
@@ -417,23 +425,112 @@ const guidesIndexHtml = `<!DOCTYPE html>
 writeFileSync(join(apiDir, 'guides.html'), guidesIndexHtml);
 console.log('Created guides index page: docs/api/guides.html');
 
+// Developer Guides sidebar section HTML
+const developerGuidesSidebar = `
+<div class="tsd-developer-guides" style="margin-top: 20px; padding: 12px; background: #1e293b; border-radius: 6px; border: 1px solid #334155;">
+	<a href="guides.html" style="color: #60a5fa; text-decoration: none; font-size: 0.95em; font-weight: 500; display: block;">
+		📚 Check out Developer Guides →
+	</a>
+</div>`;
+
+// Function to add developer guides to sidebar
+function addGuidesToSidebar(htmlContent, relativePath = '') {
+	// Skip if already added
+	if (htmlContent.includes('tsd-developer-guides')) {
+		return htmlContent;
+	}
+
+	// Calculate relative path for guides (e.g., '../guides.html' for subdirectories)
+	let guidesPath = 'guides.html';
+	if (relativePath) {
+		const depth = relativePath.split('/').filter((p) => p && p !== '.').length;
+		if (depth > 0) {
+			guidesPath = '../'.repeat(depth) + 'guides.html';
+		}
+	}
+
+	// Create the sidebar HTML with correct path
+	const guidesHtml = developerGuidesSidebar.replace(/href="guides\.html"/g, `href="${guidesPath}"`);
+
+	// Find the page-menu div and insert after the Settings accordion
+	const afterSettingsPattern =
+		/(<\/details><\/div>)(<details open class="tsd-accordion tsd-page-navigation">)/;
+
+	// Try to insert after Settings accordion
+	if (afterSettingsPattern.test(htmlContent)) {
+		return htmlContent.replace(afterSettingsPattern, `$1${guidesHtml}$2`);
+	}
+
+	// Fallback: insert after page-menu opening tag
+	const pageMenuPattern = /(<div class="page-menu">)/;
+	if (pageMenuPattern.test(htmlContent)) {
+		return htmlContent.replace(pageMenuPattern, `$1${guidesHtml}`);
+	}
+
+	return htmlContent;
+}
+
 // Try to modify the TypeDoc index.html to add a link to guides
 try {
 	const indexPath = join(apiDir, 'index.html');
 	let indexContent = readFileSync(indexPath, 'utf8');
-	
+
 	// Add a link to guides in the page content (before the closing div)
-	const guidesLink = '<div class="tsd-panel tsd-typography" style="margin-top: 20px;"><h2>Developer Guides</h2><p>Check out our <a href="guides.html" style="color: #2563eb; font-weight: 500;">step-by-step developer guides</a> for detailed instructions on screen switching, input handling, character loading, and more.</p></div>';
-	
+	const guidesLink =
+		'<div class="tsd-panel tsd-typography" style="margin-top: 20px;"><h2>Developer Guides</h2><p>Check out our <a href="guides.html" style="color: #2563eb; font-weight: 500;">step-by-step developer guides</a> for detailed instructions on screen switching, input handling, character loading, and more.</p></div>';
+
 	// Insert before the closing </div> of col-content
 	const insertPoint = indexContent.indexOf('</div></div><div class="col-sidebar">');
 	if (insertPoint !== -1) {
-		indexContent = indexContent.slice(0, insertPoint) + guidesLink + indexContent.slice(insertPoint);
-		writeFileSync(indexPath, indexContent);
-		console.log('Added guides link to index.html');
+		indexContent =
+			indexContent.slice(0, insertPoint) + guidesLink + indexContent.slice(insertPoint);
 	}
+
+	// Add developer guides to sidebar
+	indexContent = addGuidesToSidebar(indexContent);
+	writeFileSync(indexPath, indexContent);
+	console.log('Added guides link to index.html');
 } catch (error) {
 	console.warn('Could not modify index.html:', error.message);
+}
+
+// Add developer guides sidebar to all HTML files in docs/api
+function processAllHtmlFiles(dir, relativePath = '') {
+	const files = readdirSync(dir);
+
+	for (const file of files) {
+		const filePath = join(dir, file);
+		const stat = statSync(filePath);
+
+		if (stat.isDirectory()) {
+			// Skip guides directory and assets directory
+			if (file !== 'guides' && file !== 'assets') {
+				processAllHtmlFiles(filePath, join(relativePath, file));
+			}
+		} else if (file.endsWith('.html') && file !== 'guides.html' && file !== 'index.html') {
+			try {
+				let content = readFileSync(filePath, 'utf8');
+
+				// Only process if it's a TypeDoc-generated page (has col-sidebar)
+				if (content.includes('col-sidebar')) {
+					const newContent = addGuidesToSidebar(content, relativePath);
+					if (newContent !== content) {
+						writeFileSync(filePath, newContent);
+						console.log(`Added developer guides sidebar to ${join(relativePath, file)}`);
+					}
+				}
+			} catch (error) {
+				console.warn(`Could not process ${filePath}:`, error.message);
+			}
+		}
+	}
+}
+
+// Process all HTML files
+try {
+	processAllHtmlFiles(apiDir);
+} catch (error) {
+	console.warn('Could not process all HTML files:', error.message);
 }
 
 console.log('Post-processing complete!');

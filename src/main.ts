@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { MenuScreenController } from './screens/MenuScreen/MenuScreenController.ts';
+import { AsteroidFieldGameController } from './screens/AsteriodFieldGameScreen/AsteroidFieldGameController.ts';
 import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
@@ -24,6 +25,7 @@ class App implements ScreenSwitcher {
 
 	private menuController: MenuScreenController;
 	private gameController: PrimeNumberGameController;
+	private asteroidFieldGameController: AsteroidFieldGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
 
@@ -46,6 +48,7 @@ class App implements ScreenSwitcher {
 		// Each controller manages a Model, View, and handles user interactions
 		this.menuController = new MenuScreenController(this);
 		this.gameController = new PrimeNumberGameController(this);
+		this.asteroidFieldGameController = new AsteroidFieldGameController(this);
 		// this.gameController = new GameScreenController(this);
 		// this.resultsController = new ResultsScreenController(this);
 
@@ -53,6 +56,8 @@ class App implements ScreenSwitcher {
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
 		this.layer.add(this.gameController.getView().getGroup());
+		this.layer.add(this.asteroidFieldGameController.getView().getGroup());
+		// this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
 
 		// Draw the layer (render everything to the canvas)
@@ -89,6 +94,8 @@ class App implements ScreenSwitcher {
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
 		this.gameController.hide();
+		this.asteroidFieldGameController.hide();
+		// this.gameController.hide();
 		// this.resultsController.hide();
 
 		// Show the requested screen based on the screen type
@@ -96,6 +103,13 @@ class App implements ScreenSwitcher {
 			case 'menu':
 				this.menuController.show();
 				this.activeController = this.menuController;
+				console.log('Showing menu screen');
+				break;
+
+			case 'asteroid field game':
+				this.asteroidFieldGameController.show();
+				this.activeController = this.asteroidFieldGameController;
+				console.log('Showing asteroid field game screen');
 				break;
 
 			case "game":

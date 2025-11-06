@@ -2,23 +2,26 @@ import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { STAGE_WIDTH } from '../../configs/GameConfig';
 
+// NEW: use the factory
+import { createButton } from '../../ui';
+
 /**
  * MenuScreenView - Renders the menu screen
  */
 export class MenuScreenView implements View {
 	private group: Konva.Group;
+	private buttonGroup?: Konva.Group;
 
 	/**
-	 * Constructor for the MenuScreenView
-	 * @param onStartClick - The function to call when the start button is clicked
+	 * @param onAsteriodFieldClick - The function to call when the start button is clicked
 	 */
-	constructor(onStartClick: () => void) {
+	constructor(onAsteriodFieldClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
-			id: 'menuScreen', // Add ID for debugging
+			id: 'menuScreen',
 		});
 
-		// Title text
+		// Title text (unchanged)
 		const title = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 150,
@@ -28,60 +31,47 @@ export class MenuScreenView implements View {
 			fill: 'white',
 			align: 'center',
 		});
-		// Center the text using offsetX
 		title.offsetX(title.width() / 2);
 		this.group.add(title);
 
-		const startButtonGroup = new Konva.Group();
-		const startButton = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 100,
-			y: 300,
-			width: 200,
+		// START button via factory
+		const asteroidFieldBtn = createButton({
+			// x defaults to STAGE_WIDTH / 2 - 200 per factory; pass x if you want a custom offset
+			y: 375,
+			width: 400,
 			height: 60,
-			fill: 'green',
-			cornerRadius: 10,
-			stroke: 'darkgreen',
-			strokeWidth: 3,
+			text: 'START ASTEROID FIELD GAME',
+			colorKey: 'alien_green', // theme green
+			hoverColorKey: 'success_hover',
+			//   fontFamily: 'Georgia',        // keep your typography overrides
+			//   fontSize: 24,
+			//   fontWeight: 700,
+			onClick: onAsteriodFieldClick,
 		});
-		const startText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 315,
-			text: 'START GAME',
-			fontSize: 24,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
-		});
-		startText.offsetX(startText.width() / 2);
-		startButtonGroup.add(startButton);
-		startButtonGroup.add(startText);
-		startButtonGroup.on('click', onStartClick);
-		this.group.add(startButtonGroup);
+
+		this.buttonGroup = asteroidFieldBtn;
+		this.group.add(asteroidFieldBtn);
+		asteroidFieldBtn.moveToTop();
 
 		// Menu view intentionally stays passive about movement/assets.
-		// Asset loading and movement are managed by the controller/manager.
 	}
 
-	/**
-	 * Show the screen
-	 */
+	ensureButtonsOnTop(): void {
+		if (this.buttonGroup) {
+			this.buttonGroup.moveToTop();
+		}
+	}
+
 	show(): void {
 		this.group.visible(true);
 		this.group.getLayer()?.draw();
 	}
 
-	/**
-	 * Hide the screen
-	 */
 	hide(): void {
 		this.group.visible(false);
 		this.group.getLayer()?.draw();
 	}
 
-	/**
-	 * Get the group of the menu screen view
-	 * @returns The group of the menu screen view
-	 */
 	getGroup(): Konva.Group {
 		return this.group;
 	}
