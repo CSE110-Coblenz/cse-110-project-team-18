@@ -3,6 +3,7 @@ import { MenuScreenController } from './screens/MenuScreen/MenuScreenController.
 import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
+import { PrimeNumberGameController } from './screens/PrimeNumberGameScreen/PrimeNumberGameController.ts';
 
 // Space Math Adventure - Main Entry Point
 /**
@@ -22,6 +23,7 @@ class App implements ScreenSwitcher {
 	private activeController?: ScreenController | null;
 
 	private menuController: MenuScreenController;
+	private gameController: PrimeNumberGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
 
@@ -43,13 +45,14 @@ class App implements ScreenSwitcher {
 		// Initialize all screen controllers
 		// Each controller manages a Model, View, and handles user interactions
 		this.menuController = new MenuScreenController(this);
+		this.gameController = new PrimeNumberGameController(this);
 		// this.gameController = new GameScreenController(this);
 		// this.resultsController = new ResultsScreenController(this);
 
 		// Add all screen groups to the layer
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
-		// this.layer.add(this.gameController.getView().getGroup());
+		this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
 
 		// Draw the layer (render everything to the canvas)
@@ -85,7 +88,7 @@ class App implements ScreenSwitcher {
 	switchToScreen(screen: Screen): void {
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
-		// this.gameController.hide();
+		this.gameController.hide();
 		// this.resultsController.hide();
 
 		// Show the requested screen based on the screen type
@@ -95,10 +98,12 @@ class App implements ScreenSwitcher {
 				this.activeController = this.menuController;
 				break;
 
-			// case "game":
-			// 	// Start the game (which also shows the game screen)
-			// 	this.gameController.startGame();
-			// 	break;
+			case "game":
+			// Start the game (which also shows the game screen)
+			this.gameController.getView().show();
+			this.gameController.startGame();
+			this.activeController = this.gameController;
+			break;
 
 			// case "result":
 			// 	// Show results with the final score
