@@ -170,13 +170,18 @@ export class EarthScreenController extends ScreenController {
 	private loadNewQuestion(): void {
 		this.clearFeedback();
 
+		if (this.model.currentQuestion >= this.model.totalQuestions) {
+			this.showGameOver();
+			return;
+		}
 		// Increment question counter and load a new question
-		this.model.currentQuestion++;
 		const q = generateTimeQuestion();
 
 		this.model.correctHour = q.correctHour;
 		this.model.correctMinute = q.correctMinute;
 		this.model.attempts = 0;
+
+		const questionNumber = this.model.currentQuestion + 1;
 
 		// Show "Q1: It is 3:30..." properly centered
 		this.questionText.text(`Q${this.model.currentQuestion}: ${q.question}`);
@@ -185,6 +190,30 @@ export class EarthScreenController extends ScreenController {
 		this.logic.setClockTime(q.startHour, q.startMinute);
 		this.updateAttemptIndicator();
 		this.view.getGroup().getLayer()?.batchDraw();
+
+		this.model.currentQuestion++;
+	}
+
+	// --------------------------------------------------------
+	// GAME OVER MESSAGE (place this after loadNewQuestion)
+	// --------------------------------------------------------
+	private showGameOver(): void {
+		this.clearFeedback();
+
+		const finalText = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: STAGE_HEIGHT / 2,
+			text: `🎉 You completed all ${this.model.totalQuestions} questions!\nScore: ${this.model.correctAnswers}/${this.model.totalQuestions}`,
+			fontSize: 28,
+			fontFamily: 'Arial',
+			fill: 'lightgreen',
+			align: 'center',
+		});
+		finalText.offsetX(finalText.width() / 2);
+		this.view.getGroup().add(finalText);
+		this.view.getGroup().getLayer()?.batchDraw();
+
+		if (this.inputBox) this.inputBox.disabled = true;
 	}
 
 	private handleAnswer(userInput: string): void {
