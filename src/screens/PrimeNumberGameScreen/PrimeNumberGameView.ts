@@ -1,6 +1,8 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { STAGE_WIDTH } from '../../configs/GameConfig.ts';
+import { theme } from '../../configs/ThemeConfig.ts';
+import { createButton, createTextBox, setElementText } from '../../ui/factory/ElementFactory.ts';
 
 /**
  * Manages all Konva UI elements for the Prime Number Game.
@@ -9,10 +11,10 @@ export class PrimeNumberGameView implements View {
     private group: Konva.Group;
 
     // UI Elements
-    private scoreDisplay: Konva.Text;
-    private questionNumber: Konva.Text;
-    private questionText: Konva.Text;
-    private feedbackText: Konva.Text;
+    private scoreDisplay: Konva.Group;
+    private questionNumber: Konva.Group;
+    private questionText: Konva.Group;
+    private feedbackText: Konva.Group;
     
     private yesButton: Konva.Group;
     private noButton: Konva.Group;
@@ -24,101 +26,80 @@ export class PrimeNumberGameView implements View {
         });
         
         // Score Number
-        this.scoreDisplay = new Konva.Text({
+        this.scoreDisplay = createTextBox({
             x: 20,
             y: 30,
+            width: 150,
+            height: 30,
             text: 'Score: 0',
-            fontSize: 24,
-            fontFamily: 'Arial',
-            fill: 'white',
-        });
+            colorKey: 'surface_alt', 
+            fontColorKey: 'text_inverse',
+            fontSize: 20,
+            padding: 5,
+        }, theme);
         
         // Question Number
-        this.questionNumber = new Konva.Text({
-            x: STAGE_WIDTH - 190,
+        this.questionNumber = createTextBox({
+            x: STAGE_WIDTH - 200,
             y: 30,
+            width: 180,
+            height: 30,
             text: 'Question: 1 / 10',
-            fontSize: 24,
-            fontFamily: 'Arial',
-            fill: 'white',
-        });
+            colorKey: 'surface_alt', 
+            fontColorKey: 'text_inverse',
+            fontSize: 20,
+            padding: 5,
+        }, theme);
 
         // Question Text 
-        this.questionText = new Konva.Text({
+        this.questionText = createTextBox({
             x: 50,
             y: 150,
-            width: STAGE_WIDTH - 100, // Wrap text
+            width: STAGE_WIDTH - 100,
+            height: 150, 
             text: 'Is 17 a prime number?',
+            colorKey: 'surface', 
+            fontColorKey: 'text_inverse',
             fontSize: 32,
-            fontFamily: 'Arial',
-            fill: 'white',
-            align: 'center',
             padding: 20,
-        });
+        }, theme);
 
         // Feedback Text
-        this.feedbackText = new Konva.Text({
+        this.feedbackText = createTextBox({
             x: 50,
-            y: 250,
+            y: 320,
             width: STAGE_WIDTH - 100,
+            height: 50,
             text: ' ',
+            colorKey: 'transparent',
+            fontColorKey: 'text_inverse', 
             fontSize: 24,
-            fontFamily: 'Arial',
-            fill: 'white',
-            align: 'center',
-        });
+            padding: 10,
+        }, theme);
 
         // Buttons
-        this.yesButton = this.createAnswerButton('Yes', STAGE_WIDTH / 2 - 160, 400);
-        this.noButton = this.createAnswerButton('No', STAGE_WIDTH / 2 + 10, 400);
-
-        this.group.add(this.scoreDisplay);
-        this.group.add(this.questionNumber);
-        this.group.add(this.questionText);
-        this.group.add(this.feedbackText);
-        this.group.add(this.yesButton);
-        this.group.add(this.noButton);
-    }
-    
-    /**
-     * Helper function to create a Konva button
-     */
-    private createAnswerButton(text: string, x: number, y: number): Konva.Group {
-        const buttonGroup = new Konva.Group({ x, y });
-        
-        const buttonRect = new Konva.Rect({
+        this.yesButton = createButton({
+            x: STAGE_WIDTH / 2 - 160,
+            y: 400,
             width: 150,
             height: 60,
-            fill: '#00D1B2',
-            cornerRadius: 8,
-            shadowColor: 'black',
-            shadowBlur: 5,
-            shadowOffsetY: 3,
-        });
-        
-        const buttonText = new Konva.Text({
-            text: text,
-            fontSize: 24,
-            fontFamily: 'Arial',
-            fill: 'white',
+            text: 'YES',
+            colorKey: 'primary',
+            hoverColorKey: 'primary_hover',
+        }, theme); 
+
+        this.noButton = createButton({
+            x: STAGE_WIDTH / 2 + 10,
+            y: 400,
             width: 150,
             height: 60,
-            align: 'center',
-            verticalAlign: 'middle',
-        });
+            text: 'NO',
+            colorKey: 'error',
+            hoverColorKey: 'error_hover',
+        }, theme);
 
-        buttonGroup.add(buttonRect, buttonText);
-        
-        buttonGroup.on('mouseenter', () => {
-            buttonRect.fill('#00B89C');
-            this.group.getStage()!.container().style.cursor = 'pointer';
-        });
-        buttonGroup.on('mouseleave', () => {
-            buttonRect.fill('#00D1B2');
-            this.group.getStage()!.container().style.cursor = 'default';
-        });
-        
-        return buttonGroup;
+        this.group.add(this.scoreDisplay, this.questionNumber, this.questionText, 
+                       this.feedbackText, this.yesButton, this.noButton);
     }
 
     public show(): void {
@@ -134,24 +115,25 @@ export class PrimeNumberGameView implements View {
     }
     
     public updateQuestion(questionText: string, index: number, total: number): void {
-        this.questionText.text(questionText);
-        this.questionNumber.text(`Question: ${index + 1} / ${total}`);
-        this.feedbackText.text(' ');
+        setElementText(this.questionText, questionText);
+        setElementText(this.questionNumber, `Question: ${index + 1} / ${total}`);
+        setElementText(this.feedbackText, ' '); 
         this.setAnswerButtonsDisabled(false);
     }
 
     public updateScore(newScore: number): void {
-        this.scoreDisplay.text(`Score: ${newScore}`);
+        setElementText(this.scoreDisplay, `Score: ${newScore}`);
     }
     
     public displayFeedback(isCorrect: boolean): void {
         this.setAnswerButtonsDisabled(true);
-        if (isCorrect) {
-            this.feedbackText.text('Correct!');
-            this.feedbackText.fill('lightgreen');
-        } else {
-            this.feedbackText.text(`Incorrect!`);
-            this.feedbackText.fill('lightcoral');
+        const feedbackText = isCorrect ? 'Correct!' : `Incorrect!`;
+        
+        setElementText(this.feedbackText, feedbackText);
+        
+        const txt = this.feedbackText.findOne<Konva.Text>('Text');
+        if (txt) {
+            txt.fill(isCorrect ? theme.get('success') : theme.get('error'));
         }
     }
 
@@ -170,12 +152,12 @@ export class PrimeNumberGameView implements View {
     }
     
     public bindSubmitAnswer(handler: (answer: string) => void): void {
-    this.yesButton.on('click', () => { 
-        handler('yes');
-    });
-    
-    this.noButton.on('click', () => { 
-        handler('no');
-    });
-}
+        this.yesButton.on('click', () => { 
+            handler('yes');
+        });
+        
+        this.noButton.on('click', () => { 
+            handler('no');
+        });
+    }
 }

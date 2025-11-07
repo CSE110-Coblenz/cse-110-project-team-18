@@ -24,7 +24,7 @@ class App implements ScreenSwitcher {
 	private activeController?: ScreenController | null;
 
 	private menuController: MenuScreenController;
-	private gameController: PrimeNumberGameController;
+	private primeNumberGameController: PrimeNumberGameController;
 	private asteroidFieldGameController: AsteroidFieldGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
@@ -47,7 +47,7 @@ class App implements ScreenSwitcher {
 		// Initialize all screen controllers
 		// Each controller manages a Model, View, and handles user interactions
 		this.menuController = new MenuScreenController(this);
-		this.gameController = new PrimeNumberGameController(this);
+		this.primeNumberGameController = new PrimeNumberGameController(this);
 		this.asteroidFieldGameController = new AsteroidFieldGameController(this);
 		// this.gameController = new GameScreenController(this);
 		// this.resultsController = new ResultsScreenController(this);
@@ -55,7 +55,7 @@ class App implements ScreenSwitcher {
 		// Add all screen groups to the layer
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
-		this.layer.add(this.gameController.getView().getGroup());
+		this.layer.add(this.primeNumberGameController.getView().getGroup());
 		this.layer.add(this.asteroidFieldGameController.getView().getGroup());
 		// this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
@@ -93,7 +93,7 @@ class App implements ScreenSwitcher {
 	switchToScreen(screen: Screen): void {
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
-		this.gameController.hide();
+		this.primeNumberGameController.hide();
 		this.asteroidFieldGameController.hide();
 		// this.gameController.hide();
 		// this.resultsController.hide();
@@ -112,11 +112,12 @@ class App implements ScreenSwitcher {
 				console.log('Showing asteroid field game screen');
 				break;
 
-			case "game":
+			case "prime number game":
 			// Start the game (which also shows the game screen)
-			this.gameController.getView().show();
-			this.gameController.startGame();
-			this.activeController = this.gameController;
+			this.primeNumberGameController.getView().show();
+			this.primeNumberGameController.startGame();
+			this.activeController = this.primeNumberGameController;
+			console.log('Showing prime number game screen');
 			break;
 
 			// case "result":
