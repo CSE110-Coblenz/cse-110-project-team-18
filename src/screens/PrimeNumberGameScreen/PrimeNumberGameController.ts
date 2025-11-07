@@ -46,7 +46,7 @@ export class PrimeNumberGameController implements ScreenController {
 	/**
 	 * Main update loop, called by main.ts
 	 */
-	public update(dt: number): void {}
+	public update(_dt: number): void {}
 
 	/**
 	 * Initializes and starts a new game session.

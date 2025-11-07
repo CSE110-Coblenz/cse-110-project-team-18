@@ -25,4 +25,5 @@ docs/api/
 *.sw?
 
 # Ignore generated documentation files
-/docs
+docs/api/
+docs/design/
