@@ -33,6 +33,9 @@ export class MenuScreenView implements View {
 		title.offsetX(title.width() / 2);
 		this.group.add(title);
 
+		// Button container so we can keep all actionable items together
+		const buttonGroup = new Konva.Group({ listening: true });
+
 		// Start button for asteroid field game
 		const asteroidFieldBtn = createButton({
 			x: STAGE_WIDTH / 2 - 200,
@@ -45,21 +48,23 @@ export class MenuScreenView implements View {
 			onClick: onAsteriodFieldClick,
 		});
 
+		// Start button for prime number game
 		const primeGameButton = createButton({
 			x: STAGE_WIDTH / 2 - 200,
 			y: 450,
 			width: 400,
 			height: 60,
 			text: 'START PRIME NUMBER GAME',
-			colorKey: 'cosmic_purple',
-			hoverColorKey: 'info_hover',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
 			onClick: onPrimeGameClick,
 		});
 
-		this.buttonGroup = asteroidFieldBtn;
-		this.group.add(asteroidFieldBtn);
-		this.group.add(primeGameButton);
-		asteroidFieldBtn.moveToTop();
+		buttonGroup.add(asteroidFieldBtn);
+		buttonGroup.add(primeGameButton);
+		this.buttonGroup = buttonGroup;
+		this.group.add(buttonGroup);
+		buttonGroup.moveToTop();
 	}
 
 	ensureButtonsOnTop(): void {
