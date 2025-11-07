@@ -1,4 +1,4 @@
-import { Collidable } from '../objects/Collidable';
+import { Collidable } from './Collidable';
 
 /**
  * CollisionManager is a class that manages collisions between items.

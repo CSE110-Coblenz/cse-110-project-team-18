@@ -6,7 +6,6 @@ import { STAGE_WIDTH } from '../../configs/GameConfig';
 import { PlayerManager } from '../../core/movement/PlayerManager';
 import { CollisionManager } from '../../core/collision/CollisionManager';
 import { greenAlienSprite } from '../../core/sprites/AlienSprite';
-import { PlayerConfig } from '../../configs/PlayerConfig';
 
 /**
  * MenuScreenController - Handles menu interactions
@@ -33,12 +32,13 @@ export class MenuScreenController extends ScreenController {
 		this.model = new MenuScreenModel(STAGE_WIDTH / 4, 250);
 		// Controller owns the PlayerManager wiring; pass the model so state persists here
 		this.collisionManager = new CollisionManager();
+		const alienWalkSpeed = 150; // Walk speed in pixels per second for alien character
 		this.playerManager = new PlayerManager({
 			group: this.view.getGroup(),
 			spriteConfig: greenAlienSprite,
 			x: this.model.player?.x ?? STAGE_WIDTH / 4,
 			y: this.model.player?.y ?? 250,
-			walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
+			walkSpeed: alienWalkSpeed,
 			model: this.model.player,
 			collisionManager: this.collisionManager,
 		});

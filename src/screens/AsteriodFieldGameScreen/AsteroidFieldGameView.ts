@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
-import { STAGE_WIDTH } from '../../configs/GameConfig';
+import { createButton } from '../../ui';
 
 /**
  * AsteroidFieldGameView - Renders the asteroid field game screen
@@ -32,36 +32,20 @@ export class AsteroidFieldGameView implements View {
 		this.group.add(title);
 
 		// Return to menu button
-		const menuButtonGroup = new Konva.Group();
-		const menuButton = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 200,
-			y: 375,
-			width: 400,
+		const returnToMenuBtn = createButton({
+			x: 50,
+			y: 650,
+			width: 275,
 			height: 60,
-			fill: 'green',
-			cornerRadius: 10,
-			stroke: 'darkgreen',
-			strokeWidth: 3,
-			listening: true, // Ensure the rect itself listens to clicks
+			text: 'RETURN TO MENU',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: onMenuClick,
 		});
 
-		const menuText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 390,
-			text: 'Return to Menu',
-			fontSize: 24,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
-			listening: false,
-		});
-		menuText.offsetX(menuText.width() / 2);
-		menuButtonGroup.add(menuButton);
-		menuButtonGroup.add(menuText);
-		menuButtonGroup.on('click', onMenuClick);
-		this.buttonGroup = menuButtonGroup;
-		this.group.add(menuButtonGroup);
-		menuButtonGroup.moveToTop();
+		this.buttonGroup = returnToMenuBtn;
+		this.group.add(returnToMenuBtn);
+		returnToMenuBtn.moveToTop();
 	}
 
 	/**

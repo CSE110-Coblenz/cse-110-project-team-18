@@ -58,4 +58,48 @@ export class Movement {
 		this.position.y = y;
 		this.update(0);
 	}
+
+	/**
+	 * Get the current velocity in the X direction (normalized direction vector)
+	 * Default implementation returns 0. Override in subclasses that support keyboard input.
+	 * @returns The current velocity in the X direction (-1, 0, or 1)
+	 */
+	getVelocityX(): number {
+		return 0;
+	}
+
+	/**
+	 * Get the current velocity in the Y direction (normalized direction vector)
+	 * Default implementation returns 0. Override in subclasses that support keyboard input.
+	 * @returns The current velocity in the Y direction (-1, 0, or 1)
+	 */
+	getVelocityY(): number {
+		return 0;
+	}
+
+	/**
+	 * Check if jump key is currently pressed
+	 * Default implementation returns false. Override in subclasses that support jumping.
+	 * @returns True if the jump key is currently pressed
+	 */
+	isJumping(): boolean {
+		return false;
+	}
+
+	/**
+	 * Check if run key is pressed
+	 * Default implementation returns false. Override in subclasses that support running.
+	 * @returns True if the run key is currently pressed
+	 */
+	isRunning(): boolean {
+		return false;
+	}
+
+	/**
+	 * Dispose of the movement
+	 * Default implementation does nothing. Override in subclasses that need cleanup.
+	 */
+	dispose(): void {
+		// No cleanup needed by default
+	}
 }

@@ -4,6 +4,7 @@ import { CollisionManager } from '../collision/CollisionManager';
 import { preloadImage } from '../utils/AssetLoader';
 import { SpriteConfig } from '../movement/SpriteHelper';
 import { PlayerConfig } from '../../configs/PlayerConfig';
+import { MovementConfig } from '../../configs/MovementConfig';
 
 /**
  * PlayerManagerOptions - Options for the PlayerManager
@@ -13,9 +14,10 @@ import { PlayerConfig } from '../../configs/PlayerConfig';
  * @param y - The y position of the player
  * @param scale - The scale of the player
  * @param walkSpeed - The walk speed of the player
- * @param runSpeed - The run speed of the player
+ * @param runSpeed - The run speed of the player (deprecated, use movementConfig instead)
  * @param model - The model of the player
  * @param collisionManager - The collision manager
+ * @param movementConfig - Optional movement configuration. If not provided, uses default PlayerConfig settings.
  */
 export interface PlayerManagerOptions {
 	group: Konva.Group;
@@ -24,9 +26,10 @@ export interface PlayerManagerOptions {
 	y: number;
 	scale?: number;
 	walkSpeed: number;
-	runSpeed?: number;
+	runSpeed?: number; // Deprecated: use movementConfig instead
 	model?: { x: number; y: number };
 	collisionManager?: CollisionManager | null;
+	movementConfig?: MovementConfig;
 }
 
 /**
@@ -44,10 +47,9 @@ export class PlayerManager {
 	private x: number;
 	private y: number;
 	private scale: number;
-	private walkSpeed: number;
-	private runSpeed?: number;
 	private externalModel?: { x: number; y: number } | undefined;
 	private lastFacing: 'left' | 'right' = 'right';
+	private movementConfig?: MovementConfig;
 
 	/**
 	 * Constructor for the PlayerManager
@@ -58,11 +60,22 @@ export class PlayerManager {
 		this.spriteConfig = opts.spriteConfig;
 		this.x = opts.x;
 		this.y = opts.y;
-		this.scale = typeof opts.scale === 'number' ? opts.scale : PlayerConfig.MANAGER.DEFAULT_SCALE;
-		this.walkSpeed = opts.walkSpeed;
-		this.runSpeed = opts.runSpeed;
+		this.scale = typeof opts.scale === 'number' ? opts.scale : 1; // Default scale is 1
 		this.externalModel = opts.model;
 		this.collisionManager = opts.collisionManager ?? null;
+		// Use provided movementConfig or create default from walkSpeed/runSpeed for backwards compatibility
+		this.movementConfig = opts.movementConfig ?? {
+			keys: {
+				up: PlayerConfig.CONTROLS.MOVE_UP,
+				down: PlayerConfig.CONTROLS.MOVE_DOWN,
+				left: PlayerConfig.CONTROLS.MOVE_LEFT,
+				right: PlayerConfig.CONTROLS.MOVE_RIGHT,
+			},
+			walkSpeed: opts.walkSpeed,
+			runSpeed: opts.runSpeed,
+			jumpKeys: PlayerConfig.CONTROLS.JUMP,
+			enableJumping: true,
+		};
 
 		this.load();
 	}
@@ -87,7 +100,7 @@ export class PlayerManager {
 				image,
 				animation: this.spriteConfig.defaultAnimation,
 				animations: this.spriteConfig.animations,
-				frameRate: this.spriteConfig.frameRate || PlayerConfig.MANAGER.DEFAULT_FRAME_RATE,
+				frameRate: this.spriteConfig.frameRate || 8, // Default frame rate is 8
 				frameIndex: 0,
 				width: this.spriteConfig.frameWidth,
 				height: this.spriteConfig.frameHeight,
@@ -115,13 +128,13 @@ export class PlayerManager {
 			) {
 				sprite.frameRate(this.spriteConfig.animationFrameRates[this.spriteConfig.defaultAnimation]);
 			} else {
-				sprite.frameRate(this.spriteConfig.frameRate || PlayerConfig.MANAGER.DEFAULT_FRAME_RATE);
+				sprite.frameRate(this.spriteConfig.frameRate || 8); // Default frame rate is 8
 			}
 
 			// Create player model
 			const model = { x: sprite.x(), y: sprite.y() };
 			const usedModel = this.externalModel ?? model;
-			this.player = new Player('player', usedModel, this.walkSpeed, this.runSpeed);
+			this.player = new Player('player', usedModel, this.movementConfig);
 			this.player.attachNode(sprite);
 
 			if (this.collisionManager && this.player.collidable) {

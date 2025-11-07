@@ -1,4 +1,4 @@
-import type { GameObject } from './GameObject';
+import type { GameObject } from '../objects/GameObject';
 
 export type Rect = { x: number; y: number; w: number; h: number };
 export type Circle = { x: number; y: number; r: number };
