@@ -1,4 +1,4 @@
-name: CI — lint
+name: CI — format and lint
 
 on:
   push:

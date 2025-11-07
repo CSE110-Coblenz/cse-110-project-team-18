@@ -136,7 +136,6 @@ export function createButton(args: ButtonArgs, theme?: Theme): Konva.Group {
 	// Overflow flag + warn (dev feedback, no layout changes)
 	g.setAttr('_overflow', !fit);
 	if (!fit) {
-		// eslint-disable-next-line no-console
 		console.warn(
 			`[UI] Button text overflow: "${args.text}" (w=${args.width}px). ` +
 				`Increase width, shorten text, or lower fontSize.`

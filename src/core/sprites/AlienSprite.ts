@@ -7,7 +7,10 @@ const frameXCoordinates = [
 	3438, 3658, 3926, 4163, 4428, 4760,
 ];
 
-// Calculate frame widths (difference to next frame, or average for last frame)
+/**
+ * Calculate the frame widths
+ * @returns The frame widths
+ */
 function calculateFrameWidths(): number[] {
 	const widths: number[] = [];
 	for (let i = 0; i < frameXCoordinates.length - 1; i++)
@@ -18,7 +21,12 @@ function calculateFrameWidths(): number[] {
 
 const frameWidths = calculateFrameWidths();
 
-// Helper function to create animation frames using actual coordinates
+/**
+ * Create frames using actual coordinates
+ * @param startFrameIndex - The index of the first frame
+ * @param count - The number of frames to create
+ * @returns The frames
+ */
 function createFrames(startFrameIndex: number, count: number): number[] {
 	const frames: number[] = [];
 	for (let i = 0; i < count && startFrameIndex + i < frameXCoordinates.length; i++) {
@@ -30,12 +38,18 @@ function createFrames(startFrameIndex: number, count: number): number[] {
 	return frames;
 }
 
-// Average frame width for PlayerManager sizing
+/**
+ * Calculate the average frame width
+ * @returns The average frame width
+ */
 const averageFrameWidth = Math.round(
 	frameWidths.reduce((sum, w) => sum + w, 0) / frameWidths.length
 );
 
-// Helper function to create idle animation with longer hold on first frame
+/**
+ * Create idle animation with longer hold on first frame
+ * @returns The idle animation
+ */
 function createIdleAnimation(): number[] {
 	const frames: number[] = [];
 	const firstFrame = createFrames(0, 1); // Just the first frame (non-blinking)
@@ -51,6 +65,10 @@ function createIdleAnimation(): number[] {
 	return frames;
 }
 
+/**
+ * Green Alien Sprite - The sprite for the green alien
+ * @returns The green alien sprite
+ */
 export const greenAlienSprite: SpriteConfig = {
 	imageUrl: '/assets/sprites/green_alien_sprite_sheet.png',
 	animations: {
