@@ -139,29 +139,23 @@ export class GameScreenController extends ScreenController {
 
 ### Step 4: Example from MenuScreen
 
-Here's how it's done in `MenuScreenController.ts`:
+`MenuScreenController` creates the player each time the screen appears and disposes it when the screen hides. That keeps Konva nodes and collision registrations tidy.
 
 ```typescript
-import { greenAlienSprite } from '../../core/sprites/AlienSprite';
+// show()
+this.playerManager ??= new PlayerManager({
+	group: this.view.getGroup(),
+	spriteConfig: greenAlienSprite,
+	x: this.initialPlayerPosition.x,
+	y: this.initialPlayerPosition.y,
+	walkSpeed: 150,
+	model: this.model.player,
+	collisionManager: this.collisionManager,
+});
 
-constructor(screenSwitcher: ScreenSwitcher) {
-    // Create model
-    this.model = new MenuScreenModel(STAGE_WIDTH / 4, 250);
-
-    // Create collision manager
-    this.collisionManager = new CollisionManager();
-
-    // Create player manager
-    this.playerManager = new PlayerManager({
-        group: this.view.getGroup(),
-        spriteConfig: greenAlienSprite,
-        x: this.model.player.x,
-        y: this.model.player.y,
-        walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
-        model: this.model.player, // Optional: sync with external model
-        collisionManager: this.collisionManager,
-    });
-}
+// hide()
+this.playerManager?.dispose();
+this.playerManager = null;
 ```
 
 ## SpriteConfig Interface
@@ -232,7 +226,7 @@ if (spriteNode) {
 }
 ```
 
-## Character Positioning
+### Character & Object Positioning
 
 ### Initial Position
 
@@ -264,6 +258,23 @@ this.playerManager = new PlayerManager({
 });
 ```
 
+## Loading Other Game Objects (e.g., Projectiles)
+
+Static projectiles follow the same pattern as players: use a manager to handle lifecycle, and dispose of it when the screen hides.
+
+```typescript
+const projectileManager = new ProjectileManager({
+	group: this.view.getGroup(),
+	imageUrl: '/assets/sprites/laser_shot_sprite.png',
+	speed: 1000,
+	direction: { x: 0, y: -1 },
+});
+
+projectileManager.shoot({ x: playerX, y: playerY - 50 });
+```
+
+Keep projectile-specific settings (cooldown, offsets) in the screen or a feature config so different weapons can share the same manager.
+
 ## Collision Detection
 
 Characters automatically register with `CollisionManager` if provided:
@@ -286,7 +297,8 @@ this.collisionManager?.update();
 3. **Calculate frame widths**: If frames vary in width, calculate them
 4. **Set appropriate frame rates**: Idle should be slower, run faster
 5. **Use models for state**: Sync position with external models
-6. **Clean up on dispose**: Call `playerManager.dispose()` when removing
+6. **Clean up on dispose**: Call `playerManager.dispose()` (and any other managers) when removing
+7. **Reset state on show**: Re-create managers when a screen becomes visible to avoid stale positions
 
 ## Example: Complete Character Setup
 
