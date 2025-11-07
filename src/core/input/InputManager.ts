@@ -1,6 +1,7 @@
 export class InputManager {
 	private static instance: InputManager | null = null;
 	private keys: Set<string> = new Set();
+	private keyStates: Map<string, { lastConsumedTime: number }> = new Map();
 	private handleKeyDownBound: (e: KeyboardEvent) => void;
 	private handleKeyUpBound: (e: KeyboardEvent) => void;
 	private initialized = false;
@@ -51,6 +52,9 @@ export class InputManager {
 		}
 
 		this.keys.add(key);
+		if (!this.keyStates.has(key)) {
+			this.keyStates.set(key, { lastConsumedTime: Number.NEGATIVE_INFINITY });
+		}
 	}
 
 	private handleKeyUp(e: KeyboardEvent): void {
@@ -62,6 +66,7 @@ export class InputManager {
 		}
 
 		this.keys.delete(key);
+		this.keyStates.delete(key);
 	}
 
 	/**
@@ -69,6 +74,23 @@ export class InputManager {
 	 */
 	isKeyPressed(key: string): boolean {
 		return this.keys.has(key.toLowerCase());
+	}
+
+	/**
+	 * Consume a key press with optional cooldown (in ms). Returns true when triggered.
+	 * While the key is held, the press will fire again once the cooldown has elapsed.
+	 */
+	consumePress(key: string, cooldownMs = 0): boolean {
+		const normalized = key.toLowerCase();
+		const state = this.keyStates.get(normalized);
+		if (!state || !this.keys.has(normalized)) return false;
+
+		const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+		if (now - state.lastConsumedTime >= cooldownMs) {
+			state.lastConsumedTime = now;
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -90,5 +112,6 @@ export class InputManager {
 	 */
 	clear(): void {
 		this.keys.clear();
+		this.keyStates.clear();
 	}
 }

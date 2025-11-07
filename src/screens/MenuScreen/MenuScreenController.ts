@@ -3,9 +3,9 @@ import type { ScreenSwitcher } from '../../types.ts';
 import { MenuScreenView } from './MenuScreenView.ts';
 import { MenuScreenModel } from './MenuScreenModel.ts';
 import { STAGE_WIDTH } from '../../configs/GameConfig';
-import { PlayerManager } from '../../core/managers/PlayerManager';
-import { CollisionManager } from '../../core/collision/CollisionManager';
 import { greenAlienSprite } from '../../core/sprites/AlienSprite';
+import { ScreenEntityManager } from '../../core/utils/ScreenEntityManager';
+import { createPlayerManager } from '../../core/factories/PlayerManagerFactory';
 
 /**
  * MenuScreenController - Handles menu interactions
@@ -13,42 +13,38 @@ import { greenAlienSprite } from '../../core/sprites/AlienSprite';
 export class MenuScreenController extends ScreenController {
 	private view: MenuScreenView;
 	private screenSwitcher: ScreenSwitcher;
-	private playerManager?: PlayerManager | null;
-	private collisionManager?: CollisionManager | null;
 	private model: MenuScreenModel;
 	private readonly initialPlayerPosition = {
 		x: STAGE_WIDTH / 4,
 		y: 250,
 	};
+	private playerLifecycle: ScreenEntityManager<{
+		playerManager: ReturnType<typeof createPlayerManager>['playerManager'];
+		collisionManager: ReturnType<typeof createPlayerManager>['collisionManager'];
+	}>;
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.view = new MenuScreenView(() => this.handleAsteriodFieldClick(), () => this.handlePrimeGameClick());
 		this.model = new MenuScreenModel(this.initialPlayerPosition.x, this.initialPlayerPosition.y);
-	}
-
-	private initializePlayer(): void {
-		if (this.playerManager) return;
-
-		this.collisionManager = new CollisionManager();
-		const alienWalkSpeed = 150;
-		this.model.player = { ...this.initialPlayerPosition };
-		this.playerManager = new PlayerManager({
-			group: this.view.getGroup(),
-			spriteConfig: greenAlienSprite,
-			x: this.model.player.x,
-			y: this.model.player.y,
-			walkSpeed: alienWalkSpeed,
-			model: this.model.player,
-			collisionManager: this.collisionManager,
+		this.playerLifecycle = new ScreenEntityManager({
+			create: () => {
+				this.model.player = { ...this.initialPlayerPosition };
+				const { playerManager, collisionManager, model } = createPlayerManager({
+					group: this.view.getGroup(),
+					spriteConfig: greenAlienSprite,
+					position: this.initialPlayerPosition,
+					walkSpeed: 150,
+					model: this.model.player,
+				});
+				this.model.player = model;
+				return { playerManager, collisionManager };
+			},
+			dispose: ({ playerManager }) => {
+				playerManager.dispose();
+			},
 		});
-	}
-
-	private disposePlayer(): void {
-		this.playerManager?.dispose();
-		this.playerManager = null;
-		this.collisionManager = null;
 	}
 
 	private handleAsteriodFieldClick(): void {
@@ -73,25 +69,27 @@ export class MenuScreenController extends ScreenController {
 
 	override show(): void {
 		super.show();
-		this.initializePlayer();
+		this.playerLifecycle.ensure();
 		this.view.ensureButtonsOnTop();
 	}
 
 	override hide(): void {
 		super.hide();
-		this.disposePlayer();
+		this.playerLifecycle.dispose();
 	}
 
 	override update(deltaTime: number): void {
-		if (this.view.getGroup().visible()) {
-			this.playerManager?.update(deltaTime);
-			this.collisionManager?.update();
-			this.view.ensureButtonsOnTop();
-			this.view.getGroup().getLayer()?.draw();
-		}
+		if (!this.view.getGroup().visible()) return;
+		const entities = this.playerLifecycle.get();
+		if (!entities) return;
+
+		entities.playerManager.update(deltaTime);
+		entities.collisionManager.update();
+		this.view.ensureButtonsOnTop();
+		this.view.getGroup().getLayer()?.draw();
 	}
 
 	dispose(): void {
-		this.disposePlayer();
+		this.playerLifecycle.dispose();
 	}
 }

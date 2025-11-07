@@ -95,67 +95,39 @@ export const myCharacterSprite: SpriteConfig = {
 
 ### Step 3: Use PlayerManager in Your Controller
 
-In your screen controller (e.g., `GameScreenController.ts`):
+Controllers now delegate setup to `createPlayerManager()` and manage lifecycle with `ScreenEntityManager` so Konva nodes are cleaned up automatically.
 
 ```typescript
-import { PlayerManager } from '../../core/managers/PlayerManager';
-import { CollisionManager } from '../../core/collision/CollisionManager';
-import { myCharacterSprite } from '../../core/sprites/MyCharacterSprite';
-import { PlayerConfig } from '../../configs/PlayerConfig';
-
-export class GameScreenController extends ScreenController {
-	private playerManager?: PlayerManager | null;
-	private collisionManager?: CollisionManager | null;
-
-	constructor(screenSwitcher: ScreenSwitcher) {
-		super();
-		// ... other initialization
-
-		// Create collision manager
-		this.collisionManager = new CollisionManager();
-
-		// Create player manager
-		this.playerManager = new PlayerManager({
-			group: this.view.getGroup(), // Add to screen's Konva group
+const playerLifecycle = new ScreenEntityManager({
+	create: () => {
+		const { playerManager, collisionManager } = createPlayerManager({
+			group: this.view.getGroup(),
 			spriteConfig: myCharacterSprite,
-			x: 100, // Starting X position
-			y: 300, // Starting Y position
-			walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
-			runSpeed: PlayerConfig.MOVEMENT.WALK_SPEED * PlayerConfig.MOVEMENT.RUN_SPEED_MULTIPLIER,
-			collisionManager: this.collisionManager,
+			position: { x: 100, y: 300 },
+			walkSpeed: 150,
 		});
-	}
+		return { playerManager, collisionManager };
+	},
+	dispose: ({ playerManager }) => playerManager.dispose(),
+});
 
-	override update(deltaTime: number): void {
-		// Update player manager (handles movement and animations)
-		if (this.view.getGroup().visible()) {
-			this.playerManager?.update(deltaTime);
-			this.collisionManager?.update();
-			this.view.getGroup().getLayer()?.draw();
-		}
-	}
-}
+// screen.show()
+playerLifecycle.ensure();
+// screen.hide()
+playerLifecycle.dispose();
 ```
+
+In `update(deltaTime)` read the managers back with `playerLifecycle.get()` and update both the player and its collision manager when the view is visible.
 
 ### Step 4: Example from MenuScreen
 
-`MenuScreenController` creates the player each time the screen appears and disposes it when the screen hides. That keeps Konva nodes and collision registrations tidy.
+The menu controller resets the alien to its starting position whenever the menu shows:
 
 ```typescript
-// show()
-this.playerManager ??= new PlayerManager({
-	group: this.view.getGroup(),
-	spriteConfig: greenAlienSprite,
-	x: this.initialPlayerPosition.x,
-	y: this.initialPlayerPosition.y,
-	walkSpeed: 150,
-	model: this.model.player,
-	collisionManager: this.collisionManager,
-});
-
-// hide()
-this.playerManager?.dispose();
-this.playerManager = null;
+const entities = playerLifecycle.ensure();
+// ... later in update
+entities.playerManager.update(deltaTime);
+entities.collisionManager.update();
 ```
 
 ## SpriteConfig Interface
@@ -260,20 +232,25 @@ this.playerManager = new PlayerManager({
 
 ## Loading Other Game Objects (e.g., Projectiles)
 
-Static projectiles follow the same pattern as players: use a manager to handle lifecycle, and dispose of it when the screen hides.
+Store projectile tuning in `ProjectileConfig` and hand the preset to `ProjectileManager`:
 
 ```typescript
+const preset = ProjectileConfig.variants.laser;
 const projectileManager = new ProjectileManager({
 	group: this.view.getGroup(),
-	imageUrl: '/assets/sprites/laser_shot_sprite.png',
-	speed: 1000,
-	direction: { x: 0, y: -1 },
+	imageUrl: preset.imageUrl,
+	speed: preset.speed,
+	scale: preset.scale,
+	direction: preset.direction,
+	bounds: preset.bounds,
 });
 
-projectileManager.shoot({ x: playerX, y: playerY - 50 });
+if (input.consumePress(' ', preset.fireCooldownMs)) {
+	projectileManager.shoot({ x: playerX, y: playerY + preset.offsetY });
+}
 ```
 
-Keep projectile-specific settings (cooldown, offsets) in the screen or a feature config so different weapons can share the same manager.
+Keep projectile presets focused per weapon type (laser, missile, beam). Controllers can swap presets without reworking manager code.
 
 ## Collision Detection
 
@@ -300,43 +277,10 @@ this.collisionManager?.update();
 6. **Clean up on dispose**: Call `playerManager.dispose()` (and any other managers) when removing
 7. **Reset state on show**: Re-create managers when a screen becomes visible to avoid stale positions
 
-## Example: Complete Character Setup
+## Example References
 
-```typescript
-// 1. Sprite config (MyCharacterSprite.ts)
-export const heroSprite: SpriteConfig = {
-    imageUrl: '/assets/sprites/hero.png',
-    animations: {
-        idle: createFrames(0, 4),
-        walk: createFrames(4, 6),
-    },
-    defaultAnimation: 'idle',
-    frameRate: 8,
-    scale: 0.5,
-    frameWidth: 100,
-    frameHeight: 100,
-};
-
-// 2. Controller setup
-this.collisionManager = new CollisionManager();
-this.playerManager = new PlayerManager({
-    group: this.view.getGroup(),
-    spriteConfig: heroSprite,
-    x: 200,
-    y: 400,
-    walkSpeed: 150,
-    collisionManager: this.collisionManager,
-});
-
-// 3. Update loop
-override update(deltaTime: number): void {
-    if (this.view.getGroup().visible()) {
-        this.playerManager?.update(deltaTime);
-        this.collisionManager?.update();
-        this.view.getGroup().getLayer()?.draw();
-    }
-}
-```
+- `src/screens/MenuScreen/MenuScreenController.ts` – player lifecycle with `ScreenEntityManager`
+- `src/screens/AsteriodFieldGameScreen/AsteroidFieldGameController.ts` – projectile preset + `InputManager.consumePress()` usage
 
 ## Troubleshooting
 
