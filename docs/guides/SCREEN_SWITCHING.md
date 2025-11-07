@@ -39,9 +39,9 @@ The application uses a screen management system where:
 
 When `switchToScreen()` is called:
 
-1. **Hide all screens**: All screen controllers' `hide()` methods are called
-2. **Show target screen**: The target screen's `show()` method is called
-3. **Set active controller**: The active controller is updated for the game loop
+1. **Hide all screens**: All screen controllers' `hide()` methods are called (each should dispose transient entities via `ScreenEntityManager`).
+2. **Show target screen**: The target screen's `show()` method is called (reinitialize entities here).
+3. **Set active controller**: The active controller is updated for the game loop.
 
 Example from `src/main.ts`:
 
@@ -216,14 +216,12 @@ export class GameScreenController extends ScreenController {
        // Hide all screens
        this.menuController.hide();
        this.gameController.hide();
-
        // Show requested screen
        switch (screen.type) {
            case 'menu':
                this.menuController.show();
                this.activeController = this.menuController;
                break;
-
            case 'game':
                this.gameController.show();
                this.activeController = this.gameController;
@@ -351,3 +349,42 @@ if (player.hasWon()) {
 
 - ✅ Check that `hide()` is called in `switchToScreen()`
 - ✅ Verify `hide()` sets `group.visible(false)`
+
+### The Switch Process
+
+When `switchToScreen()` is called:
+
+1. **Hide all screens**: All screen controllers' `hide()` methods are called (each should dispose transient entities via `ScreenEntityManager`).
+2. **Show target screen**: The target screen's `show()` method is called (reinitialize entities here).
+3. **Set active controller**: The active controller is updated for the game loop.
+
+### Step 3: Implement the Controller
+
+Key tips for new controllers:
+
+- Use `ScreenEntityManager` to encapsulate init/dispose logic for sprites, projectiles, etc.
+- Prefer factories (e.g., `createPlayerManager`) so you don't repeat wiring for collision managers or models.
+- In `update(deltaTime)` bail out early if the view is hidden; then update managers and draw the layer.
+
+```typescript
+const entityLifecycle = new ScreenEntityManager({
+	create: () =>
+		createPlayerManager({
+			group: this.view.getGroup(),
+			spriteConfig: heroSprite,
+			position: { x: 200, y: 400 },
+			walkSpeed: 150,
+		}),
+	dispose: ({ playerManager }) => playerManager.dispose(),
+});
+```
+
+### Step 4: Handle Input with Cooldowns
+
+The central `InputManager` exposes `consumePress(key, cooldownMs)` so controllers can react once per interval while a key is held. Example:
+
+```typescript
+if (input.consumePress(' ', ProjectileConfig.variants.laser.fireCooldownMs)) {
+	projectileManager.shoot({ x: player.x, y: player.y - 40 });
+}
+```

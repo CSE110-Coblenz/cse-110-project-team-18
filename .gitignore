@@ -11,7 +11,6 @@ node_modules
 dist
 dist-ssr
 *.local
-docs/api/
 
 # Editor directories and files
 .vscode/*
@@ -23,3 +22,7 @@ docs/api/
 *.njsproj
 *.sln
 *.sw?
+
+# Ignore generated documentation files
+docs/api/
+docs/design/

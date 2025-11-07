@@ -1,4 +1,12 @@
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync, statSync } from 'fs';
+import {
+	readFileSync,
+	writeFileSync,
+	mkdirSync,
+	copyFileSync,
+	existsSync,
+	readdirSync,
+	statSync,
+} from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { marked } from 'marked';
@@ -431,33 +439,34 @@ function addGuidesToSidebar(htmlContent, relativePath = '') {
 	if (htmlContent.includes('tsd-developer-guides')) {
 		return htmlContent;
 	}
-	
+
 	// Calculate relative path for guides (e.g., '../guides.html' for subdirectories)
 	let guidesPath = 'guides.html';
 	if (relativePath) {
-		const depth = relativePath.split('/').filter(p => p && p !== '.').length;
+		const depth = relativePath.split('/').filter((p) => p && p !== '.').length;
 		if (depth > 0) {
 			guidesPath = '../'.repeat(depth) + 'guides.html';
 		}
 	}
-	
+
 	// Create the sidebar HTML with correct path
 	const guidesHtml = developerGuidesSidebar.replace(/href="guides\.html"/g, `href="${guidesPath}"`);
-	
+
 	// Find the page-menu div and insert after the Settings accordion
-	const afterSettingsPattern = /(<\/details><\/div>)(<details open class="tsd-accordion tsd-page-navigation">)/;
-	
+	const afterSettingsPattern =
+		/(<\/details><\/div>)(<details open class="tsd-accordion tsd-page-navigation">)/;
+
 	// Try to insert after Settings accordion
 	if (afterSettingsPattern.test(htmlContent)) {
 		return htmlContent.replace(afterSettingsPattern, `$1${guidesHtml}$2`);
 	}
-	
+
 	// Fallback: insert after page-menu opening tag
 	const pageMenuPattern = /(<div class="page-menu">)/;
 	if (pageMenuPattern.test(htmlContent)) {
 		return htmlContent.replace(pageMenuPattern, `$1${guidesHtml}`);
 	}
-	
+
 	return htmlContent;
 }
 
@@ -476,7 +485,7 @@ try {
 		indexContent =
 			indexContent.slice(0, insertPoint) + guidesLink + indexContent.slice(insertPoint);
 	}
-	
+
 	// Add developer guides to sidebar
 	indexContent = addGuidesToSidebar(indexContent);
 	writeFileSync(indexPath, indexContent);
@@ -488,11 +497,11 @@ try {
 // Add developer guides sidebar to all HTML files in docs/api
 function processAllHtmlFiles(dir, relativePath = '') {
 	const files = readdirSync(dir);
-	
+
 	for (const file of files) {
 		const filePath = join(dir, file);
 		const stat = statSync(filePath);
-		
+
 		if (stat.isDirectory()) {
 			// Skip guides directory and assets directory
 			if (file !== 'guides' && file !== 'assets') {
@@ -501,7 +510,7 @@ function processAllHtmlFiles(dir, relativePath = '') {
 		} else if (file.endsWith('.html') && file !== 'guides.html' && file !== 'index.html') {
 			try {
 				let content = readFileSync(filePath, 'utf8');
-				
+
 				// Only process if it's a TypeDoc-generated page (has col-sidebar)
 				if (content.includes('col-sidebar')) {
 					const newContent = addGuidesToSidebar(content, relativePath);
