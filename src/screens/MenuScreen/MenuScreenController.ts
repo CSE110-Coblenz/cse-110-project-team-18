@@ -23,6 +23,10 @@ export class MenuScreenController extends ScreenController {
 		collisionManager: ReturnType<typeof createPlayerManager>['collisionManager'];
 	}>;
 
+	/**
+	 * MenuScreenController - The controller for the menu screen
+	 * @param screenSwitcher - The screen switcher
+	 */
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
@@ -47,6 +51,9 @@ export class MenuScreenController extends ScreenController {
 		});
 	}
 
+	/**
+	 * Handle the asteroid field click
+	 */
 	private handleAsteriodFieldClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'asteroid field game' });
 	}
@@ -55,7 +62,6 @@ export class MenuScreenController extends ScreenController {
 	 * Handle prime number game start button click
 	 */
 	private handlePrimeGameClick(): void {
-		this.playerManager?.dispose();
 		this.screenSwitcher.switchToScreen({ type: 'prime number game' });
 	}
 
@@ -67,17 +73,27 @@ export class MenuScreenController extends ScreenController {
 		return this.view;
 	}
 
+	/**
+	 * Show the menu screen
+	 */
 	override show(): void {
 		super.show();
 		this.playerLifecycle.ensure();
 		this.view.ensureButtonsOnTop();
 	}
 
+	/**
+	 * Hide the menu screen
+	 */
 	override hide(): void {
 		super.hide();
 		this.playerLifecycle.dispose();
 	}
 
+	/**
+	 * Update the menu screen
+	 * @param deltaTime - The time since the last frame in milliseconds
+	 */
 	override update(deltaTime: number): void {
 		if (!this.view.getGroup().visible()) return;
 		const entities = this.playerLifecycle.get();
@@ -89,6 +105,9 @@ export class MenuScreenController extends ScreenController {
 		this.view.getGroup().getLayer()?.draw();
 	}
 
+	/**
+	 * Dispose of the menu screen controller
+	 */
 	dispose(): void {
 		this.playerLifecycle.dispose();
 	}
