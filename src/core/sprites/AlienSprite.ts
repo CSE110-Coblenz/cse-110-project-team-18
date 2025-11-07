@@ -7,7 +7,6 @@ const frameXCoordinates = [
 	3438, 3658, 3926, 4163, 4428, 4760,
 ];
 
-
 /**
  * Calculate the frame widths
  * @returns The frame widths

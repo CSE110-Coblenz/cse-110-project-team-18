@@ -85,7 +85,7 @@ export class ProjectileManager {
 		this.bounds = options.bounds ?? DEFAULT_BOUNDS;
 		this.loadProjectileImage();
 	}
-	
+
 	/**
 	 * Load the projectile image
 	 * @returns A promise that resolves when the image is loaded

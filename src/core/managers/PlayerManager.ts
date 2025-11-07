@@ -194,7 +194,7 @@ export class PlayerManager {
 			}
 		}
 	}
-	
+
 	/**
 	 * Dispose of the player manager
 	 */
