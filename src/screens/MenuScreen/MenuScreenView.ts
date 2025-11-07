@@ -14,8 +14,9 @@ export class MenuScreenView implements View {
 
 	/**
 	 * @param onAsteriodFieldClick - The function to call when the start button is clicked
+	 * @param onPrimeGameClick - The function to call when the prime number game button is clicked
 	 */
-	constructor(onAsteriodFieldClick: () => void) {
+	constructor(onAsteriodFieldClick: () => void, onPrimeGameClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
 			id: 'menuScreen',
@@ -49,8 +50,20 @@ export class MenuScreenView implements View {
 			onClick: onAsteriodFieldClick,
 		});
 
+		const primeGameButton = createButton({
+			x: STAGE_WIDTH / 2 - 200,
+			y: 450,
+			width: 400,
+			height: 60,
+			text: 'START PRIME NUMBER GAME',
+			colorKey: 'cosmic_purple',
+			hoverColorKey: 'info_hover',
+			onClick: onPrimeGameClick,
+		});
+
 		this.buttonGroup = asteroidFieldBtn;
 		this.group.add(asteroidFieldBtn);
+		this.group.add(primeGameButton);
 		asteroidFieldBtn.moveToTop();
 
 		// Menu view intentionally stays passive about movement/assets.

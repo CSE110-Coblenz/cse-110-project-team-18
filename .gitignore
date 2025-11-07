@@ -23,3 +23,7 @@ docs/api/
 *.njsproj
 *.sln
 *.sw?
+
+# Ignore generated documentation files
+docs/api/
+docs/design/

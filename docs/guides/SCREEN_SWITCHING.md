@@ -211,20 +211,17 @@ export class GameScreenController extends ScreenController {
    ```
 
 5. **Add case in switchToScreen()**:
-
    ```typescript
    switchToScreen(screen: Screen): void {
        // Hide all screens
        this.menuController.hide();
        this.gameController.hide();
-
        // Show requested screen
        switch (screen.type) {
            case 'menu':
                this.menuController.show();
                this.activeController = this.menuController;
                break;
-
            case 'game':
                this.gameController.show();
                this.activeController = this.gameController;
