@@ -51,15 +51,15 @@ export class MenuScreenView implements View {
 		});
 
 		const primeGameButton = createButton({
-            x: STAGE_WIDTH / 2 - 200, 
-            y: 450,
-            width: 400,
-            height: 60,
-            text: 'START PRIME NUMBER GAME',
-            colorKey: 'cosmic_purple', 
-            hoverColorKey: 'info_hover',
-            onClick: onPrimeGameClick,
-        });
+			x: STAGE_WIDTH / 2 - 200,
+			y: 450,
+			width: 400,
+			height: 60,
+			text: 'START PRIME NUMBER GAME',
+			colorKey: 'cosmic_purple',
+			hoverColorKey: 'info_hover',
+			onClick: onPrimeGameClick,
+		});
 
 		this.buttonGroup = asteroidFieldBtn;
 		this.group.add(asteroidFieldBtn);

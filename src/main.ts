@@ -112,13 +112,13 @@ class App implements ScreenSwitcher {
 				console.log('Showing asteroid field game screen');
 				break;
 
-			case "prime number game":
-			// Start the game (which also shows the game screen)
-			this.primeNumberGameController.getView().show();
-			this.primeNumberGameController.startGame();
-			this.activeController = this.primeNumberGameController;
-			console.log('Showing prime number game screen');
-			break;
+			case 'prime number game':
+				// Start the game (which also shows the game screen)
+				this.primeNumberGameController.getView().show();
+				this.primeNumberGameController.startGame();
+				this.activeController = this.primeNumberGameController;
+				console.log('Showing prime number game screen');
+				break;
 
 			// case "result":
 			// 	// Show results with the final score
