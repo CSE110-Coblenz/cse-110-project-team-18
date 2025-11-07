@@ -35,9 +35,11 @@ export type ButtonArgs = BaseArgs & {
 export type TextBoxArgs = BaseArgs & {
 	padding?: number;
 	minFontSize?: number; // floor when shrinking (default 12)
+	// NEW: vertical alignment mode (horizontal is always centered)
+	verticalAlign?: 'middle' | 'top' | 'bottom';
 };
 
-const H_PAD = 24; // 12px each side for buttons
+const H_PAD = 24; // buttons: 12px left + 12px right
 
 // ---------- Metrics helpers ----------
 function fitTextToWidth(
@@ -102,6 +104,8 @@ export function createButton(args: ButtonArgs, theme?: Theme): Konva.Group {
 		text: args.text,
 		width: Math.max(0, args.width - H_PAD),
 		align: 'center',
+		wrap: 'none',
+		ellipsis: false,
 		fontFamily: args.fontFamily ?? t.fontFamilyDefault,
 		fontSize: args.fontSize ?? t.fontSizeDefault,
 		fontStyle: weightToFontStyle(args.fontWeight ?? t.fontWeightDefault),
@@ -162,15 +166,17 @@ export function createTextBox(args: TextBoxArgs, theme?: Theme): Konva.Group {
 	});
 
 	const padding = args.padding ?? 12;
+	const vAlign: 'middle' | 'top' | 'bottom' = args.verticalAlign ?? 'middle';
+
 	const txt = new Konva.Text({
 		text: args.text,
 		x: padding,
-		y: padding,
+		// y will be decided after measuring text height
 		width: Math.max(0, args.width - padding * 2),
 		height: Math.max(0, args.height - padding * 2),
-		align: 'center', // horizontally centered
+		align: 'center', // horizontal center
 		wrap: 'word',
-		ellipsis: true, // clip if needed (no auto-resize)
+		ellipsis: true, // no auto-resize; will clip if needed
 		fontFamily: args.fontFamily ?? t.fontFamilyDefault,
 		fontSize: args.fontSize ?? Math.max(16, (t.fontSizeDefault ?? 24) - 2),
 		fontStyle: weightToFontStyle(args.fontWeight ?? 500),
@@ -178,10 +184,25 @@ export function createTextBox(args: TextBoxArgs, theme?: Theme): Konva.Group {
 		listening: false,
 	});
 
-	// Optional: shrink to min font size before ellipsis for text boxes too
+	// Horizontal shrink before ellipsis
 	const usable = Math.max(0, args.width - padding * 2);
 	fitTextToWidth(txt, usable, args.minFontSize ?? 12);
-	// keep top-centered (y already = padding)
+
+	// Vertical align (middle default)
+	const th = measuredTextHeight(txt);
+	let yText = padding;
+	if (vAlign === 'middle') {
+		yText = Math.max(padding, Math.round((args.height - th) / 2));
+	} else if (vAlign === 'bottom') {
+		yText = Math.max(padding, args.height - padding - th);
+	} else {
+		yText = padding; // 'top'
+	}
+	txt.y(yText);
+
+	// persist attrs for updates
+	g.setAttr('_pad', padding);
+	g.setAttr('_vAlign', vAlign);
 
 	g.add(rect);
 	g.add(txt);
@@ -207,10 +228,21 @@ export function setElementText(group: Konva.Group, newText: string) {
 		if (!fit)
 			console.warn(`[UI] Button text overflow after update: "${newText}" (w=${rect.width()}px).`);
 	} else {
-		// textbox: fixed box, re-fit (top-centered)
-		const pad = txt.x?.() ?? 12;
+		// textbox: fixed box, re-fit and vertical align per stored mode
+		const pad = (group.getAttr('_pad') as number) ?? 12;
+		const vAlign = (group.getAttr('_vAlign') as 'middle' | 'top' | 'bottom') ?? 'middle';
 		const usable = Math.max(0, rect.width() - pad * 2);
 		fitTextToWidth(txt, usable, 12);
+
+		const th = measuredTextHeight(txt);
+		let yText = pad;
+		if (vAlign === 'middle') {
+			yText = Math.max(pad, Math.round((rect.height() - th) / 2));
+		} else if (vAlign === 'bottom') {
+			yText = Math.max(pad, rect.height() - pad - th);
+		} // else top
+		txt.x(pad);
+		txt.y(yText);
 	}
 }
 
@@ -234,9 +266,20 @@ export function resizeElement(group: Konva.Group, width: number, height: number)
 			console.warn(`[UI] Button text overflow after resize (w=${width}px, text="${txt.text()}").`);
 	} else {
 		// textbox
-		const pad = txt.x?.() ?? 12;
+		const pad = (group.getAttr('_pad') as number) ?? 12;
+		const vAlign = (group.getAttr('_vAlign') as 'middle' | 'top' | 'bottom') ?? 'middle';
 		const usable = Math.max(0, width - pad * 2);
 		fitTextToWidth(txt, usable, 12);
+
+		const th = measuredTextHeight(txt);
+		let yText = pad;
+		if (vAlign === 'middle') {
+			yText = Math.max(pad, Math.round((height - th) / 2));
+		} else if (vAlign === 'bottom') {
+			yText = Math.max(pad, height - pad - th);
+		} // else top
+		txt.x(pad);
+		txt.y(yText);
 	}
 }
 
