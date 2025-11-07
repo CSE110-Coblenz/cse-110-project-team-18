@@ -18,23 +18,10 @@ export class AsteroidFieldGameView implements View {
 			id: 'asteroidFieldGameScreen',
 		});
 
-		// Placeholder text for the asteroid field game screen
-		const title = new Konva.Text({
-			x: 400,
-			y: 300,
-			text: 'ASTEROID FIELD GAME',
-			fontSize: 48,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
-		});
-		title.offsetX(title.width() / 2);
-		this.group.add(title);
-
 		// Return to menu button
 		const returnToMenuBtn = createButton({
 			x: 50,
-			y: 650,
+			y: 50,
 			width: 275,
 			height: 60,
 			text: 'RETURN TO MENU',

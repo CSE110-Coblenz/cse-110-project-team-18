@@ -98,7 +98,7 @@ export const myCharacterSprite: SpriteConfig = {
 In your screen controller (e.g., `GameScreenController.ts`):
 
 ```typescript
-import { PlayerManager } from '../../core/movement/PlayerManager';
+import { PlayerManager } from '../../core/managers/PlayerManager';
 import { CollisionManager } from '../../core/collision/CollisionManager';
 import { myCharacterSprite } from '../../core/sprites/MyCharacterSprite';
 import { PlayerConfig } from '../../configs/PlayerConfig';

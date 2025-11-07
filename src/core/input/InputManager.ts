@@ -43,23 +43,25 @@ export class InputManager {
 
 	private handleKeyDown(e: KeyboardEvent): void {
 		// Store all keys in lowercase for consistency
-		const key = e.key.toLowerCase();
-		this.keys.add(key);
+		let key = e.key.toLowerCase();
 
-		// Handle special modifier keys
-		if (e.key === 'Shift' || e.key === 'ShiftLeft' || e.key === 'ShiftRight') {
-			this.keys.add('shift');
+		// Normalize spacebar key (some browsers use 'Space', others use ' ')
+		if (key === 'space') {
+			key = ' ';
 		}
+
+		this.keys.add(key);
 	}
 
 	private handleKeyUp(e: KeyboardEvent): void {
-		const key = e.key.toLowerCase();
-		this.keys.delete(key);
+		let key = e.key.toLowerCase();
 
-		// Remove shift if any shift key is released
-		if (e.key === 'Shift' || e.key === 'ShiftLeft' || e.key === 'ShiftRight') {
-			this.keys.delete('shift');
+		// Normalize spacebar key (some browsers use 'Space', others use ' ')
+		if (key === 'space') {
+			key = ' ';
 		}
+
+		this.keys.delete(key);
 	}
 
 	/**

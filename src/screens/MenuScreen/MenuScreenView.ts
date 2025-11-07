@@ -40,7 +40,7 @@ export class MenuScreenView implements View {
 			width: 400,
 			height: 60,
 			text: 'START ASTEROID FIELD GAME',
-			colorKey: 'alien_green', 
+			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: onAsteriodFieldClick,
 		});
