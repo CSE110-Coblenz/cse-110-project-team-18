@@ -44,6 +44,7 @@ When `switchToScreen()` is called:
 3. **Set active controller**: The active controller is updated for the game loop
 
 Example from `src/main.ts`:
+
 ```typescript
 switchToScreen(screen: Screen): void {
     // Hide all screens
@@ -69,6 +70,7 @@ switchToScreen(screen: Screen): void {
 Create a new folder in `src/screens/` (e.g., `GameScreen/`) and create three files:
 
 #### GameScreenModel.ts
+
 ```typescript
 /**
  * GameScreenModel - The model for the game screen
@@ -84,6 +86,7 @@ export class GameScreenModel {
 ```
 
 #### GameScreenView.ts
+
 ```typescript
 import Konva from 'konva';
 import type { View } from '../../types.ts';
@@ -128,6 +131,7 @@ export class GameScreenView implements View {
 ```
 
 #### GameScreenController.ts
+
 ```typescript
 import { ScreenController } from '../../types.ts';
 import type { ScreenSwitcher } from '../../types.ts';
@@ -173,6 +177,7 @@ export class GameScreenController extends ScreenController {
 ### Step 2: Register Screen in main.ts
 
 1. **Import the controller**:
+
    ```typescript
    import { GameScreenController } from './screens/GameScreen/GameScreenController.ts';
    ```
@@ -199,6 +204,7 @@ export class GameScreenController extends ScreenController {
    ```
 
 4. **Add screen group to layer**:
+
    ```typescript
    // In constructor, after creating controllers
    this.layer.add(this.gameController.getView().getGroup());
@@ -260,21 +266,25 @@ startButtonGroup.on('click', onStartClick);
 ## Screen Lifecycle
 
 ### Initialization
+
 - Constructor called when `App` is created
 - Screen groups are added to the layer
 - Screens start hidden (except the initial screen)
 
 ### Showing
+
 - `show()` is called by `switchToScreen()`
 - View's group visibility is set to `true`
 - Controller can initialize resources here
 
 ### Active (Visible)
+
 - `update(deltaTime)` is called every frame
 - Only the active screen's `update()` is called
 - Handle game logic, input, animations here
 
 ### Hiding
+
 - `hide()` is called when switching away
 - View's group visibility is set to `false`
 - Controller can pause/cleanup here
@@ -324,15 +334,18 @@ if (player.hasWon()) {
 ## Troubleshooting
 
 ### Screen not showing
+
 - ✅ Check that screen group is added to layer
 - ✅ Verify `switchToScreen()` case is implemented
 - ✅ Ensure `show()` sets `group.visible(true)`
 
 ### Screen not updating
+
 - ✅ Verify controller is set as `activeController`
 - ✅ Check that `update()` is implemented
 - ✅ Ensure game loop is running
 
 ### Screen not hiding
+
 - ✅ Check that `hide()` is called in `switchToScreen()`
 - ✅ Verify `hide()` sets `group.visible(false)`

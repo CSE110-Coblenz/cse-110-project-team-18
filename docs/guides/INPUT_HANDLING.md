@@ -71,6 +71,7 @@ const run = inputManager.isAnyKeyPressed(PlayerConfig.CONTROLS.RUN);
 #### Key Names
 
 Keys are stored in lowercase for consistency. Common keys:
+
 - Letters: `'a'`, `'b'`, `'w'`, `'d'`, etc.
 - Arrows: `'arrowup'`, `'arrowdown'`, `'arrowleft'`, `'arrowright'`
 - Space: `' '`
@@ -297,16 +298,19 @@ export const PlayerConfig = {
 ## Troubleshooting
 
 ### Keys not registering
+
 - ✅ Ensure `InputManager.getInstance().initialize()` is called
 - ✅ Check key names are lowercase
 - ✅ Verify you're checking keys in the update loop
 
 ### Click events not firing
+
 - ✅ Ensure node is added to a group that's in the layer
 - ✅ Check that group is visible
 - ✅ Verify node is not behind another node (z-index)
 - ✅ Ensure stage is listening to events
 
 ### Multiple clicks firing
+
 - ✅ Check for duplicate event listeners
 - ✅ Verify event propagation (use `e.cancelBubble = true` if needed)
