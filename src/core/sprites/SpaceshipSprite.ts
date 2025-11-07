@@ -7,6 +7,10 @@ const frameHeight = 765;
 // Format: [x, y, width, height]
 const staticFrame = [0, 0, frameWidth, frameHeight];
 
+/**
+ * SpaceshipSprite - The sprite for the spaceship
+ * @returns The spaceship sprite
+ */
 export const spaceshipSprite: SpriteConfig = {
 	imageUrl: '/assets/sprites/spaceship_sprite.png',
 	animations: {

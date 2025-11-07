@@ -2,17 +2,33 @@ import Konva from 'konva';
 import { GameObject, Vec2 } from './GameObject';
 import { Collidable } from '../collision/Collidable';
 
+/**
+ * ProjectileBounds - The bounds of the projectile
+ * @param width - The width of the bounds
+ * @param height - The height of the bounds
+ */
 export interface ProjectileBounds {
 	width: number;
 	height: number;
 }
 
+/**
+ * ProjectileOptions - Options for the projectile
+ * @param speed - The speed of the projectile
+ * @param direction - The direction of the projectile
+ * @param bounds - The bounds of the projectile
+ */
 export interface ProjectileOptions {
 	speed: number;
 	direction: Vec2;
 	bounds: ProjectileBounds;
 }
 
+/**
+ * Normalize the direction of the projectile
+ * @param direction - The direction of the projectile
+ * @returns The normalized direction
+ */
 function normalizeDirection(direction: Vec2): Vec2 {
 	const magnitude = Math.hypot(direction.x, direction.y);
 	if (magnitude === 0) {
@@ -41,6 +57,10 @@ export class Projectile extends GameObject {
 		this.collidable = new Collidable(this);
 	}
 
+	/**
+	 * Attach a node to the projectile
+	 * @param node - The node to attach
+	 */
 	attachNode(node: Konva.Node): void {
 		super.attachNode(node);
 		try {
@@ -62,6 +82,10 @@ export class Projectile extends GameObject {
 		}
 	}
 
+	/**
+	 * Update the projectile
+	 * @param deltaTimeMs - The time since the last frame in milliseconds
+	 */
 	update(deltaTimeMs: number): void {
 		if (this.destroyed) return;
 		const dt = deltaTimeMs / 1000;
@@ -89,6 +113,10 @@ export class Projectile extends GameObject {
 		}
 	}
 
+	/**
+	 * Check if the projectile is out of bounds
+	 * @returns True if the projectile is out of bounds, false otherwise
+	 */
 	private isOutOfBounds(): boolean {
 		return (
 			this.model.y + this.halfHeight < 0 ||
@@ -98,14 +126,24 @@ export class Projectile extends GameObject {
 		);
 	}
 
+	/**
+	 * Check if the projectile is destroyed
+	 * @returns True if the projectile is destroyed, false otherwise
+	 */
 	isDestroyed(): boolean {
 		return this.destroyed;
 	}
 
+	/**
+	 * Destroy the projectile
+	 */
 	destroy(): void {
 		this.destroyed = true;
 	}
 
+	/**
+	 * Dispose of the projectile
+	 */
 	dispose(): void {
 		this.collidable = null;
 		super.dispose();

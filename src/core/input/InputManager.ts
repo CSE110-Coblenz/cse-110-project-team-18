@@ -42,6 +42,10 @@ export class InputManager {
 		this.initialized = false;
 	}
 
+	/**
+	 * Handle the key down event
+	 * @param e - The keyboard event
+	 */
 	private handleKeyDown(e: KeyboardEvent): void {
 		// Store all keys in lowercase for consistency
 		let key = e.key.toLowerCase();
@@ -57,6 +61,10 @@ export class InputManager {
 		}
 	}
 
+	/**
+	 * Handle the key up event
+	 * @param e - The keyboard event
+	 */
 	private handleKeyUp(e: KeyboardEvent): void {
 		let key = e.key.toLowerCase();
 
@@ -71,6 +79,8 @@ export class InputManager {
 
 	/**
 	 * Check if a key is currently pressed
+	 * @param key - The key to check
+	 * @returns True if the key is pressed, false otherwise
 	 */
 	isKeyPressed(key: string): boolean {
 		return this.keys.has(key.toLowerCase());
@@ -79,6 +89,9 @@ export class InputManager {
 	/**
 	 * Consume a key press with optional cooldown (in ms). Returns true when triggered.
 	 * While the key is held, the press will fire again once the cooldown has elapsed.
+	 * @param key - The key to consume
+	 * @param cooldownMs - The cooldown in milliseconds
+	 * @returns True if the key was consumed, false otherwise
 	 */
 	consumePress(key: string, cooldownMs = 0): boolean {
 		const normalized = key.toLowerCase();
@@ -95,6 +108,8 @@ export class InputManager {
 
 	/**
 	 * Check if any of the given keys are pressed
+	 * @param keys - The keys to check
+	 * @returns True if any of the keys are pressed, false otherwise
 	 */
 	isAnyKeyPressed(keys: readonly string[]): boolean {
 		return keys.some((key) => this.keys.has(key.toLowerCase()));
@@ -102,6 +117,7 @@ export class InputManager {
 
 	/**
 	 * Get all currently pressed keys (read-only copy)
+	 * @returns A set of all currently pressed keys
 	 */
 	getPressedKeys(): Set<string> {
 		return new Set(this.keys);
@@ -109,6 +125,7 @@ export class InputManager {
 
 	/**
 	 * Clear all key states (useful for reset or pause)
+	 * @returns A set of all currently pressed keys
 	 */
 	clear(): void {
 		this.keys.clear();

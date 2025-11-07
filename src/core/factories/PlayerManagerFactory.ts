@@ -4,6 +4,16 @@ import { CollisionManager } from '../collision/CollisionManager';
 import { SpriteConfig } from '../movement/SpriteHelper';
 import { MovementConfig } from '../../configs/MovementConfig';
 
+/**
+ * PlayerManagerFactoryOptions - Options for the player manager factory
+ * @param group - The group to add the player to
+ * @param spriteConfig - The sprite configuration
+ * @param position - The position of the player
+ * @param walkSpeed - The walk speed of the player
+ * @param model - The model of the player
+ * @param movementConfig - The movement configuration
+ * @param collisionManager - The collision manager
+ */
 export interface PlayerManagerFactoryOptions {
 	group: Konva.Group;
 	spriteConfig: SpriteConfig;
@@ -14,12 +24,23 @@ export interface PlayerManagerFactoryOptions {
 	collisionManager?: CollisionManager;
 }
 
+/**
+ * PlayerManagerFactoryResult - The result of the player manager factory
+ * @param playerManager - The player manager
+ * @param collisionManager - The collision manager
+ * @param model - The model of the player
+ */
 export interface PlayerManagerFactoryResult {
 	playerManager: PlayerManager;
 	collisionManager: CollisionManager;
 	model: { x: number; y: number };
 }
 
+/**
+ * Create a player manager
+ * @param options - The options for the player manager
+ * @returns The player manager factory result
+ */
 export function createPlayerManager(
 	options: PlayerManagerFactoryOptions
 ): PlayerManagerFactoryResult {

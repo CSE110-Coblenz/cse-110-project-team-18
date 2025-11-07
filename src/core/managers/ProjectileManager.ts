@@ -6,6 +6,16 @@ import { preloadImage } from '../utils/AssetLoader';
 import { GameObject } from '../objects/GameObject';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 
+/**
+ * ProjectileManagerOptions - Options for the projectile manager
+ * @param group - The group to add the projectile to
+ * @param collisionManager - The collision manager to use
+ * @param imageUrl - The URL of the image to use for the projectile
+ * @param speed - The speed of the projectile
+ * @param scale - The scale of the projectile
+ * @param direction - The direction of the projectile
+ * @param bounds - The bounds of the projectile
+ */
 export interface ProjectileManagerOptions {
 	group: Konva.Group;
 	collisionManager?: CollisionManager | null;
@@ -16,6 +26,14 @@ export interface ProjectileManagerOptions {
 	bounds?: { width: number; height: number };
 }
 
+/**
+ * ShootProjectileOptions - Options for shooting a projectile
+ * @param x - The x position of the projectile
+ * @param y - The y position of the projectile
+ * @param direction - The direction of the projectile
+ * @param speed - The speed of the projectile
+ * @param onCollision - The function to call when the projectile collides with another object
+ */
 export interface ShootProjectileOptions {
 	x: number;
 	y: number;
@@ -30,6 +48,11 @@ const DEFAULT_SCALE = 0.3;
 const DEFAULT_DIRECTION = { x: 0, y: -1 };
 const DEFAULT_BOUNDS = { width: STAGE_WIDTH, height: STAGE_HEIGHT };
 
+/**
+ * Normalize the direction of the projectile
+ * @param direction - The direction of the projectile
+ * @returns The normalized direction
+ */
 function normalizeDirection(direction: { x: number; y: number }): { x: number; y: number } {
 	const magnitude = Math.hypot(direction.x, direction.y);
 	if (magnitude === 0) return DEFAULT_DIRECTION;
@@ -62,7 +85,11 @@ export class ProjectileManager {
 		this.bounds = options.bounds ?? DEFAULT_BOUNDS;
 		this.loadProjectileImage();
 	}
-
+	
+	/**
+	 * Load the projectile image
+	 * @returns A promise that resolves when the image is loaded
+	 */
 	private async loadProjectileImage(): Promise<void> {
 		try {
 			this.projectileImage = await preloadImage(this.imageUrl);
@@ -72,6 +99,10 @@ export class ProjectileManager {
 		}
 	}
 
+	/**
+	 * Shoot a projectile
+	 * @param options - The options for shooting the projectile
+	 */
 	shoot(options: ShootProjectileOptions): void {
 		if (!this.isLoaded || !this.projectileImage) {
 			console.warn('Projectile image not loaded yet, skipping shot');
@@ -124,6 +155,10 @@ export class ProjectileManager {
 		};
 	}
 
+	/**
+	 * Update the projectile manager
+	 * @param deltaTimeMs - The time since the last frame in milliseconds
+	 */
 	update(deltaTimeMs: number): void {
 		for (const projectile of this.projectiles) {
 			projectile.update(deltaTimeMs);
@@ -145,14 +180,25 @@ export class ProjectileManager {
 		}
 	}
 
+	/**
+	 * Get the projectiles that are not destroyed
+	 * @returns The projectiles that are not destroyed
+	 */
 	getProjectiles(): Projectile[] {
 		return this.projectiles.filter((projectile) => !projectile.isDestroyed());
 	}
 
+	/**
+	 * Set the player collidable
+	 * @param playerCollidable - The player collidable
+	 */
 	setPlayerCollidable(playerCollidable: Collidable | null): void {
 		this.playerCollidable = playerCollidable;
 	}
 
+	/**
+	 * Clear the projectile manager
+	 */
 	clear(): void {
 		for (const projectile of this.projectiles) {
 			if (this.collisionManager && projectile.collidable) {
@@ -163,6 +209,9 @@ export class ProjectileManager {
 		this.projectiles = [];
 	}
 
+	/**
+	 * Dispose of the projectile manager
+	 */
 	dispose(): void {
 		this.clear();
 		this.projectileImage = null;

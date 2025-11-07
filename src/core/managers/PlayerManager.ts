@@ -76,6 +76,9 @@ export class PlayerManager {
 		this.load();
 	}
 
+	/**
+	 * Load the player sprite and create the player object
+	 */
 	private async load() {
 		try {
 			const x = this.externalModel?.x ?? this.x;
@@ -124,6 +127,13 @@ export class PlayerManager {
 		}
 	}
 
+	/**
+	 * Get the movement state of the player
+	 * @param velocity - The velocity of the player
+	 * @param isJumping - Whether the player is jumping
+	 * @param isRunning - Whether the player is running
+	 * @returns The movement state and facing direction
+	 */
 	private getMovementState(
 		velocity: { x: number; y: number },
 		isJumping: boolean,
@@ -146,6 +156,10 @@ export class PlayerManager {
 		return { state: isRunning ? 'run' : 'walk', facing };
 	}
 
+	/**
+	 * Update the player movement
+	 * @param deltaTimeMs - The time since the last frame in milliseconds
+	 */
 	update(deltaTimeMs: number): void {
 		if (!this.player || !this.player.movement) return;
 		const vx = this.player.movement.getVelocityX();
@@ -180,7 +194,10 @@ export class PlayerManager {
 			}
 		}
 	}
-
+	
+	/**
+	 * Dispose of the player manager
+	 */
 	dispose() {
 		if (this.player) {
 			if (this.collisionManager && this.player.collidable) {
@@ -196,10 +213,18 @@ export class PlayerManager {
 		}
 	}
 
+	/**
+	 * Get the node of the player
+	 * @returns The node of the player
+	 */
 	getNode(): Konva.Node | null {
 		return this.sprite;
 	}
 
+	/**
+	 * Get the collidable of the player
+	 * @returns The collidable of the player
+	 */
 	getPlayerCollidable(): Collidable | null {
 		return this.player?.collidable ?? null;
 	}

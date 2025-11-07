@@ -28,6 +28,10 @@ export class AsteroidFieldGameController extends ScreenController {
 		collisionManager: CollisionManager;
 	}>;
 
+	/**
+	 * AsteroidFieldGameController - The controller for the asteroid field game screen
+	 * @param screenSwitcher - The screen switcher
+	 */
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
@@ -73,24 +77,41 @@ export class AsteroidFieldGameController extends ScreenController {
 		});
 	}
 
+	/**
+	 * Handle the return to menu click
+	 */
 	private handleReturnToMenuClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'menu' });
 	}
 
+	/**
+	 * Get the view of the asteroid field game screen
+	 * @returns The view of the asteroid field game screen
+	 */
 	getView(): AsteroidFieldGameView {
 		return this.view;
 	}
 
+	/**
+	 * Show the asteroid field game screen
+	 */
 	override show(): void {
 		super.show();
 		this.entityLifecycle.ensure();
 	}
 
+	/**
+	 * Hide the asteroid field game screen
+	 */
 	override hide(): void {
 		super.hide();
 		this.entityLifecycle.dispose();
 	}
 
+	/**
+	 * Update the asteroid field game screen
+	 * @param deltaTime - The time since the last frame in milliseconds
+	 */
 	override update(deltaTime: number): void {
 		if (!this.view.getGroup().visible()) return;
 		const entities = this.entityLifecycle.get();
@@ -119,6 +140,9 @@ export class AsteroidFieldGameController extends ScreenController {
 		this.view.getGroup().getLayer()?.draw();
 	}
 
+	/**
+	 * Dispose of the asteroid field game controller
+	 */
 	dispose(): void {
 		this.entityLifecycle.dispose();
 	}
