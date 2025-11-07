@@ -30,7 +30,10 @@ export class MenuScreenController extends ScreenController {
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
-		this.view = new MenuScreenView(() => this.handleAsteriodFieldClick(), () => this.handlePrimeGameClick());
+		this.view = new MenuScreenView(
+			() => this.handleAsteriodFieldClick(),
+			() => this.handlePrimeGameClick()
+		);
 		this.model = new MenuScreenModel(this.initialPlayerPosition.x, this.initialPlayerPosition.y);
 		this.playerLifecycle = new ScreenEntityManager({
 			create: () => {
