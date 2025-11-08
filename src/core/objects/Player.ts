@@ -1,35 +1,29 @@
 import Konva from 'konva';
 import { GameObject } from './GameObject';
 import { PlayerMovement } from '../movement/PlayerMovement';
-import { Collidable } from './Collidable';
+import { Collidable } from '../collision/Collidable';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { PlayerConfig } from '../../configs/PlayerConfig';
+import { Movement } from '../movement/Movement';
+import { MovementConfig } from '../../configs/MovementConfig';
 
 export class Player extends GameObject {
-	movement: PlayerMovement | null = null;
+	movement: Movement | null = null;
 	collidable: Collidable | null = null;
 	private halfWidth = 0;
 	private halfHeight = 0;
-	private walkSpeed: number;
-	private runSpeed?: number;
+	private movementConfig?: MovementConfig;
 
 	/**
 	 * Constructor for the Player
 	 * @param id - The id of the player
 	 * @param model - The model of the player
-	 * @param walkSpeed - The walk speed of the player
-	 * @param runSpeed - The run speed of the player
+	 * @param movementConfig - Optional movement configuration. If not provided, uses default PlayerConfig settings.
 	 */
-	constructor(
-		id: string,
-		model: { x: number; y: number },
-		walkSpeed: number = PlayerConfig.MOVEMENT.WALK_SPEED,
-		runSpeed?: number
-	) {
+	constructor(id: string, model: { x: number; y: number }, movementConfig?: MovementConfig) {
 		super(id, model.x, model.y);
 		this.model = model;
-		this.walkSpeed = walkSpeed;
-		this.runSpeed = runSpeed;
+		this.movementConfig = movementConfig;
 		this.collidable = new Collidable(this);
 	}
 
@@ -40,7 +34,19 @@ export class Player extends GameObject {
 	attachNode(node: Konva.Node): void {
 		super.attachNode(node);
 		if (!this.movement) {
-			this.movement = new PlayerMovement(this.model, node, this.walkSpeed, this.runSpeed);
+			// Use provided config or create default config from PlayerConfig
+			const config = this.movementConfig ?? {
+				keys: {
+					up: PlayerConfig.CONTROLS.MOVE_UP,
+					down: PlayerConfig.CONTROLS.MOVE_DOWN,
+					left: PlayerConfig.CONTROLS.MOVE_LEFT,
+					right: PlayerConfig.CONTROLS.MOVE_RIGHT,
+				},
+				walkSpeed: 150, // Default walk speed (should be specified per-player in practice)
+				jumpKeys: PlayerConfig.CONTROLS.JUMP,
+				enableJumping: true,
+			};
+			this.movement = new PlayerMovement(this.model, node, config);
 		}
 
 		try {

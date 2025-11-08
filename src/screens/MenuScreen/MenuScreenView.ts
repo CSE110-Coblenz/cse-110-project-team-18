@@ -1,8 +1,7 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { STAGE_WIDTH } from '../../configs/GameConfig';
-
-
+import { createButton } from '../../ui';
 
 /**
  * MenuScreenView - Renders the menu screen
@@ -12,16 +11,16 @@ export class MenuScreenView implements View {
 	private buttonGroup?: Konva.Group;
 
 	/**
-	 * Constructor for the MenuScreenView
-	 * @param onStartClick - The function to call when the start button is clicked
+	 * @param onAsteriodFieldClick - The function to call when the start button is clicked
+	 * @param onPrimeGameClick - The function to call when the prime number game button is clicked
 	 */
-	constructor(onAsteriodFieldClick: () => void) {
+	constructor(onAsteriodFieldClick: () => void, onPrimeGameClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
-			id: 'menuScreen', // Add ID for debugging
+			id: 'menuScreen',
 		});
 
-		// Title text
+		// Title text (unchanged)
 		const title = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 150,
@@ -31,77 +30,59 @@ export class MenuScreenView implements View {
 			fill: 'white',
 			align: 'center',
 		});
-		// Center the text using offsetX
 		title.offsetX(title.width() / 2);
 		this.group.add(title);
 
-		// Asteroid Field Game Start Button
-		const asteriodFieldButtonGroup = new Konva.Group({
-			listening: true, // Explicitly enable listening for the button group
-		});
-		const asteriodFieldStartButton = new Konva.Rect({
+		// Button container so we can keep all actionable items together
+		const buttonGroup = new Konva.Group({ listening: true });
+
+		// Start button for asteroid field game
+		const asteroidFieldBtn = createButton({
 			x: STAGE_WIDTH / 2 - 200,
 			y: 375,
 			width: 400,
 			height: 60,
-			fill: 'green',
-			cornerRadius: 10,
-			stroke: 'darkgreen',
-			strokeWidth: 3,
-			listening: true, // Ensure the rect itself listens to clicks
-		});
-
-		const asteriodFieldStartText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 390,
 			text: 'START ASTEROID FIELD GAME',
-			fontSize: 24,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
-			listening: false,
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: onAsteriodFieldClick,
 		});
-		asteriodFieldStartText.offsetX(asteriodFieldStartText.width() / 2);
-		asteriodFieldButtonGroup.add(asteriodFieldStartButton);
-		asteriodFieldButtonGroup.add(asteriodFieldStartText);
-		asteriodFieldButtonGroup.on('click', onAsteriodFieldClick);
-		this.buttonGroup = asteriodFieldButtonGroup;
-		this.group.add(asteriodFieldButtonGroup);
-		asteriodFieldButtonGroup.moveToTop();
 
-		// Menu view intentionally stays passive about movement/assets.
-		// Asset loading and movement are managed by the controller/manager.
+		// Start button for prime number game
+		const primeGameButton = createButton({
+			x: STAGE_WIDTH / 2 - 200,
+			y: 450,
+			width: 400,
+			height: 60,
+			text: 'START PRIME NUMBER GAME',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: onPrimeGameClick,
+		});
+
+		buttonGroup.add(asteroidFieldBtn);
+		buttonGroup.add(primeGameButton);
+		this.buttonGroup = buttonGroup;
+		this.group.add(buttonGroup);
+		buttonGroup.moveToTop();
 	}
 
-	/**
-	 * Ensure buttons are always on top (call this after sprite loads)
-	 */
 	ensureButtonsOnTop(): void {
 		if (this.buttonGroup) {
 			this.buttonGroup.moveToTop();
 		}
 	}
 
-	/**
-	 * Show the screen
-	 */
 	show(): void {
 		this.group.visible(true);
 		this.group.getLayer()?.draw();
 	}
 
-	/**
-	 * Hide the screen
-	 */
 	hide(): void {
 		this.group.visible(false);
 		this.group.getLayer()?.draw();
 	}
 
-	/**
-	 * Get the group of the menu screen view
-	 * @returns The group of the menu screen view
-	 */
 	getGroup(): Konva.Group {
 		return this.group;
 	}
