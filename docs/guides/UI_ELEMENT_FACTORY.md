@@ -3,6 +3,7 @@
 This guide explains how to use the UI Element Factory (`src/ui/factory/ElementFactory.ts`) to create and manage interactive UI elements in our game using Konva.js.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Button Creation](#button-creation)
 - [Text Box Creation](#text-box-creation)
@@ -12,11 +13,13 @@ This guide explains how to use the UI Element Factory (`src/ui/factory/ElementFa
 ## Overview
 
 The Element Factory provides functions to create consistent, theme-aware UI elements:
+
 - `createButton()`: Creates interactive buttons with hover effects and click handling
 - `createTextBox()`: Creates text display boxes with various alignment options
 - Utility functions for updating text and resizing elements
 
 All elements automatically handle:
+
 - Text fitting and overflow management
 - Proper vertical/horizontal alignment
 - Theme integration
@@ -28,12 +31,12 @@ All elements automatically handle:
 
 ```typescript
 const button = createButton({
-    x: 100,          // Optional, defaults to theme-defined position
-    y: 200,          // Required
-    width: 200,      // Required
-    height: 60,      // Required
-    text: "Click Me", // Required
-    colorKey: "primary", // Required - theme color key
+	x: 100, // Optional, defaults to theme-defined position
+	y: 200, // Required
+	width: 200, // Required
+	height: 60, // Required
+	text: 'Click Me', // Required
+	colorKey: 'primary', // Required - theme color key
 });
 ```
 
@@ -41,35 +44,35 @@ const button = createButton({
 
 ```typescript
 type ButtonArgs = {
-    // Position and Size
-    x?: number;      // Optional X position
-    y: number;       // Y position
-    width: number;   // Button width
-    height: number;  // Button height
-    
-    // Content
-    text: string;    // Button text
-    
-    // Styling
-    colorKey: string;     // Theme color key for background
-    fontColorKey?: string; // Theme color key for text (defaults to white)
-    fontFamily?: string;   // Font family (defaults to theme)
-    fontSize?: number;     // Initial font size (will auto-shrink if needed)
-    fontWeight?: number;   // Font weight
-    
-    // Interaction
-    onClick?: () => void;  // Click/tap handler
-    hoverColorKey?: string; // Theme color for hover state
-    
-    // Text Fitting
-    minFontSize?: number;  // Minimum font size when shrinking (default: 12)
+	// Position and Size
+	x?: number; // Optional X position
+	y: number; // Y position
+	width: number; // Button width
+	height: number; // Button height
+
+	// Content
+	text: string; // Button text
+
+	// Styling
+	colorKey: string; // Theme color key for background
+	fontColorKey?: string; // Theme color key for text (defaults to white)
+	fontFamily?: string; // Font family (defaults to theme)
+	fontSize?: number; // Initial font size (will auto-shrink if needed)
+	fontWeight?: number; // Font weight
+
+	// Interaction
+	onClick?: () => void; // Click/tap handler
+	hoverColorKey?: string; // Theme color for hover state
+
+	// Text Fitting
+	minFontSize?: number; // Minimum font size when shrinking (default: 12)
 };
 ```
 
 ### Button Behaviors
 
 - **Text Fitting**: Text automatically shrinks to fit button width while maintaining readability
-- **Hover Effects**: 
+- **Hover Effects**:
   - Background lightens on hover (or uses specified hoverColorKey)
   - Cursor changes to pointer
 - **Click/Tap**: Handles both mouse clicks and touch events
@@ -82,12 +85,12 @@ type ButtonArgs = {
 
 ```typescript
 const textBox = createTextBox({
-    x: 100,
-    y: 200,
-    width: 300,
-    height: 150,
-    text: "This is a text box",
-    colorKey: "surface",
+	x: 100,
+	y: 200,
+	width: 300,
+	height: 150,
+	text: 'This is a text box',
+	colorKey: 'surface',
 });
 ```
 
@@ -95,26 +98,26 @@ const textBox = createTextBox({
 
 ```typescript
 type TextBoxArgs = {
-    // Position and Size
-    x?: number;      // Optional X position
-    y: number;       // Y position
-    width: number;   // Box width
-    height: number;  // Box height
-    
-    // Content
-    text: string;    // Text content
-    
-    // Styling
-    colorKey: string;     // Theme color key for background
-    fontColorKey?: string; // Theme color key for text
-    fontFamily?: string;   // Font family
-    fontSize?: number;     // Initial font size
-    fontWeight?: number;   // Font weight
-    
-    // Layout
-    padding?: number;      // Inner padding (default: 12)
-    minFontSize?: number;  // Minimum font size (default: 12)
-    verticalAlign?: 'middle' | 'top' | 'bottom'; // Vertical alignment (default: 'middle')
+	// Position and Size
+	x?: number; // Optional X position
+	y: number; // Y position
+	width: number; // Box width
+	height: number; // Box height
+
+	// Content
+	text: string; // Text content
+
+	// Styling
+	colorKey: string; // Theme color key for background
+	fontColorKey?: string; // Theme color key for text
+	fontFamily?: string; // Font family
+	fontSize?: number; // Initial font size
+	fontWeight?: number; // Font weight
+
+	// Layout
+	padding?: number; // Inner padding (default: 12)
+	minFontSize?: number; // Minimum font size (default: 12)
+	verticalAlign?: 'middle' | 'top' | 'bottom'; // Vertical alignment (default: 'middle')
 };
 ```
 
@@ -137,7 +140,7 @@ The factory provides two utility functions for updating existing elements:
 
 ```typescript
 // Update text while maintaining layout and fitting
-setElementText(buttonOrTextBox, "New text content");
+setElementText(buttonOrTextBox, 'New text content');
 ```
 
 ### Resizing Elements
@@ -148,6 +151,7 @@ resizeElement(buttonOrTextBox, newWidth, newHeight);
 ```
 
 Both utilities automatically:
+
 - Recalculate text fitting
 - Maintain alignment settings
 - Preserve interaction behaviors
@@ -159,12 +163,12 @@ Both utilities automatically:
 
 ```typescript
 const playButton = createButton({
-    y: 300,
-    width: 180,
-    height: 50,
-    text: "Play Game",
-    colorKey: "primary",
-    onClick: () => startGame(),
+	y: 300,
+	width: 180,
+	height: 50,
+	text: 'Play Game',
+	colorKey: 'primary',
+	onClick: () => startGame(),
 });
 ```
 
@@ -172,14 +176,14 @@ const playButton = createButton({
 
 ```typescript
 const dangerButton = createButton({
-    y: 400,
-    width: 160,
-    height: 45,
-    text: "Delete Save",
-    colorKey: "danger",
-    hoverColorKey: "dangerHover",
-    fontWeight: 700,
-    onClick: () => confirmDelete(),
+	y: 400,
+	width: 160,
+	height: 45,
+	text: 'Delete Save',
+	colorKey: 'danger',
+	hoverColorKey: 'dangerHover',
+	fontWeight: 700,
+	onClick: () => confirmDelete(),
 });
 ```
 
@@ -187,13 +191,13 @@ const dangerButton = createButton({
 
 ```typescript
 const description = createTextBox({
-    y: 200,
-    width: 400,
-    height: 200,
-    text: "This is a longer description that will automatically wrap to multiple lines while maintaining proper alignment and text fitting.",
-    colorKey: "surface",
-    padding: 16,
-    verticalAlign: "top",
+	y: 200,
+	width: 400,
+	height: 200,
+	text: 'This is a longer description that will automatically wrap to multiple lines while maintaining proper alignment and text fitting.',
+	colorKey: 'surface',
+	padding: 16,
+	verticalAlign: 'top',
 });
 ```
 
@@ -201,14 +205,14 @@ const description = createTextBox({
 
 ```typescript
 const scoreBox = createTextBox({
-    y: 50,
-    width: 120,
-    height: 80,
-    text: "Score: 0",
-    colorKey: "accent",
-    fontWeight: 700,
-    fontSize: 24,
-    verticalAlign: "bottom",
+	y: 50,
+	width: 120,
+	height: 80,
+	text: 'Score: 0',
+	colorKey: 'accent',
+	fontWeight: 700,
+	fontSize: 24,
+	verticalAlign: 'bottom',
 });
 
 // Later update the score
