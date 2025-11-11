@@ -51,13 +51,12 @@ export class EarthScreenController extends ScreenController {
 		this.attemptsIndicator.offsetX(this.attemptsIndicator.width() / 2);
 		this.view.getGroup().add(this.attemptsIndicator);
 
-		// Previous Question button (below feedback)
+		// Previous Question button placeholder (optional future feature)
 		this.previousButtonGroup = new Konva.Group({
 			x: STAGE_WIDTH / 2 - 100,
 			y: STAGE_HEIGHT / 2 + 290,
 			visible: true,
 		});
-
 		const prevRect = new Konva.Rect({
 			width: 200,
 			height: 50,
@@ -76,7 +75,6 @@ export class EarthScreenController extends ScreenController {
 			align: 'center',
 		});
 		prevText.offsetX(prevText.width() / 2);
-
 		this.previousButtonGroup.add(prevRect);
 		this.previousButtonGroup.add(prevText);
 		this.previousButtonGroup.on('mouseenter', () => (document.body.style.cursor = 'pointer'));
@@ -121,7 +119,7 @@ export class EarthScreenController extends ScreenController {
 	}
 
 	// --------------------------------------------------------
-	// INPUT BOX
+	// INPUT BOX CREATION
 	// --------------------------------------------------------
 	private createInputBox(): void {
 		this.removeInputBox();
@@ -131,7 +129,7 @@ export class EarthScreenController extends ScreenController {
 
 		const input = document.createElement('input');
 		input.type = 'text';
-		input.placeholder = 'Enter your answer (e.g. 12:30 PM)';
+		input.placeholder = 'Enter your answer (e.g. 14:30)';
 		input.style.position = 'absolute';
 		input.style.width = '340px';
 		input.style.padding = '12px';
@@ -150,7 +148,7 @@ export class EarthScreenController extends ScreenController {
 		input.addEventListener('keydown', (e) => {
 			if (e.key === 'Enter') {
 				this.handleAnswer(input.value.trim());
-				input.value = ''; // clear input
+				input.value = ''; // clear after submit
 			}
 		});
 
@@ -168,72 +166,59 @@ export class EarthScreenController extends ScreenController {
 	// QUESTION MANAGEMENT
 	// --------------------------------------------------------
 	private loadNewQuestion(): void {
-		this.clearFeedback();
-
+		// Stop if all questions are done
 		if (this.model.currentQuestion >= this.model.totalQuestions) {
 			this.showGameOver();
 			return;
 		}
-		// Increment question counter and load a new question
+		this.clearFeedback();
 		const q = generateTimeQuestion();
 
 		this.model.correctHour = q.correctHour;
 		this.model.correctMinute = q.correctMinute;
 		this.model.attempts = 0;
+		this.model.currentQuestion++;
 
-		const questionNumber = this.model.currentQuestion + 1;
-
-		// Show "Q1: It is 3:30..." properly centered
 		this.questionText.text(`Q${this.model.currentQuestion}: ${q.question}`);
 		this.questionText.offsetX(this.questionText.width() / 2);
 
 		this.logic.setClockTime(q.startHour, q.startMinute);
 		this.updateAttemptIndicator();
 		this.view.getGroup().getLayer()?.batchDraw();
-
-		this.model.currentQuestion++;
 	}
 
 	// --------------------------------------------------------
-	// GAME OVER MESSAGE (place this after loadNewQuestion)
+	// ANSWER HANDLING AND VALIDATION
 	// --------------------------------------------------------
-	private showGameOver(): void {
-		this.clearFeedback();
-
-		const finalText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: STAGE_HEIGHT / 2,
-			text: `🎉 You completed all ${this.model.totalQuestions} questions!\nScore: ${this.model.correctAnswers}/${this.model.totalQuestions}`,
-			fontSize: 28,
-			fontFamily: 'Arial',
-			fill: 'lightgreen',
-			align: 'center',
-		});
-		finalText.offsetX(finalText.width() / 2);
-		this.view.getGroup().add(finalText);
-		this.view.getGroup().getLayer()?.batchDraw();
-
-		if (this.inputBox) this.inputBox.disabled = true;
-	}
-
 	private handleAnswer(userInput: string): void {
-		const match = /^(\d{1,2}):(\d{2})\s*([AaPp][Mm])?$/.exec(userInput);
+		// Match 0-padded or non-padded times (e.g. "2:15" or "02:15")
+		const match = /^0?(\d{1,2}):(\d{2})$/.exec(userInput);
 		if (!match) {
-			this.showFeedback('❌ Please enter a valid time like 12:30 PM');
+			this.showFeedback('Please enter a valid time like 14:30');
 			return;
 		}
 
-		const userHour = parseInt(match[1], 10) % 12;
+		const userHour = parseInt(match[1], 10);
 		const userMinute = parseInt(match[2], 10);
+
 		const { correctHour, correctMinute, maxAttempts } = this.model;
+
+		// Normalize both times for fair comparison
+		const normalize = (h: number, m: number) => ({
+			hour: h % 24,
+			minute: m % 60,
+		});
+
+		const user = normalize(userHour, userMinute);
+		const correct = normalize(correctHour, correctMinute);
 
 		this.model.attempts += 1;
 		this.updateAttemptIndicator();
 
-		const isCorrect = userHour === correctHour && userMinute === correctMinute;
+		const isCorrect = user.hour === correct.hour && user.minute === correct.minute;
 
 		if (isCorrect) {
-			this.showFeedback('✅ Correct!');
+			this.showFeedback('Correct!');
 			this.animateClockTo(correctHour, correctMinute);
 			this.model.correctAnswers++;
 			this.model.attempts = 0;
@@ -241,10 +226,12 @@ export class EarthScreenController extends ScreenController {
 		} else if (this.model.attempts < maxAttempts) {
 			const remaining = maxAttempts - this.model.attempts;
 			this.showFeedback(
-				`❌ Try again! You have ${remaining} attempt${remaining > 1 ? 's' : ''} left.`
+				`Try again! You have ${remaining} attempt${remaining > 1 ? 's' : ''} left.`
 			);
 		} else {
-			this.showFeedback(`❌ Out of attempts!`);
+			this.showFeedback(
+				`Out of attempts! The correct time was ${this.formatTime(correctHour, correctMinute)}.`
+			);
 			this.animateClockTo(correctHour, correctMinute);
 			setTimeout(() => this.loadNewQuestion(), 2000);
 			this.model.attempts = 0;
@@ -266,11 +253,11 @@ export class EarthScreenController extends ScreenController {
 
 		const feedback = new Konva.Text({
 			x: STAGE_WIDTH / 2,
-			y: STAGE_HEIGHT / 2 + 230, // moved slightly up to fit button
+			y: STAGE_HEIGHT / 2 + 230,
 			text: message,
 			fontSize: 26,
 			fontFamily: 'Arial',
-			fill: message.startsWith('✅') ? 'lightgreen' : 'red',
+			fill: message.startsWith('Correct') ? 'lightgreen' : 'red',
 			id: 'feedbackText',
 		});
 		feedback.offsetX(feedback.width() / 2);
@@ -284,6 +271,9 @@ export class EarthScreenController extends ScreenController {
 		this.view.getGroup().getLayer()?.batchDraw();
 	}
 
+	// --------------------------------------------------------
+	// CLOCK ANIMATION
+	// --------------------------------------------------------
 	private animateClockTo(hour: number, minute: number): void {
 		const start = performance.now();
 		const duration = 1000;
@@ -295,6 +285,49 @@ export class EarthScreenController extends ScreenController {
 		};
 
 		requestAnimationFrame(animate);
+	}
+
+	// --------------------------------------------------------
+	// GAME OVER SCREEN
+	// --------------------------------------------------------
+	private showGameOver(): void {
+		this.clearFeedback();
+
+		// White background highlight for readability
+		const bgBox = new Konva.Rect({
+			x: STAGE_WIDTH / 2 - 250,
+			y: STAGE_HEIGHT / 2 - 60,
+			width: 500,
+			height: 120,
+			fill: 'white',
+			opacity: 0.8,
+			cornerRadius: 15,
+		});
+		this.view.getGroup().add(bgBox);
+
+		const finalText = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: STAGE_HEIGHT / 2,
+			text: `You completed all ${this.model.totalQuestions} questions!\nScore: ${this.model.correctAnswers}/${this.model.totalQuestions}`,
+			fontSize: 26,
+			fontFamily: 'Arial',
+			fill: 'black',
+			align: 'center',
+		});
+		finalText.offsetX(finalText.width() / 2);
+
+		this.view.getGroup().add(finalText);
+		this.view.getGroup().getLayer()?.batchDraw();
+		if (this.inputBox) this.inputBox.disabled = true;
+	}
+
+	// --------------------------------------------------------
+	// UTILITY
+	// --------------------------------------------------------
+	private formatTime(hour: number, minute: number): string {
+		const h = hour.toString().padStart(2, '0');
+		const m = minute.toString().padStart(2, '0');
+		return `${h}:${m}`;
 	}
 
 	// --------------------------------------------------------

@@ -2,67 +2,63 @@ export interface TimeQuestion {
 	question: string;
 	startHour: number;
 	startMinute: number;
-	startPeriod: 'AM' | 'PM';
 	correctHour: number;
 	correctMinute: number;
-	correctPeriod: 'AM' | 'PM';
 	deltaMinutes: number;
 }
 
 /**
- * Generate a random time arithmetic question (with AM/PM)
+ * Generate a random time arithmetic question (24-hour format)
  */
 export function generateTimeQuestion(): TimeQuestion {
-	// Start time
-	const startHour = Math.floor(Math.random() * 12) || 12;
-	const minuteOptions = [15, 30, 45];
+	// Start time (0–23 hours)
+	const startHour = Math.floor(Math.random() * 24);
+	const minuteOptions = [0, 15, 30, 45];
 	const startMinute = minuteOptions[Math.floor(Math.random() * minuteOptions.length)];
-	const startPeriod: 'AM' | 'PM' = Math.random() < 0.5 ? 'AM' : 'PM';
 
-	// Add or subtract time
+	// Randomly choose addition or subtraction
 	const add = Math.random() < 0.5;
+
+	// Possible time differences (in hours, including fractions)
 	const deltaHourOptions = [0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
 	const deltaHours = deltaHourOptions[Math.floor(Math.random() * deltaHourOptions.length)];
 	const deltaMinutes = Math.round(deltaHours * 60) * (add ? 1 : -1);
 
-	// Convert start time to total minutes (24-hour clock)
-	let totalMinutes =
-		(startHour % 12) * 60 + startMinute + (startPeriod === 'PM' ? 12 * 60 : 0) + deltaMinutes;
-
-	// Normalize within 24 hours
+	// Apply change and wrap around 24 hours
+	let totalMinutes = startHour * 60 + startMinute + deltaMinutes;
 	totalMinutes = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
 
-	// Compute resulting time
-	const correct24Hour = Math.floor(totalMinutes / 60);
+	const correctHour = Math.floor(totalMinutes / 60);
 	const correctMinute = totalMinutes % 60;
-	const correctPeriod: 'AM' | 'PM' = correct24Hour >= 12 ? 'PM' : 'AM';
-	const correctHour = correct24Hour % 12 === 0 ? 12 : correct24Hour % 12;
 
-	// Question formatting
-	const deltaLabel = Math.abs(deltaHours).toFixed(2).replace(/\.00$/, '').replace(/0$/, '');
+	// Natural phrasing for the question
+	const minutes = Math.abs(deltaMinutes);
+	let deltaLabel: string;
+	if (minutes === 15) deltaLabel = '15 minutes';
+	else if (minutes === 30) deltaLabel = '30 minutes';
+	else if (minutes === 45) deltaLabel = '45 minutes';
+	else deltaLabel = `${Math.abs(deltaHours)} hour${Math.abs(deltaHours) === 1 ? '' : 's'}`;
 
-	const startTimeStr = formatTime(startHour, startMinute, startPeriod);
+	const startTimeStr = formatTime(startHour, startMinute);
 	const question = add
-		? `It is ${startTimeStr}. What time will it be in ${deltaLabel} hour${deltaLabel === '1.0' ? '' : 's'}?`
-		: `It is ${startTimeStr}. What time was it ${deltaLabel} hour${deltaLabel === '1.0' ? '' : 's'} ago?`;
+		? `It is ${startTimeStr}. What time will it be in ${deltaLabel}?`
+		: `It is ${startTimeStr}. What time was it ${deltaLabel} ago?`;
 
 	return {
 		question,
 		startHour,
 		startMinute,
-		startPeriod,
 		correctHour,
 		correctMinute,
-		correctPeriod,
 		deltaMinutes,
 	};
 }
 
 /**
- * Format time as "H:MM AM/PM"
+ * Format time as HH:MM (24-hour)
  */
-function formatTime(hour: number, minute: number, period: 'AM' | 'PM'): string {
-	const h = hour === 0 ? 12 : hour;
+function formatTime(hour: number, minute: number): string {
+	const h = hour.toString().padStart(2, '0');
 	const m = minute.toString().padStart(2, '0');
-	return `${h}:${m} ${period}`;
+	return `${h}:${m}`;
 }
