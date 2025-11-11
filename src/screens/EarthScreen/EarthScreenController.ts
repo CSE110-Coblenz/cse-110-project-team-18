@@ -293,18 +293,24 @@ export class EarthScreenController extends ScreenController {
 	private showGameOver(): void {
 		this.clearFeedback();
 
-		// White background highlight for readability
+		// Background highlight box
+		const boxWidth = 500;
+		const boxHeight = 120;
+		const boxX = STAGE_WIDTH / 2 - boxWidth / 2;
+		const boxY = STAGE_HEIGHT / 2 - boxHeight / 2;
+
 		const bgBox = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 250,
-			y: STAGE_HEIGHT / 2 - 60,
-			width: 500,
-			height: 120,
+			x: boxX,
+			y: boxY,
+			width: boxWidth,
+			height: boxHeight,
 			fill: 'white',
-			opacity: 0.8,
+			opacity: 0.85,
 			cornerRadius: 15,
 		});
 		this.view.getGroup().add(bgBox);
 
+		// Centered text inside the box
 		const finalText = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: STAGE_HEIGHT / 2,
@@ -315,9 +321,11 @@ export class EarthScreenController extends ScreenController {
 			align: 'center',
 		});
 		finalText.offsetX(finalText.width() / 2);
+		finalText.offsetY(finalText.height() / 2); // centers vertically
 
 		this.view.getGroup().add(finalText);
 		this.view.getGroup().getLayer()?.batchDraw();
+
 		if (this.inputBox) this.inputBox.disabled = true;
 	}
 
