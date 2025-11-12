@@ -15,22 +15,22 @@ The SQLite database stores user data including: `id` (a unique, auto-incremented
 
 ## Creating users
 **Description**
-Creates a new user with the provided username and password.
-**Usage**
-`createUser(username: string, password: string)`
-**Arguments**
-`username`: Desired username
-`password`: Desired password
-**Return**
+Creates a new user with the provided username and password.\
+**Usage**\
+`createUser(username: string, password: string)`\
+**Arguments**\
+`username`: Desired username\
+`password`: Desired password\
+**Return**\
 A `Promise<number>` containing the user's `id`.
 
 ## Logging in
-**Description**
-Checks against the database and attempts to log in a user from a given username and password.
-**Usage**
-`loginUser(username: string, password: string)`
-**Arguments**
-`username`: A username
-`password`: A password
-**Return**
+**Description**\
+Checks against the database and attempts to log in a user from a given username and password.\
+**Usage**\
+`loginUser(username: string, password: string)`\
+**Arguments**\
+`username`: A username\
+`password`: A password\
+**Return**\
 A `Promise<User | null>` . Return of type `User` if user was found (i.e. login was successful) and `null` otherwise.
