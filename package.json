@@ -21,6 +21,7 @@
 		"konva": "^10.0.8"
 	},
 	"devDependencies": {
+		"@types/bcrypt": "^6.0.0",
 		"@types/better-sqlite3": "^7.6.13",
 		"@types/node": "^24.10.0",
 		"@typescript-eslint/eslint-plugin": "^8.46.2",
