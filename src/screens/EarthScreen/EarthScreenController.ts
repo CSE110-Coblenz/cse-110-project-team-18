@@ -242,39 +242,37 @@ export class EarthScreenController extends ScreenController {
 		this.model.currentQuestion++;
 	}
 
+	// --------------------------------------------------------
+	// LOAD PREVIOUS QUESTION
+	// --------------------------------------------------------
 	private loadPreviousQuestion(): void {
-		if (this.model.currentQuestion <= 1 || this.history.length === 0) return;
+		// Prevent moving back before first question
+		if (this.model.currentQuestion <= 1) return;
 
 		this.clearFeedback();
-		this.model.currentQuestion--;
+		this.nextButtonGroup.visible(false);
 
-		const prevQ = this.history[this.model.currentQuestion - 1];
-		if (!prevQ) return;
-
-		// Render previous question in review mode
-		this.renderQuestion(prevQ, true);
+		// Move back one index
+		this.model.currentQuestion -= 2; // because loadNewQuestion() increments
+		const prevQ = this.history[this.model.currentQuestion];
+		if (prevQ) this.renderQuestion(prevQ);
 	}
 
 	// --------------------------------------------------------
 	// RENDER A QUESTION (used for both new and previous)
 	// --------------------------------------------------------
-	private renderQuestion(q: ReturnType<typeof generateTimeQuestion>, reviewMode = false): void {
-		this.questionText.text(`Q${this.model.currentQuestion}: ${q.question}`);
+	// --------------------------------------------------------
+	// RENDER A QUESTION (used for both new and previous)
+	// --------------------------------------------------------
+	private renderQuestion(q: ReturnType<typeof generateTimeQuestion>): void {
+		this.questionText.text(`Q${this.model.currentQuestion + 1}: ${q.question}`);
 		this.questionText.offsetX(this.questionText.width() / 2);
 
 		this.logic.setClockTime(q.startHour, q.startMinute);
 		this.updateAttemptIndicator();
 
-		// Disable answering when viewing past questions
-		if (reviewMode) {
-			if (this.inputBox) this.inputBox.disabled = true;
-			this.showFeedback('Viewing previous question (answers locked)');
-		} else {
-			if (this.inputBox) this.inputBox.disabled = false;
-		}
-
-		// Enable or disable Previous button
-		const isPrevEnabled = this.model.currentQuestion > 1;
+		// Enable or disable Previous button dynamically
+		const isPrevEnabled = this.model.currentQuestion > 0;
 		this.previousButtonGroup.listening(isPrevEnabled);
 		const prevRect = this.previousButtonGroup.findOne<Konva.Rect>('.prevRect');
 		if (prevRect) prevRect.opacity(isPrevEnabled ? 1 : 0.4);
