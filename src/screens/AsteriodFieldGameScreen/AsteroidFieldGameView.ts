@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { createButton } from '../../ui';
+import { STAGE_WIDTH } from '../../configs/GameConfig';
 
 /**
  * AsteroidFieldGameView - Renders the asteroid field game screen
@@ -8,6 +9,7 @@ import { createButton } from '../../ui';
 export class AsteroidFieldGameView implements View {
 	private group: Konva.Group;
 	private buttonGroup?: Konva.Group;
+	private targetLabel: Konva.Text;
 
 	/**
 	 * Constructor for the AsteroidFieldGameView
@@ -33,6 +35,19 @@ export class AsteroidFieldGameView implements View {
 		this.buttonGroup = returnToMenuBtn;
 		this.group.add(returnToMenuBtn);
 		returnToMenuBtn.moveToTop();
+
+		this.targetLabel = new Konva.Text({
+			text: 'Target: --',
+			x: STAGE_WIDTH - 200,
+			y: 40,
+			fontSize: 32,
+			fontStyle: 'bold',
+			fill: '#FFFFFF',
+			stroke: '#000000',
+			strokeWidth: 2,
+		});
+		this.targetLabel.x(STAGE_WIDTH - this.targetLabel.width() - 40);
+		this.group.add(this.targetLabel);
 	}
 
 	/**
@@ -42,6 +57,7 @@ export class AsteroidFieldGameView implements View {
 		if (this.buttonGroup) {
 			this.buttonGroup.moveToTop();
 		}
+		this.targetLabel.moveToTop();
 	}
 
 	/**
@@ -66,5 +82,11 @@ export class AsteroidFieldGameView implements View {
 	 */
 	getGroup(): Konva.Group {
 		return this.group;
+	}
+
+	setTargetNumber(target: number): void {
+		this.targetLabel.text(`Target: ${target}`);
+		this.targetLabel.x(STAGE_WIDTH - this.targetLabel.width() - 40);
+		this.targetLabel.moveToTop();
 	}
 }

@@ -148,6 +148,13 @@ export class ProjectileManager {
 			if (this.playerCollidable && other === this.playerCollidable.owner) {
 				return;
 			}
+			// Check if colliding with an asteroid (asteroids have IDs starting with "asteroid_")
+			if (other instanceof Projectile && other.id.startsWith('asteroid_')) {
+				// Destroy both the laser and the asteroid
+				projectile.destroy();
+				other.destroy();
+				return;
+			}
 			if (options.onCollision) {
 				options.onCollision(projectile, other);
 			}

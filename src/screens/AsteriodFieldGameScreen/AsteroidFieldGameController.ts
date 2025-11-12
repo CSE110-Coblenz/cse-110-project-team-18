@@ -5,6 +5,7 @@ import { AsteroidFieldGameModel } from './AsteroidFieldGameModel.ts';
 import { spaceshipSprite } from '../../core/sprites/SpaceshipSprite';
 import { createHorizontalMovementConfig } from '../../configs/MovementConfig';
 import { ProjectileManager } from '../../core/managers/ProjectileManager';
+import { AsteroidManager } from '../../core/managers/AsteroidManager';
 import { InputManager } from '../../core/input/InputManager';
 import { ProjectileConfig } from '../../configs/ProjectileConfig';
 import { STAGE_WIDTH } from '../../configs/GameConfig';
@@ -22,9 +23,12 @@ export class AsteroidFieldGameController extends ScreenController {
 	private inputManager: InputManager;
 	private readonly projectilePreset = ProjectileConfig.variants.laser;
 	private readonly initialPlayerPosition = { x: STAGE_WIDTH / 2, y: 700 };
+	private targetNumber = 1;
+	private readonly maxAsteroidValue = 50;
 	private entityLifecycle: ScreenEntityManager<{
 		playerManager: ReturnType<typeof createPlayerManager>['playerManager'];
 		projectileManager: ProjectileManager;
+		asteroidManager: AsteroidManager;
 		collisionManager: CollisionManager;
 	}>;
 
@@ -43,6 +47,9 @@ export class AsteroidFieldGameController extends ScreenController {
 		);
 		this.entityLifecycle = new ScreenEntityManager({
 			create: () => {
+				this.targetNumber = this.getRandomTargetNumber();
+				this.view.setTargetNumber(this.targetNumber);
+
 				this.model.player = { ...this.initialPlayerPosition };
 				const collisionManager = new CollisionManager();
 				const { playerManager, model } = createPlayerManager({
@@ -68,11 +75,21 @@ export class AsteroidFieldGameController extends ScreenController {
 				if (initialCollidable) {
 					projectileManager.setPlayerCollidable(initialCollidable);
 				}
-				return { playerManager, projectileManager, collisionManager };
+				const asteroidManager = new AsteroidManager({
+					group: this.view.getGroup(),
+					collisionManager,
+					speed: 200,
+					scale: 0.8,
+					spawnIntervalMs: 2000,
+					targetNumber: this.targetNumber,
+					maxValue: this.maxAsteroidValue,
+				});
+				return { playerManager, projectileManager, asteroidManager, collisionManager };
 			},
-			dispose: ({ playerManager, projectileManager }) => {
+			dispose: ({ playerManager, projectileManager, asteroidManager }) => {
 				playerManager.dispose();
 				projectileManager.dispose();
+				asteroidManager.dispose();
 			},
 		});
 	}
@@ -119,12 +136,14 @@ export class AsteroidFieldGameController extends ScreenController {
 
 		entities.playerManager.update(deltaTime);
 		entities.projectileManager.update(deltaTime);
+		entities.asteroidManager.update(deltaTime);
 		entities.collisionManager.update();
 
 		const playerCollidable = entities.playerManager.getPlayerCollidable();
 		if (playerCollidable) {
 			entities.projectileManager.setPlayerCollidable(playerCollidable);
 		}
+
 
 		if (
 			this.model.player &&
@@ -145,5 +164,9 @@ export class AsteroidFieldGameController extends ScreenController {
 	 */
 	dispose(): void {
 		this.entityLifecycle.dispose();
+	}
+
+	private getRandomTargetNumber(): number {
+		return Math.floor(Math.random() * 10) + 1;
 	}
 }
