@@ -191,11 +191,11 @@ export class EarthScreenController extends ScreenController {
 		// Create history entry if missing
 		if (!this.history[index]) {
 			const q = generateTimeQuestion();
-			this.history[index] = { 
-				data: q, 
-				attempts: 0, 
+			this.history[index] = {
+				data: q,
+				attempts: 0,
 				completed: false,
-				userAnswer: undefined
+				userAnswer: undefined,
 			};
 		}
 
@@ -242,9 +242,8 @@ export class EarthScreenController extends ScreenController {
 			}
 
 			// Enable next button if not last
-			this.nextButtonGroup.visible(
-				this.currentIndex < this.model.totalQuestions - 1
-			);
+			const isLastQuestion = this.currentIndex === this.model.totalQuestions - 1;
+			this.nextButtonGroup.visible(!isLastQuestion);
 		}
 
 		this.view.getGroup().getLayer()?.batchDraw();
@@ -265,7 +264,7 @@ export class EarthScreenController extends ScreenController {
 		if (this.currentIndex === 0) return;
 
 		const prevIdx = this.currentIndex - 1;
-		this.loadQuestionAtIndex(prevIdx);   // fixed: correct index applied BEFORE rendering
+		this.loadQuestionAtIndex(prevIdx); // fixed: correct index applied BEFORE rendering
 	}
 
 	// --------------------------------------------------------
@@ -295,10 +294,20 @@ export class EarthScreenController extends ScreenController {
 		this.updateAttemptIndicator();
 
 		if (isCorrect) {
-			this.showFeedback('Correct!', true);
 			entry.completed = true;
 			this.model.correctAnswers++;
-			this.animateClockTo(correctHour, correctMinute);
+
+			const isLastQuestion = this.currentIndex === this.model.totalQuestions - 1;
+
+			if (isLastQuestion) {
+				// Auto-show game over
+				this.showFeedback('Correct!', false);
+				this.animateClockTo(correctHour, correctMinute);
+				setTimeout(() => this.showGameOver(), 1200);
+			} else {
+				this.showFeedback('Correct!', true);
+				this.animateClockTo(correctHour, correctMinute);
+			}
 		} else if (entry.attempts < this.model.maxAttempts) {
 			const remaining = this.model.maxAttempts - entry.attempts;
 			this.showFeedback(
@@ -307,11 +316,18 @@ export class EarthScreenController extends ScreenController {
 			);
 		} else {
 			entry.completed = true;
-			this.showFeedback(
-				`Out of attempts! The correct time was ${this.formatTime(correctHour, correctMinute)}.`,
-				true
-			);
-			this.animateClockTo(correctHour, correctMinute);
+
+			const isLastQuestion = this.currentIndex === this.model.totalQuestions - 1;
+			const msg = `Out of attempts! The correct time was ${this.formatTime(correctHour, correctMinute)}.`;
+
+			if (isLastQuestion) {
+				this.showFeedback(msg, false);
+				this.animateClockTo(correctHour, correctMinute);
+				setTimeout(() => this.showGameOver(), 1200);
+			} else {
+				this.showFeedback(msg, true);
+				this.animateClockTo(correctHour, correctMinute);
+			}
 		}
 
 		this.history[this.currentIndex] = entry;
@@ -347,7 +363,10 @@ export class EarthScreenController extends ScreenController {
 		feedback.offsetX(feedback.width() / 2);
 		this.view.getGroup().add(feedback);
 
-		this.nextButtonGroup.visible(allowNext);
+		if (allowNext) {
+			const isLastQuestion = this.currentIndex === this.model.totalQuestions - 1;
+			this.nextButtonGroup.visible(!isLastQuestion);
+		}
 		this.view.getGroup().getLayer()?.batchDraw();
 	}
 
