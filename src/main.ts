@@ -4,6 +4,7 @@ import { AsteroidFieldGameController } from './screens/AsteriodFieldGameScreen/A
 import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
+import { EarthScreenController } from './screens/EarthScreen/EarthScreenController';
 import { PrimeNumberGameController } from './screens/PrimeNumberGameScreen/PrimeNumberGameController.ts';
 
 // Space Math Adventure - Main Entry Point
@@ -29,6 +30,11 @@ class App implements ScreenSwitcher {
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
 
+	/*
+	add Earth screen controller
+	*/
+	private earthController: EarthScreenController;
+
 	constructor(container: string) {
 		// Initialize centralized input manager (single event listener system)
 		InputManager.getInstance().initialize();
@@ -52,6 +58,11 @@ class App implements ScreenSwitcher {
 		// this.gameController = new GameScreenController(this);
 		// this.resultsController = new ResultsScreenController(this);
 
+		/*
+		initialize Earth screen controller below:
+		*/
+		this.earthController = new EarthScreenController(this);
+
 		// Add all screen groups to the layer
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
@@ -59,6 +70,11 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.asteroidFieldGameController.getView().getGroup());
 		// this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
+
+		/*
+		add Earth screen group to the layer
+		*/
+		this.layer.add(this.earthController.getView().getGroup());
 
 		// Draw the layer (render everything to the canvas)
 		this.layer.draw();
@@ -97,7 +113,7 @@ class App implements ScreenSwitcher {
 		this.asteroidFieldGameController.hide();
 		// this.gameController.hide();
 		// this.resultsController.hide();
-
+		this.earthController.hide(); // hide Earth screen
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
 			case 'menu':
@@ -124,7 +140,15 @@ class App implements ScreenSwitcher {
 			// 	// Show results with the final score
 			// 	this.resultsController.showResults(screen.score);
 			// 	break;
+
+			case 'earth':
+				this.earthController.show();
+				this.activeController = this.earthController;
+				break;
 		}
+
+		// force redraw after switching screens
+		this.layer.batchDraw();
 	}
 }
 
