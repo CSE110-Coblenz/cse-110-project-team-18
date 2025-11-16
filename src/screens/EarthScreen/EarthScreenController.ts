@@ -1,5 +1,5 @@
 // --------------------------------------------------------
-// EARTH SCREEN CONTROLLER — STABLE STATEFUL NAVIGATION
+// EARTH SCREEN CONTROLLER — FULLY FIXED VERSION
 // --------------------------------------------------------
 import { ScreenController } from '../../types';
 import type { ScreenSwitcher } from '../../types';
@@ -22,14 +22,14 @@ export class EarthScreenController extends ScreenController {
 	private previousButtonGroup!: Konva.Group;
 	private nextButtonGroup!: Konva.Group;
 
-	// Each entry stores question, attempts, and completion status
+	// History includes userAnswer now
 	private history: {
 		data: ReturnType<typeof generateTimeQuestion>;
 		attempts: number;
 		completed: boolean;
+		userAnswer?: string;
 	}[] = [];
 
-	// true index pointer (separate from display number)
 	private currentIndex = 0;
 
 	constructor(screenSwitcher: ScreenSwitcher) {
@@ -49,7 +49,6 @@ export class EarthScreenController extends ScreenController {
 	// INITIALIZATION
 	// --------------------------------------------------------
 	private setupUI(): void {
-		// Question text
 		this.questionText = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 120,
@@ -61,7 +60,6 @@ export class EarthScreenController extends ScreenController {
 		});
 		this.view.getGroup().add(this.questionText);
 
-		// Attempts indicator
 		this.attemptsIndicator = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 160,
@@ -72,7 +70,7 @@ export class EarthScreenController extends ScreenController {
 		});
 		this.view.getGroup().add(this.attemptsIndicator);
 
-		// Previous Question button
+		// Previous button
 		this.previousButtonGroup = new Konva.Group({
 			x: STAGE_WIDTH / 2 - 220,
 			y: STAGE_HEIGHT / 2 + 280,
@@ -102,7 +100,7 @@ export class EarthScreenController extends ScreenController {
 		this.previousButtonGroup.on('click', () => this.loadPreviousQuestion());
 		this.view.getGroup().add(this.previousButtonGroup);
 
-		// Next Question button
+		// Next button — starts hidden
 		this.nextButtonGroup = new Konva.Group({
 			x: STAGE_WIDTH / 2 + 20,
 			y: STAGE_HEIGHT / 2 + 280,
@@ -141,7 +139,7 @@ export class EarthScreenController extends ScreenController {
 	}
 
 	// --------------------------------------------------------
-	// INPUT BOX
+	// INPUT BOX CREATION
 	// --------------------------------------------------------
 	private createInputBox(): void {
 		this.removeInputBox();
@@ -167,12 +165,14 @@ export class EarthScreenController extends ScreenController {
 
 		container.style.position = 'relative';
 		container.appendChild(input);
+
 		input.addEventListener('keydown', (e) => {
 			if (e.key === 'Enter') {
 				this.handleAnswer(input.value.trim());
 				input.value = '';
 			}
 		});
+
 		this.inputBox = input;
 	}
 
@@ -182,45 +182,77 @@ export class EarthScreenController extends ScreenController {
 	}
 
 	// --------------------------------------------------------
-	// LOAD QUESTION (centralized logic)
+	// CENTRAL QUESTION LOADING
 	// --------------------------------------------------------
 	private loadQuestionAtIndex(index: number): void {
 		this.clearFeedback();
 		this.nextButtonGroup.visible(false);
 
-		// Ensure history entry exists
+		// Create history entry if missing
 		if (!this.history[index]) {
 			const q = generateTimeQuestion();
-			this.history[index] = { data: q, attempts: 0, completed: false };
+			this.history[index] = { 
+				data: q, 
+				attempts: 0, 
+				completed: false,
+				userAnswer: undefined
+			};
 		}
 
 		const entry = this.history[index];
+		this.currentIndex = index;
 		this.model.correctHour = entry.data.correctHour;
 		this.model.correctMinute = entry.data.correctMinute;
 		this.model.attempts = entry.attempts;
-		this.currentIndex = index;
 
-		// Render
+		// Normal rendering
 		this.renderQuestion(entry.data);
 		this.logic.setClockTime(entry.data.startHour, entry.data.startMinute);
 		this.updateAttemptIndicator();
 
-		// Handle input visibility
+		// Input state
 		if (this.inputBox) {
 			this.inputBox.disabled = entry.completed;
 			this.inputBox.style.opacity = entry.completed ? '0.5' : '1';
 		}
 
-		// Enable/disable prev button
+		// Previous button enable/disable
 		const prevRect = this.previousButtonGroup.findOne<Konva.Rect>('.prevRect');
 		if (prevRect) {
 			prevRect.opacity(index === 0 ? 0.4 : 1);
 			this.previousButtonGroup.listening(index > 0);
 		}
 
+		// --------------------------------------------------------
+		// 🟢 RESTORE COMPLETED QUESTION UI — BUG 2 FIX
+		// --------------------------------------------------------
+		if (entry.completed) {
+			const correctText = this.formatTime(entry.data.correctHour, entry.data.correctMinute);
+
+			const msg = entry.userAnswer
+				? `Your answer was ${entry.userAnswer}. The correct time was ${correctText}.`
+				: `The correct time was ${correctText}.`;
+
+			this.showFeedback(msg, true);
+
+			// Lock input
+			if (this.inputBox) {
+				this.inputBox.disabled = true;
+				this.inputBox.style.opacity = '0.5';
+			}
+
+			// Enable next button if not last
+			this.nextButtonGroup.visible(
+				this.currentIndex < this.model.totalQuestions - 1
+			);
+		}
+
 		this.view.getGroup().getLayer()?.batchDraw();
 	}
 
+	// --------------------------------------------------------
+	// NAVIGATION
+	// --------------------------------------------------------
 	private loadNextQuestion(): void {
 		if (this.currentIndex + 1 >= this.model.totalQuestions) {
 			this.showGameOver();
@@ -233,19 +265,7 @@ export class EarthScreenController extends ScreenController {
 		if (this.currentIndex === 0) return;
 
 		const prevIdx = this.currentIndex - 1;
-		const entry = this.history[prevIdx];
-		this.renderQuestion(entry.data);
-		this.logic.setClockTime(entry.data.correctHour, entry.data.correctMinute);
-
-		this.showFeedback(
-			`The correct time was ${this.formatTime(entry.data.correctHour, entry.data.correctMinute)}.`,
-			true
-		);
-		if (this.inputBox) {
-			this.inputBox.disabled = true;
-			this.inputBox.style.opacity = '0.5';
-		}
-		this.currentIndex = prevIdx;
+		this.loadQuestionAtIndex(prevIdx);   // fixed: correct index applied BEFORE rendering
 	}
 
 	// --------------------------------------------------------
@@ -254,6 +274,9 @@ export class EarthScreenController extends ScreenController {
 	private handleAnswer(userInput: string): void {
 		const entry = this.history[this.currentIndex];
 		if (!entry || entry.completed) return;
+
+		// Save answer
+		entry.userAnswer = userInput;
 
 		const match = /^0?(\d{1,2}):(\d{2})$/.exec(userInput);
 		if (!match) {
@@ -323,6 +346,7 @@ export class EarthScreenController extends ScreenController {
 		});
 		feedback.offsetX(feedback.width() / 2);
 		this.view.getGroup().add(feedback);
+
 		this.nextButtonGroup.visible(allowNext);
 		this.view.getGroup().getLayer()?.batchDraw();
 	}
@@ -330,17 +354,18 @@ export class EarthScreenController extends ScreenController {
 	private clearFeedback(): void {
 		const feedback = this.view.getGroup().findOne('#feedbackText');
 		if (feedback) feedback.destroy();
-		this.view.getGroup().getLayer()?.batchDraw();
 	}
 
 	private animateClockTo(hour: number, minute: number): void {
 		const start = performance.now();
 		const duration = 1000;
+
 		const animate = (now: number) => {
 			const progress = Math.min((now - start) / duration, 1);
 			this.logic.setClockTime(hour, minute * progress);
 			if (progress < 1) requestAnimationFrame(animate);
 		};
+
 		requestAnimationFrame(animate);
 	}
 
@@ -370,7 +395,6 @@ export class EarthScreenController extends ScreenController {
 		text.offsetX(text.width() / 2);
 		text.offsetY(text.height() / 2);
 		this.view.getGroup().add(text);
-		this.view.getGroup().getLayer()?.batchDraw();
 
 		if (this.inputBox) this.inputBox.disabled = true;
 	}
@@ -393,9 +417,6 @@ export class EarthScreenController extends ScreenController {
 
 	override update(_deltaTime: number): void {}
 
-	// --------------------------------------------------------
-	// REQUIRED ABSTRACT METHOD IMPLEMENTATION
-	// --------------------------------------------------------
 	getView(): EarthScreenView {
 		return this.view;
 	}
