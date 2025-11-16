@@ -18,6 +18,8 @@ export type Screen =
 	| { type: 'menu' }
 	| { type: 'game' }
 	| { type: 'earth' } // added earth screen type
+	| { type: 'asteroid field game' }
+	| { type: 'prime number game' }
 	| { type: 'result'; score: number };
 
 export abstract class ScreenController {

@@ -1,24 +1,34 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { STAGE_WIDTH } from '../../configs/GameConfig';
+import { createButton } from '../../ui';
 
 /**
  * MenuScreenView - Renders the menu screen
  */
 export class MenuScreenView implements View {
 	private group: Konva.Group;
+	private buttonGroup?: Konva.Group;
 
 	/**
-	 * Constructor for the MenuScreenView
-	 * @param onStartClick - The function to call when the start button is clicked
+	 * Updated constructor with THREE actions merged from both branches
+	 * @param onAsteroidClick
+	 * @param onPrimeClick
+	 * @param onEarthClick
 	 */
-	constructor(onStartClick: () => void, onEarthClick: () => void) {
+	constructor(
+		onAsteroidClick: () => void,
+		onPrimeClick: () => void,
+		onEarthClick: () => void
+	) {
 		this.group = new Konva.Group({
 			visible: true,
-			id: 'menuScreen', // Add ID for debugging
+			id: 'menuScreen',
 		});
 
-		// Title text
+		// -------------------------------------------------------
+		// Title Text
+		// -------------------------------------------------------
 		const title = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 150,
@@ -28,48 +38,58 @@ export class MenuScreenView implements View {
 			fill: 'white',
 			align: 'center',
 		});
-		// Center the text using offsetX
 		title.offsetX(title.width() / 2);
 		this.group.add(title);
 
-		const startButtonGroup = new Konva.Group();
-		const startButton = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 100,
-			y: 300,
-			width: 200,
+		// -------------------------------------------------------
+		// BUTTON CONTAINER
+		// -------------------------------------------------------
+		const buttonGroup = new Konva.Group({ listening: true });
+
+		// -------------------------------------------------------
+		// ASTEROID FIELD GAME BUTTON  (from main)
+		// -------------------------------------------------------
+		const asteroidFieldBtn = createButton({
+			x: STAGE_WIDTH / 2 - 200,
+			y: 375,
+			width: 400,
 			height: 60,
-			fill: 'green',
-			cornerRadius: 10,
-			stroke: 'darkgreen',
-			strokeWidth: 3,
+			text: 'START ASTEROID FIELD GAME',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: onAsteroidClick,
 		});
-		const startText = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 315,
-			text: 'START GAME',
-			fontSize: 24,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
+
+		// -------------------------------------------------------
+		// PRIME NUMBER GAME BUTTON  (from main)
+		// -------------------------------------------------------
+		const primeGameButton = createButton({
+			x: STAGE_WIDTH / 2 - 200,
+			y: 450,
+			width: 400,
+			height: 60,
+			text: 'START PRIME NUMBER GAME',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: onPrimeClick,
 		});
-		startText.offsetX(startText.width() / 2);
-		startButtonGroup.add(startButton);
-		startButtonGroup.add(startText);
-		startButtonGroup.on('click', onStartClick);
-		this.group.add(startButtonGroup);
 
-		// Menu view intentionally stays passive about movement/assets.
-		// Asset loading and movement are managed by the controller/manager.
+		buttonGroup.add(asteroidFieldBtn);
+		buttonGroup.add(primeGameButton);
 
-		// earth button here
-		// Earth button (image)
+		this.buttonGroup = buttonGroup;
+		this.group.add(buttonGroup);
+
+		// -------------------------------------------------------
+		// EARTH GAME BUTTON (your feature)
+		// -------------------------------------------------------
 		const earthButtonGroup = new Konva.Group({
-			x: STAGE_WIDTH / 2 - 50, // centers horizontally
-			y: 400, // same vertical placement as before
+			x: STAGE_WIDTH / 2 - 50,
+			y: 550,
 		});
 
 		const earthImageObj = new Image();
-		earthImageObj.src = '/assets/planets/earth.png'; // path inside public folder
+		earthImageObj.src = '/assets/planets/earth.png';
 
 		earthImageObj.onload = () => {
 			const earthImage = new Konva.Image({
@@ -78,7 +98,7 @@ export class MenuScreenView implements View {
 				height: 100,
 			});
 
-			// Hover animation
+			// hover animation
 			earthImage.on('mouseenter', () => {
 				document.body.style.cursor = 'pointer';
 				earthImage.to({ scaleX: 1.1, scaleY: 1.1, duration: 0.15 });
@@ -88,7 +108,6 @@ export class MenuScreenView implements View {
 				earthImage.to({ scaleX: 1, scaleY: 1, duration: 0.15 });
 			});
 
-			// Click handler
 			earthImage.on('click', onEarthClick);
 
 			earthButtonGroup.add(earthImage);
@@ -96,27 +115,26 @@ export class MenuScreenView implements View {
 		};
 	}
 
-	/**
-	 * Show the screen
-	 */
+	//------------------------------------------------------
+	// VIEW INTERFACE
+	//------------------------------------------------------
 	show(): void {
 		this.group.visible(true);
 		this.group.getLayer()?.draw();
 	}
 
-	/**
-	 * Hide the screen
-	 */
 	hide(): void {
 		this.group.visible(false);
 		this.group.getLayer()?.draw();
 	}
 
-	/**
-	 * Get the group of the menu screen view
-	 * @returns The group of the menu screen view
-	 */
 	getGroup(): Konva.Group {
 		return this.group;
+	}
+
+	ensureButtonsOnTop(): void {
+		if (this.buttonGroup) {
+			this.buttonGroup.moveToTop();
+		}
 	}
 }

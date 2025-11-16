@@ -1,6 +1,7 @@
 export class InputManager {
 	private static instance: InputManager | null = null;
 	private keys: Set<string> = new Set();
+	private keyStates: Map<string, { lastConsumedTime: number }> = new Map();
 	private handleKeyDownBound: (e: KeyboardEvent) => void;
 	private handleKeyUpBound: (e: KeyboardEvent) => void;
 	private initialized = false;
@@ -41,36 +42,74 @@ export class InputManager {
 		this.initialized = false;
 	}
 
+	/**
+	 * Handle the key down event
+	 * @param e - The keyboard event
+	 */
 	private handleKeyDown(e: KeyboardEvent): void {
 		// Store all keys in lowercase for consistency
-		const key = e.key.toLowerCase();
-		this.keys.add(key);
+		let key = e.key.toLowerCase();
 
-		// Handle special modifier keys
-		if (e.key === 'Shift' || e.key === 'ShiftLeft' || e.key === 'ShiftRight') {
-			this.keys.add('shift');
+		// Normalize spacebar key (some browsers use 'Space', others use ' ')
+		if (key === 'space') {
+			key = ' ';
 		}
-	}
 
-	private handleKeyUp(e: KeyboardEvent): void {
-		const key = e.key.toLowerCase();
-		this.keys.delete(key);
-
-		// Remove shift if any shift key is released
-		if (e.key === 'Shift' || e.key === 'ShiftLeft' || e.key === 'ShiftRight') {
-			this.keys.delete('shift');
+		this.keys.add(key);
+		if (!this.keyStates.has(key)) {
+			this.keyStates.set(key, { lastConsumedTime: Number.NEGATIVE_INFINITY });
 		}
 	}
 
 	/**
+	 * Handle the key up event
+	 * @param e - The keyboard event
+	 */
+	private handleKeyUp(e: KeyboardEvent): void {
+		let key = e.key.toLowerCase();
+
+		// Normalize spacebar key (some browsers use 'Space', others use ' ')
+		if (key === 'space') {
+			key = ' ';
+		}
+
+		this.keys.delete(key);
+		this.keyStates.delete(key);
+	}
+
+	/**
 	 * Check if a key is currently pressed
+	 * @param key - The key to check
+	 * @returns True if the key is pressed, false otherwise
 	 */
 	isKeyPressed(key: string): boolean {
 		return this.keys.has(key.toLowerCase());
 	}
 
 	/**
+	 * Consume a key press with optional cooldown (in ms). Returns true when triggered.
+	 * While the key is held, the press will fire again once the cooldown has elapsed.
+	 * @param key - The key to consume
+	 * @param cooldownMs - The cooldown in milliseconds
+	 * @returns True if the key was consumed, false otherwise
+	 */
+	consumePress(key: string, cooldownMs = 0): boolean {
+		const normalized = key.toLowerCase();
+		const state = this.keyStates.get(normalized);
+		if (!state || !this.keys.has(normalized)) return false;
+
+		const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+		if (now - state.lastConsumedTime >= cooldownMs) {
+			state.lastConsumedTime = now;
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Check if any of the given keys are pressed
+	 * @param keys - The keys to check
+	 * @returns True if any of the keys are pressed, false otherwise
 	 */
 	isAnyKeyPressed(keys: readonly string[]): boolean {
 		return keys.some((key) => this.keys.has(key.toLowerCase()));
@@ -78,6 +117,7 @@ export class InputManager {
 
 	/**
 	 * Get all currently pressed keys (read-only copy)
+	 * @returns A set of all currently pressed keys
 	 */
 	getPressedKeys(): Set<string> {
 		return new Set(this.keys);
@@ -85,8 +125,10 @@ export class InputManager {
 
 	/**
 	 * Clear all key states (useful for reset or pause)
+	 * @returns A set of all currently pressed keys
 	 */
 	clear(): void {
 		this.keys.clear();
+		this.keyStates.clear();
 	}
 }

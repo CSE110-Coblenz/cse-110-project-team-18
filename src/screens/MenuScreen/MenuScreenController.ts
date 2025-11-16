@@ -3,10 +3,9 @@ import type { ScreenSwitcher } from '../../types.ts';
 import { MenuScreenView } from './MenuScreenView.ts';
 import { MenuScreenModel } from './MenuScreenModel.ts';
 import { STAGE_WIDTH } from '../../configs/GameConfig';
-import { PlayerManager } from '../../core/movement/PlayerManager';
-import { CollisionManager } from '../../core/collision/CollisionManager';
 import { greenAlienSprite } from '../../core/sprites/AlienSprite';
-import { PlayerConfig } from '../../configs/PlayerConfig';
+import { ScreenEntityManager } from '../../core/utils/ScreenEntityManager';
+import { createPlayerManager } from '../../core/factories/PlayerManagerFactory';
 
 /**
  * MenuScreenController - Handles menu interactions
@@ -14,86 +13,100 @@ import { PlayerConfig } from '../../configs/PlayerConfig';
 export class MenuScreenController extends ScreenController {
 	private view: MenuScreenView;
 	private screenSwitcher: ScreenSwitcher;
-	private playerManager?: PlayerManager | null;
-	private collisionManager?: CollisionManager | null;
 	private model: MenuScreenModel;
 
-	/**
-	 * Constructor for the MenuScreenController
-	 * @param screenSwitcher - The screen switcher
-	 */
+	private readonly initialPlayerPosition = {
+		x: STAGE_WIDTH / 4,
+		y: 250,
+	};
+
+	private playerLifecycle: ScreenEntityManager<{
+		playerManager: ReturnType<typeof createPlayerManager>['playerManager'];
+		collisionManager: ReturnType<typeof createPlayerManager>['collisionManager'];
+	}>;
+
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
+
+		// MENU VIEW with THREE BUTTON HANDLERS
 		this.view = new MenuScreenView(
-			() => this.handleStartClick(),
+			() => this.handleAsteriodFieldClick(),
+			() => this.handlePrimeGameClick(),
 			() => this.handleEarthClick()
 		);
-		// create model for the menu and pass player model into the player manager
-		this.model = new MenuScreenModel(STAGE_WIDTH / 4, 250);
-		// Controller owns the PlayerManager wiring; pass the model so state persists here
-		this.collisionManager = new CollisionManager();
-		this.playerManager = new PlayerManager({
-			group: this.view.getGroup(),
-			spriteConfig: greenAlienSprite,
-			x: this.model.player.x,
-			y: this.model.player.y,
-			walkSpeed: PlayerConfig.MOVEMENT.WALK_SPEED,
-			model: this.model.player,
-			collisionManager: this.collisionManager,
+
+		// MENU MODEL
+		this.model = new MenuScreenModel(this.initialPlayerPosition.x, this.initialPlayerPosition.y);
+
+		// PLAYER ENTITY MANAGEMENT (from main)
+		this.playerLifecycle = new ScreenEntityManager({
+			create: () => {
+				this.model.player = { ...this.initialPlayerPosition };
+
+				const { playerManager, collisionManager, model } = createPlayerManager({
+					group: this.view.getGroup(),
+					spriteConfig: greenAlienSprite,
+					position: this.initialPlayerPosition,
+					walkSpeed: 150,
+					model: this.model.player,
+				});
+
+				this.model.player = model;
+				return { playerManager, collisionManager };
+			},
+			dispose: ({ playerManager }) => {
+				playerManager.dispose();
+			},
 		});
 	}
 
-	/**
-	 * Handle start button click
-	 */
-	private handleStartClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'game' });
+	// ---------------------------------------------------------
+	// BUTTON HANDLERS
+	// ---------------------------------------------------------
+	private handleAsteriodFieldClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'asteroid field game' });
 	}
 
-	/*
-	 * Handle Earth button click
-	 */
+	private handlePrimeGameClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'prime number game' });
+	}
+
 	private handleEarthClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'earth' });
 	}
 
-	/**
-	 * Get the view
-	 * @returns The view of the menu screen controller
-	 */
+	// ---------------------------------------------------------
+	// VIEW IMPLEMENTATION
+	// ---------------------------------------------------------
 	getView(): MenuScreenView {
 		return this.view;
 	}
 
-	/**
-	 * Show the menu screen controller
-	 */
 	override show(): void {
 		super.show();
-		// nothing else here; per-frame updates run from App's central loop
+		this.playerLifecycle.ensure();
+		this.view.ensureButtonsOnTop();
 	}
 
-	/**
-	 * Hide the menu screen controller
-	 */
 	override hide(): void {
 		super.hide();
-		// nothing else here; movement will not be updated while hidden
+		this.playerLifecycle.dispose();
 	}
 
-	/**
-	 * Update the menu screen controller
-	 * @param deltaTime - The time since the last frame in milliseconds
-	 */
 	override update(deltaTime: number): void {
-		// Only update the player manager when the view is visible
-		if (this.view.getGroup().visible()) {
-			this.playerManager?.update(deltaTime);
-			// run collision checks for this screen
-			this.collisionManager?.update();
-			// redraw layer
-			this.view.getGroup().getLayer()?.draw();
-		}
+		if (!this.view.getGroup().visible()) return;
+		const entities = this.playerLifecycle.get();
+		if (!entities) return;
+
+		entities.playerManager.update(deltaTime);
+		entities.collisionManager.update();
+
+		this.view.ensureButtonsOnTop();
+		this.view.getGroup().getLayer()?.draw();
+	}
+
+	dispose(): void {
+		this.playerLifecycle.dispose();
 	}
 }

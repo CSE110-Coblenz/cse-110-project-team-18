@@ -7,7 +7,6 @@ dist-ssr
 *.local
 
 # Package manager files
-package-lock.json
 pnpm-lock.yaml
 yarn.lock
 
@@ -21,4 +20,7 @@ yarn.lock
 # Other
 .DS_Store
 README.md
+
+# Meeting notes
+meeting_notes/
 
