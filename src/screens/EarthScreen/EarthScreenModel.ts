@@ -7,7 +7,7 @@ export class EarthScreenModel {
 
 	correctHour = 0;
 	correctMinute = 0;
-	correctPeriod: "AM" | "PM" = "AM";
+	correctPeriod: 'AM' | 'PM' = 'AM';
 
 	// new: Track all completed questions
 	questionsHistory: any[] = [];

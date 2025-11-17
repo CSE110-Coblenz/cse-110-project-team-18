@@ -153,7 +153,6 @@ export class AsteroidFieldGameController extends ScreenController {
 			entities.projectileManager.setPlayerCollidable(playerCollidable);
 		}
 
-
 		if (
 			this.model.player &&
 			this.inputManager.consumePress(' ', this.projectilePreset.fireCooldownMs)

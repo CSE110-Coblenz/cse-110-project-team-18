@@ -102,14 +102,14 @@ export class AsteroidManager {
 		// Make 1/3 correct (factors or multiples), 2/3 random
 		// We want approximately 1/3 to be correct values
 		const shouldBeCorrect = this.totalSpawned % 3 === 0;
-		
+
 		if (shouldBeCorrect) {
 			const correctValues = this.getCorrectValues();
 			if (correctValues.length > 0) {
 				return correctValues[Math.floor(Math.random() * correctValues.length)];
 			}
 		}
-		
+
 		// Generate random value that is NOT a factor or multiple
 		let value: number;
 		let attempts = 0;
@@ -123,7 +123,7 @@ export class AsteroidManager {
 				break;
 			}
 		} while (this.isCorrectValue(value));
-		
+
 		return value;
 	}
 
@@ -191,7 +191,7 @@ export class AsteroidManager {
 		const frameY = 0;
 		const scaledWidth = frameWidth * this.scale;
 		const scaledHeight = frameHeight * this.scale;
-		
+
 		// Calculate center position for the asteroid
 		const centerX = Math.random() * (STAGE_WIDTH - scaledWidth) + scaledWidth / 2;
 		const centerY = scaledHeight / 2; // Start at top with center at half height
@@ -240,7 +240,7 @@ export class AsteroidManager {
 
 		// Attach node first so collision bounds are calculated with scale
 		asteroid.attachNode(asteroidNode);
-		
+
 		// Set collision boundary as a circle with radius = frame width / 2 (scaled)
 		const scaledFrameWidth = frameWidth * this.scale;
 		const radius = scaledFrameWidth / 2;
@@ -314,7 +314,6 @@ export class AsteroidManager {
 		other.destroy();
 	}
 
-
 	/**
 	 * Update the asteroid manager
 	 * @param deltaTimeMs - The time since the last frame in milliseconds
@@ -334,7 +333,7 @@ export class AsteroidManager {
 			const asteroid = asteroidData.projectile;
 			const wasDestroyed = asteroid.isDestroyed();
 			asteroid.update(deltaTimeMs);
-			
+
 			// Check if asteroid reached bottom (destroyed by going out of bounds)
 			if (!wasDestroyed && asteroid.isDestroyed() && asteroidData.flashUntil === undefined) {
 				// Asteroid reached bottom without being hit
@@ -342,7 +341,7 @@ export class AsteroidManager {
 					this.onAsteroidReachedBottom(asteroidData.isCorrect);
 				}
 			}
-			
+
 			// Update collision circle position
 			if (asteroid.collidable && asteroid.collidable.shape) {
 				const shape = asteroid.collidable.shape as any;
@@ -352,7 +351,7 @@ export class AsteroidManager {
 					shape.y = asteroid.model.y;
 				}
 			}
-			
+
 			if (this.collisionManager && asteroid.collidable && !asteroid.isDestroyed()) {
 				this.collisionManager.markMoved(asteroid.collidable);
 			}
@@ -422,4 +421,3 @@ export class AsteroidManager {
 		this.isLoaded = false;
 	}
 }
-

@@ -62,4 +62,3 @@ export const asteroidSpriteConfig: Omit<SpriteConfig, 'animations' | 'defaultAni
 	frameWidth: FRAME_WIDTH,
 	frameHeight: FRAME_HEIGHT,
 };
-

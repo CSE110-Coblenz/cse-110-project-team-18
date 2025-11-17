@@ -133,7 +133,7 @@ export class AsteroidFieldGameView implements View {
 
 	flashScreenEdge(isPositive: boolean, durationMs: number = 300): void {
 		if (!this.edgeFlashRect) return;
-		
+
 		const color = isPositive ? '#2ecc71' : '#e74c3c'; // Green for positive, red for negative
 		this.edgeFlashRect.stroke(color);
 		this.edgeFlashRect.visible(true);
@@ -143,7 +143,7 @@ export class AsteroidFieldGameView implements View {
 
 	update(deltaTimeMs: number): void {
 		this.elapsedTime += deltaTimeMs;
-		
+
 		// Handle screen edge flash
 		if (this.edgeFlashRect && this.flashUntil !== undefined) {
 			if (this.elapsedTime >= this.flashUntil) {
