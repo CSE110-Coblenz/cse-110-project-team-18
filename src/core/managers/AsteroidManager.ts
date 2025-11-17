@@ -21,6 +21,8 @@ export interface AsteroidManagerOptions {
 	spawnIntervalMs?: number;
 	targetNumber: number;
 	maxValue?: number;
+	onAsteroidHit?: (isFactor: boolean) => void;
+	onAsteroidReachedBottom?: (isFactor: boolean) => void;
 }
 
 const DEFAULT_SPEED = 200; // pixels per second
@@ -66,6 +68,10 @@ export class AsteroidManager {
 	private elapsedTime = 0;
 	private targetNumber: number;
 	private maxValue: number;
+	private onAsteroidHit?: (isFactor: boolean) => void;
+	private onAsteroidReachedBottom?: (isFactor: boolean) => void;
+	private factorCount = 0; // Track how many factors we've spawned
+	private totalSpawned = 0; // Track total asteroids spawned
 
 	constructor(options: AsteroidManagerOptions) {
 		this.group = options.group;
@@ -75,16 +81,57 @@ export class AsteroidManager {
 		this.spawnIntervalMs = options.spawnIntervalMs ?? DEFAULT_SPAWN_INTERVAL_MS;
 		this.targetNumber = options.targetNumber;
 		this.maxValue = options.maxValue ?? DEFAULT_MAX_VALUE;
+		this.onAsteroidHit = options.onAsteroidHit;
+		this.onAsteroidReachedBottom = options.onAsteroidReachedBottom;
 		this.loadAsteroidImage();
 	}
 
+	private getCorrectValues(): number[] {
+		const correctValues: number[] = [];
+		if (this.targetNumber === 0) return correctValues;
+		for (let i = 1; i <= this.maxValue; i++) {
+			// Include both factors (targetNumber % i === 0) and multiples (i % targetNumber === 0)
+			if (this.targetNumber % i === 0 || i % this.targetNumber === 0) {
+				correctValues.push(i);
+			}
+		}
+		return correctValues;
+	}
+
 	private generateAsteroidValue(): number {
-		return randomInt(1, this.maxValue);
+		// Make 1/3 correct (factors or multiples), 2/3 random
+		// We want approximately 1/3 to be correct values
+		const shouldBeCorrect = this.totalSpawned % 3 === 0;
+		
+		if (shouldBeCorrect) {
+			const correctValues = this.getCorrectValues();
+			if (correctValues.length > 0) {
+				return correctValues[Math.floor(Math.random() * correctValues.length)];
+			}
+		}
+		
+		// Generate random value that is NOT a factor or multiple
+		let value: number;
+		let attempts = 0;
+		const maxAttempts = 100; // Safety limit
+		do {
+			value = randomInt(1, this.maxValue);
+			attempts++;
+			if (attempts >= maxAttempts) {
+				// If we can't find an incorrect value, just return a random value
+				// This can happen if target is 1 (all numbers are factors/multiples)
+				break;
+			}
+		} while (this.isCorrectValue(value));
+		
+		return value;
 	}
 
 	private isCorrectValue(value: number): boolean {
 		if (this.targetNumber === 0) return false;
-		return value % this.targetNumber === 0 || this.targetNumber % value === 0;
+		// Check if value is a factor of targetNumber (targetNumber % value === 0)
+		// OR if value is a multiple of targetNumber (value % targetNumber === 0)
+		return this.targetNumber % value === 0 || value % this.targetNumber === 0;
 	}
 
 	private createNumberLabel(value: number, x: number, y: number): Konva.Text {
@@ -157,8 +204,12 @@ export class AsteroidManager {
 			bounds: { width: STAGE_WIDTH, height: STAGE_HEIGHT },
 		});
 
+		this.totalSpawned++;
 		const asteroidValue = this.generateAsteroidValue();
 		const isCorrect = this.isCorrectValue(asteroidValue);
+		if (isCorrect) {
+			this.factorCount++;
+		}
 
 		// Create Konva image and crop to the selected frame
 		// Position node at top-left, then offset to center it
@@ -250,13 +301,12 @@ export class AsteroidManager {
 	private handleAsteroidHit(asteroidData: AsteroidData, other: Projectile): void {
 		if (asteroidData.flashUntil !== undefined) return;
 
-		const { projectile, label, isCorrect } = asteroidData;
-		const color = isCorrect ? '#2ecc71' : '#e74c3c';
-		label.fill(color);
-		label.stroke(color);
-		label.fontStyle('bold');
-		label.scale({ x: 1.2, y: 1.2 });
-		label.moveToTop();
+		const { projectile, isCorrect } = asteroidData;
+
+		// Notify controller about the hit
+		if (this.onAsteroidHit) {
+			this.onAsteroidHit(isCorrect);
+		}
 
 		asteroidData.flashUntil = this.elapsedTime + 250;
 
@@ -282,7 +332,16 @@ export class AsteroidManager {
 		// Update all asteroids
 		for (const asteroidData of this.asteroids) {
 			const asteroid = asteroidData.projectile;
+			const wasDestroyed = asteroid.isDestroyed();
 			asteroid.update(deltaTimeMs);
+			
+			// Check if asteroid reached bottom (destroyed by going out of bounds)
+			if (!wasDestroyed && asteroid.isDestroyed() && asteroidData.flashUntil === undefined) {
+				// Asteroid reached bottom without being hit
+				if (this.onAsteroidReachedBottom) {
+					this.onAsteroidReachedBottom(asteroidData.isCorrect);
+				}
+			}
 			
 			// Update collision circle position
 			if (asteroid.collidable && asteroid.collidable.shape) {
@@ -350,6 +409,8 @@ export class AsteroidManager {
 		this.asteroids = [];
 		this.timeSinceLastSpawn = 0;
 		this.elapsedTime = 0;
+		this.factorCount = 0;
+		this.totalSpawned = 0;
 	}
 
 	/**

@@ -48,7 +48,9 @@ export class AsteroidFieldGameController extends ScreenController {
 		this.entityLifecycle = new ScreenEntityManager({
 			create: () => {
 				this.targetNumber = this.getRandomTargetNumber();
+				this.model.score = 0;
 				this.view.setTargetNumber(this.targetNumber);
+				this.view.setScore(this.model.score);
 
 				this.model.player = { ...this.initialPlayerPosition };
 				const collisionManager = new CollisionManager();
@@ -83,6 +85,12 @@ export class AsteroidFieldGameController extends ScreenController {
 					spawnIntervalMs: 2000,
 					targetNumber: this.targetNumber,
 					maxValue: this.maxAsteroidValue,
+					onAsteroidHit: (isFactor: boolean) => {
+						this.handleAsteroidHit(isFactor);
+					},
+					onAsteroidReachedBottom: (isFactor: boolean) => {
+						this.handleAsteroidReachedBottom(isFactor);
+					},
 				});
 				return { playerManager, projectileManager, asteroidManager, collisionManager };
 			},
@@ -138,6 +146,7 @@ export class AsteroidFieldGameController extends ScreenController {
 		entities.projectileManager.update(deltaTime);
 		entities.asteroidManager.update(deltaTime);
 		entities.collisionManager.update();
+		this.view.update(deltaTime);
 
 		const playerCollidable = entities.playerManager.getPlayerCollidable();
 		if (playerCollidable) {
@@ -168,5 +177,27 @@ export class AsteroidFieldGameController extends ScreenController {
 
 	private getRandomTargetNumber(): number {
 		return Math.floor(Math.random() * 10) + 1;
+	}
+
+	private handleAsteroidHit(isFactor: boolean): void {
+		if (isFactor) {
+			this.model.score += 2;
+			this.view.flashScreenEdge(true);
+		} else {
+			this.model.score -= 2;
+			this.view.flashScreenEdge(false);
+		}
+		this.view.setScore(this.model.score);
+	}
+
+	private handleAsteroidReachedBottom(isFactor: boolean): void {
+		if (isFactor) {
+			this.model.score -= 1;
+			this.view.flashScreenEdge(false);
+		} else {
+			this.model.score += 1;
+			this.view.flashScreenEdge(true);
+		}
+		this.view.setScore(this.model.score);
 	}
 }
