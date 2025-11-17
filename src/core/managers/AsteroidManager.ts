@@ -99,8 +99,8 @@ export class AsteroidManager {
 	}
 
 	private generateAsteroidValue(): number {
-		// Make 1/3 correct (factors or multiples), 2/3 random
-		// We want approximately 1/3 to be correct values
+		// Make 1/3 correct (factors or multiples), 2/3 purely random (could be correct or incorrect)
+		// We want exactly 1/3 to be guaranteed correct values
 		const shouldBeCorrect = this.totalSpawned % 3 === 0;
 
 		if (shouldBeCorrect) {
@@ -110,21 +110,8 @@ export class AsteroidManager {
 			}
 		}
 
-		// Generate random value that is NOT a factor or multiple
-		let value: number;
-		let attempts = 0;
-		const maxAttempts = 100; // Safety limit
-		do {
-			value = randomInt(1, this.maxValue);
-			attempts++;
-			if (attempts >= maxAttempts) {
-				// If we can't find an incorrect value, just return a random value
-				// This can happen if target is 1 (all numbers are factors/multiples)
-				break;
-			}
-		} while (this.isCorrectValue(value));
-
-		return value;
+		// Generate purely random value (1 to maxValue, regardless of correctness)
+		return randomInt(1, this.maxValue);
 	}
 
 	private isCorrectValue(value: number): boolean {
