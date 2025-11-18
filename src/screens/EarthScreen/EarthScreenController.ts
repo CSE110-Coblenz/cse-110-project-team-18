@@ -35,7 +35,8 @@ export class EarthScreenController extends ScreenController {
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
-		this.view = new EarthScreenView();
+		//this.view = new EarthScreenView();
+		this.view = new EarthScreenView(() => this.handleReturnToMenu());
 		this.model = new EarthScreenModel();
 		this.logic = new EarthLogic(this.view.getGroup());
 		this.logic.initializeClock();
@@ -420,6 +421,10 @@ export class EarthScreenController extends ScreenController {
 
 	private formatTime(hour: number, minute: number): string {
 		return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+	}
+
+	private handleReturnToMenu(): void {
+		this.screenSwitcher.switchToScreen({ type: 'menu' });
 	}
 
 	override show(): void {

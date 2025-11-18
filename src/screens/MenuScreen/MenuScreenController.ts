@@ -73,7 +73,7 @@ export class MenuScreenController extends ScreenController {
 	}
 
 	private handleEarthClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'earth' });
+		this.screenSwitcher.switchToScreen({ type: 'knowledge' });
 	}
 
 	// ---------------------------------------------------------

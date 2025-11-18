@@ -1,34 +1,43 @@
 import Konva from 'konva';
 import type { View } from '../../types';
-import { STAGE_WIDTH } from '../../configs/GameConfig';
+import { STAGE_HEIGHT } from '../../configs/GameConfig';
+import { createButton } from '../../ui';
 
-/**
- * EarthScreenView - Renders the Earth screen
- */
+// --------------------------------------------------------
+// EARTH SCREEN VIEW — FIXED VERSION
+// --------------------------------------------------------
 export class EarthScreenView implements View {
 	private group: Konva.Group;
+	private onMenuClick: () => void;
 
-	constructor() {
+	/**
+	 * EarthScreenView
+	 * @param onMenuClick - callback for Return to Menu
+	 */
+	constructor(onMenuClick: () => void) {
 		this.group = new Konva.Group({
 			visible: false,
 			id: 'earthScreen',
 		});
 
-		// centered title text
-		const title = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 80,
-			text: '🌍⏰ Time Crunch',
-			fontSize: 36,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
+		this.onMenuClick = onMenuClick;
+
+		// --------------------------------------------------------
+		// RETURN TO MENU BUTTON (BOTTOM-LEFT)
+		// --------------------------------------------------------
+		const returnBtn = createButton({
+			x: 30,
+			y: STAGE_HEIGHT - 90,
+			width: 240,
+			height: 55,
+			text: 'RETURN TO MENU',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: this.onMenuClick,
 		});
 
-		// Center horizontally by offsetting half its width
-		title.offsetX(title.width() / 2);
-
-		this.group.add(title);
+		this.group.add(returnBtn);
+		returnBtn.moveToTop();
 	}
 
 	show(): void {
