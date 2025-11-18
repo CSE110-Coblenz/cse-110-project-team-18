@@ -121,7 +121,7 @@ class App implements ScreenSwitcher {
 		this.earthController.hide(); // hide Earth screen
 		this.knowledgeController.hide(); // hide Knowledge screen
 		this.militaryController.hide();
-		this.layer.add(this.militaryController.getView().getGroup()); 
+		this.layer.add(this.militaryController.getView().getGroup());
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
 			case 'menu':

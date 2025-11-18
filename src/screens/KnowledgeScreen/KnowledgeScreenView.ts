@@ -6,22 +6,20 @@ import { theme } from '../../configs/ThemeConfig';
 
 export class KnowledgeScreenView implements View {
 	private group: Konva.Group;
-	private onNextSlide: () => void;
 	private onTestKnowledge: () => void;
 	private onMenuClick: () => void;
 
-	constructor(onNextSlide: () => void, onTestKnowledge: () => void, onMenuClick: () => void) {
+	constructor(_onNextSlide: () => void, onTestKnowledge: () => void, onMenuClick: () => void) {
 		this.group = new Konva.Group({
 			visible: false,
 			id: 'knowledgeScreen',
 		});
 
-		this.onNextSlide = onNextSlide;
 		this.onTestKnowledge = onTestKnowledge;
 		this.onMenuClick = onMenuClick;
 	}
 
-	renderSlide(slide: { title: string; text: string }, isLast: boolean): void {
+	renderSlide(slide: { title: string; text: string }, _isLast: boolean): void {
 		this.group.destroyChildren();
 
 		// --- RETURN TO MENU (bottom-left) ---
