@@ -83,6 +83,7 @@ export function createButton(args: ButtonArgs, theme?: Theme): Konva.Group {
 	const x = args.x ?? getDefaultX();
 	const g = new Konva.Group({ x, y: args.y, listening: BUTTON_LISTENING });
 
+	g.name('mt-btn');
 	const fill = t.get(args.colorKey);
 	const hoverFill =
 		args.hoverColorKey && t.has(args.hoverColorKey) ? t.get(args.hoverColorKey) : lighten(fill);
