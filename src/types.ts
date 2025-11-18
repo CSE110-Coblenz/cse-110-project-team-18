@@ -19,6 +19,7 @@ export type Screen =
 	| { type: 'game' }
 	| { type: 'asteroid field game' }
 	| { type: 'prime number game' }
+	| { type: 'mercury game' } 
 	| { type: 'result'; score: number };
 
 export abstract class ScreenController {
