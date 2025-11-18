@@ -11,9 +11,11 @@ export interface PlayerModel {
 /**
  * AsteroidFieldGameModel - The model for the asteroid field game screen
  * @param player - The player model (optional)
+ * @param score - The current score
  */
 export class AsteroidFieldGameModel {
 	player?: PlayerModel;
+	score: number = 0;
 
 	constructor(x?: number, y?: number) {
 		if (x !== undefined && y !== undefined) {
