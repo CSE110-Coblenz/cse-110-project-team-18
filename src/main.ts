@@ -4,9 +4,11 @@ import { AsteroidFieldGameController } from './screens/AsteriodFieldGameScreen/A
 import type { ScreenSwitcher, Screen, ScreenController } from './types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
+import { EarthScreenController } from './screens/EarthScreen/EarthScreenController';
 import { PrimeNumberGameController } from './screens/PrimeNumberGameScreen/PrimeNumberGameController.ts';
 import { MercuryGameController } from './planets/MercuryGameController.ts';
-
+import { KnowledgeScreenController } from './screens/KnowledgeScreen/KnowledgeScreenController.ts';
+import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/MilTimeGameController.ts';
 // Space Math Adventure - Main Entry Point
 /**
  * Main Application - Coordinates all screens
@@ -30,6 +32,12 @@ class App implements ScreenSwitcher {
 	private mercuryGameController: MercuryGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
+	/*
+	add Earth screen controller
+	*/
+	private earthController: EarthScreenController;
+	private knowledgeController: KnowledgeScreenController;
+	private militaryController: MilitaryTimeGameController;
 
 	constructor(container: string) {
 		// Initialize centralized input manager (single event listener system)
@@ -55,6 +63,12 @@ class App implements ScreenSwitcher {
 		// this.gameController = new GameScreenController(this);
 		// this.resultsController = new ResultsScreenController(this);
 
+		/*
+		initialize Earth screen controller below:
+		*/
+		this.earthController = new EarthScreenController(this);
+		this.knowledgeController = new KnowledgeScreenController(this);
+		this.militaryController = new MilitaryTimeGameController(this);
 		// Add all screen groups to the layer
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
@@ -63,6 +77,13 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.mercuryGameController.getView().getGroup());
 		// this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
+
+		/*
+		add Earth screen group to the layer
+		*/
+		this.layer.add(this.earthController.getView().getGroup());
+		// add the knwledge screen group to the layer
+		this.layer.add(this.knowledgeController.getView().getGroup());
 
 		// Draw the layer (render everything to the canvas)
 		this.layer.draw();
@@ -102,7 +123,10 @@ class App implements ScreenSwitcher {
 		this.mercuryGameController.hide();
 		// this.gameController.hide();
 		// this.resultsController.hide();
-
+		this.earthController.hide(); // hide Earth screen
+		this.knowledgeController.hide(); // hide Knowledge screen
+		this.militaryController.hide();
+		this.layer.add(this.militaryController.getView().getGroup());
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
 			case 'menu':
@@ -135,7 +159,27 @@ class App implements ScreenSwitcher {
 			// 	// Show results with the final score
 			// 	this.resultsController.showResults(screen.score);
 			// 	break;
+
+			case 'earth':
+				this.earthController.show();
+				this.activeController = this.earthController;
+				break;
+
+			case 'knowledge':
+				// This screen will be implemented later
+				this.knowledgeController.show();
+				this.activeController = this.knowledgeController;
+				console.log('Showing knowledge screen');
+				break;
+
+			case 'military time game':
+				this.militaryController.show();
+				this.activeController = this.militaryController;
+				break;
 		}
+
+		// force redraw after switching screens
+		this.layer.batchDraw();
 	}
 }
 

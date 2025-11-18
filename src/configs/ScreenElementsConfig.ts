@@ -1,6 +1,7 @@
 /**
  * Map for colors
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const color_map = new Map<string, string>([
 	['black', '#0A0A1A'],
 	['light_grey', '#D7D8E0'],
