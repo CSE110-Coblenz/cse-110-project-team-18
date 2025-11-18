@@ -1,3 +1,0 @@
-interface Planet {
-	run(): void;
-}
