@@ -15,8 +15,9 @@ export class MenuScreenView implements View {
 	 * @param onAsteroidClick - callback for asteroid field game
 	 * @param onPrimeClick - callback for prime number game
 	 * @param onEarthClick - callback for earth time crunch game
+	 * @param onMercuryClick - callback for mercury game
 	 */
-	constructor(onAsteroidClick: () => void, onPrimeClick: () => void, onEarthClick: () => void) {
+	constructor(onAsteroidClick: () => void, onPrimeClick: () => void, onEarthClick: () => void, onMercuryClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
 			id: 'menuScreen',
@@ -85,11 +86,26 @@ export class MenuScreenView implements View {
 		});
 
 		//-------------------------------------------------------
+		// Mercury Game Button
+		//-------------------------------------------------------
+		const mercuryButton = createButton({
+			x: STAGE_WIDTH / 2 - 200,
+			y: 600,
+			width: 400,
+			height: 60,
+			text: 'START MERCURY GAME',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: onMercuryClick,
+		});
+
+		//-------------------------------------------------------
 		// Add buttons to group
 		//-------------------------------------------------------
 		buttonGroup.add(asteroidFieldBtn);
 		buttonGroup.add(primeGameButton);
 		buttonGroup.add(earthButton);
+		buttonGroup.add(mercuryButton);
 
 		this.buttonGroup = buttonGroup;
 		this.group.add(buttonGroup);

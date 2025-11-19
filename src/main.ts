@@ -6,7 +6,7 @@ import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
 import { EarthScreenController } from './screens/EarthScreen/EarthScreenController';
 import { PrimeNumberGameController } from './screens/PrimeNumberGameScreen/PrimeNumberGameController.ts';
-import { MercuryGameController } from './planets/MercuryGameController.ts';
+import { MercuryGameController } from './planets/mercury/MercuryGameController.ts';
 import { KnowledgeScreenController } from './screens/KnowledgeScreen/KnowledgeScreenController.ts';
 import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/MilTimeGameController.ts';
 // Space Math Adventure - Main Entry Point
