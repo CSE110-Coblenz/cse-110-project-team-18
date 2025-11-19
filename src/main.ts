@@ -6,6 +6,7 @@ import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
 import { EarthScreenController } from './screens/EarthScreen/EarthScreenController';
 import { PrimeNumberGameController } from './screens/PrimeNumberGameScreen/PrimeNumberGameController.ts';
+import { MercuryGameController } from './planets/mercury/MercuryGameController.ts';
 import { KnowledgeScreenController } from './screens/KnowledgeScreen/KnowledgeScreenController.ts';
 import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/MilTimeGameController.ts';
 // Space Math Adventure - Main Entry Point
@@ -28,6 +29,7 @@ class App implements ScreenSwitcher {
 	private menuController: MenuScreenController;
 	private primeNumberGameController: PrimeNumberGameController;
 	private asteroidFieldGameController: AsteroidFieldGameController;
+	private mercuryGameController: MercuryGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
 	/*
@@ -57,6 +59,7 @@ class App implements ScreenSwitcher {
 		this.menuController = new MenuScreenController(this);
 		this.primeNumberGameController = new PrimeNumberGameController(this);
 		this.asteroidFieldGameController = new AsteroidFieldGameController(this);
+		this.mercuryGameController = new MercuryGameController(this);
 		// this.gameController = new GameScreenController(this);
 		// this.resultsController = new ResultsScreenController(this);
 
@@ -71,6 +74,7 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.menuController.getView().getGroup());
 		this.layer.add(this.primeNumberGameController.getView().getGroup());
 		this.layer.add(this.asteroidFieldGameController.getView().getGroup());
+		this.layer.add(this.mercuryGameController.getView().getGroup());
 		// this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
 
@@ -116,6 +120,7 @@ class App implements ScreenSwitcher {
 		this.menuController.hide();
 		this.primeNumberGameController.hide();
 		this.asteroidFieldGameController.hide();
+		this.mercuryGameController.hide();
 		// this.gameController.hide();
 		// this.resultsController.hide();
 		this.earthController.hide(); // hide Earth screen
@@ -142,6 +147,12 @@ class App implements ScreenSwitcher {
 				this.primeNumberGameController.startGame();
 				this.activeController = this.primeNumberGameController;
 				console.log('Showing prime number game screen');
+				break;
+
+			case 'mercury game':
+				this.mercuryGameController.show();
+				this.activeController = this.mercuryGameController;
+				console.log('Showing mercury game screen');
 				break;
 
 			// case "result":

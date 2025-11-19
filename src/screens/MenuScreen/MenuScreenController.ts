@@ -33,7 +33,8 @@ export class MenuScreenController extends ScreenController {
 		this.view = new MenuScreenView(
 			() => this.handleAsteriodFieldClick(),
 			() => this.handlePrimeGameClick(),
-			() => this.handleEarthClick()
+			() => this.handleEarthClick(),
+			() => this.handleMercuryClick()
 		);
 
 		// MENU MODEL
@@ -74,6 +75,10 @@ export class MenuScreenController extends ScreenController {
 
 	private handleEarthClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'knowledge' });
+	}
+
+	private handleMercuryClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'mercury game' });
 	}
 
 	// ---------------------------------------------------------
