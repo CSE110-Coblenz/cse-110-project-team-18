@@ -133,7 +133,11 @@ export class MercuryGameView implements View {
 		this.group.getLayer()?.batchDraw();
 	}
 
-	public displayQuestion(questionIndex: number, totalQuestions: number, questionText: string): void {
+	public displayQuestion(
+		questionIndex: number,
+		totalQuestions: number,
+		questionText: string
+	): void {
 		this.progressLabel.text(`Question ${questionIndex + 1} of ${totalQuestions}`);
 		this.questionLabel.text(questionText);
 		this.summaryLabel.visible(false);

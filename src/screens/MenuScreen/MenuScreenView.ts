@@ -17,7 +17,12 @@ export class MenuScreenView implements View {
 	 * @param onEarthClick - callback for earth time crunch game
 	 * @param onMercuryClick - callback for mercury game
 	 */
-	constructor(onAsteroidClick: () => void, onPrimeClick: () => void, onEarthClick: () => void, onMercuryClick: () => void) {
+	constructor(
+		onAsteroidClick: () => void,
+		onPrimeClick: () => void,
+		onEarthClick: () => void,
+		onMercuryClick: () => void
+	) {
 		this.group = new Konva.Group({
 			visible: true,
 			id: 'menuScreen',
