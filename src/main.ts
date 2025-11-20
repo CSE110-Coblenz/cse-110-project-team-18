@@ -9,6 +9,7 @@ import { PrimeNumberGameController } from './screens/PrimeNumberGameScreen/Prime
 import { MercuryGameController } from './planets/mercury/MercuryGameController.ts';
 import { KnowledgeScreenController } from './screens/KnowledgeScreen/KnowledgeScreenController.ts';
 import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/MilTimeGameController.ts';
+import { PauseMenuController } from './screens/PauseMenuScreen/PauseMenuController.ts';
 // Space Math Adventure - Main Entry Point
 /**
  * Main Application - Coordinates all screens
@@ -38,6 +39,9 @@ class App implements ScreenSwitcher {
 	private earthController: EarthScreenController;
 	private knowledgeController: KnowledgeScreenController;
 	private militaryController: MilitaryTimeGameController;
+	private pauseMenuController: PauseMenuController;
+
+	private isPaused: boolean = false;
 
 	constructor(container: string) {
 		// Initialize centralized input manager (single event listener system)
@@ -69,6 +73,12 @@ class App implements ScreenSwitcher {
 		this.earthController = new EarthScreenController(this);
 		this.knowledgeController = new KnowledgeScreenController(this);
 		this.militaryController = new MilitaryTimeGameController(this);
+		
+		// Initialize pause menu controller
+		this.pauseMenuController = new PauseMenuController(this, () => {
+			this.togglePause();
+		});
+		
 		// Add all screen groups to the layer
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
@@ -84,6 +94,9 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.earthController.getView().getGroup());
 		// add the knwledge screen group to the layer
 		this.layer.add(this.knowledgeController.getView().getGroup());
+		
+		// Add pause menu last so it appears on top
+		this.layer.add(this.pauseMenuController.getView().getGroup());
 
 		// Draw the layer (render everything to the canvas)
 		this.layer.draw();
@@ -93,12 +106,23 @@ class App implements ScreenSwitcher {
 
 		// Start central game loop that updates only the active controller
 		let lastTime = performance.now();
+		const inputManager = InputManager.getInstance();
 		const loop = (now: number) => {
 			const dt = now - lastTime; // ms
 			lastTime = now;
-			if (this.activeController) {
+			
+			// Check for ESC key press to toggle pause (only when not on menu screen)
+			if (this.activeController !== this.menuController) {
+				if (inputManager.consumePress('escape', 200)) {
+					this.togglePause();
+				}
+			}
+			
+			// Only update active controller if not paused
+			if (!this.isPaused && this.activeController) {
 				this.activeController.update(dt);
 			}
+			
 			requestAnimationFrame(loop);
 		};
 		requestAnimationFrame(loop);
@@ -116,6 +140,10 @@ class App implements ScreenSwitcher {
 	 * This pattern ensures only one screen is visible at a time.
 	 */
 	switchToScreen(screen: Screen): void {
+		// Hide pause menu when switching screens
+		this.pauseMenuController.hide();
+		this.isPaused = false;
+		
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
 		this.primeNumberGameController.hide();
@@ -179,6 +207,27 @@ class App implements ScreenSwitcher {
 		}
 
 		// force redraw after switching screens
+		this.layer.batchDraw();
+	}
+
+	/**
+	 * Toggle pause state
+	 * Pause menu can only be shown when not on the menu screen
+	 */
+	private togglePause(): void {
+		// Don't allow pausing on menu screen
+		if (this.activeController === this.menuController) {
+			return;
+		}
+
+		this.isPaused = !this.isPaused;
+		
+		if (this.isPaused) {
+			this.pauseMenuController.show();
+		} else {
+			this.pauseMenuController.hide();
+		}
+		
 		this.layer.batchDraw();
 	}
 }
