@@ -73,12 +73,12 @@ class App implements ScreenSwitcher {
 		this.earthController = new EarthScreenController(this);
 		this.knowledgeController = new KnowledgeScreenController(this);
 		this.militaryController = new MilitaryTimeGameController(this);
-		
+
 		// Initialize pause menu controller
 		this.pauseMenuController = new PauseMenuController(this, () => {
 			this.togglePause();
 		});
-		
+
 		// Add all screen groups to the layer
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
@@ -94,7 +94,7 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.earthController.getView().getGroup());
 		// add the knwledge screen group to the layer
 		this.layer.add(this.knowledgeController.getView().getGroup());
-		
+
 		// Add pause menu last so it appears on top
 		this.layer.add(this.pauseMenuController.getView().getGroup());
 
@@ -110,19 +110,19 @@ class App implements ScreenSwitcher {
 		const loop = (now: number) => {
 			const dt = now - lastTime; // ms
 			lastTime = now;
-			
+
 			// Check for ESC key press to toggle pause (only when not on menu screen)
 			if (this.activeController !== this.menuController) {
 				if (inputManager.consumePress('escape', 200)) {
 					this.togglePause();
 				}
 			}
-			
+
 			// Only update active controller if not paused
 			if (!this.isPaused && this.activeController) {
 				this.activeController.update(dt);
 			}
-			
+
 			requestAnimationFrame(loop);
 		};
 		requestAnimationFrame(loop);
@@ -143,7 +143,7 @@ class App implements ScreenSwitcher {
 		// Hide pause menu when switching screens
 		this.pauseMenuController.hide();
 		this.isPaused = false;
-		
+
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
 		this.primeNumberGameController.hide();
@@ -221,13 +221,13 @@ class App implements ScreenSwitcher {
 		}
 
 		this.isPaused = !this.isPaused;
-		
+
 		if (this.isPaused) {
 			this.pauseMenuController.show();
 		} else {
 			this.pauseMenuController.hide();
 		}
-		
+
 		this.layer.batchDraw();
 	}
 }

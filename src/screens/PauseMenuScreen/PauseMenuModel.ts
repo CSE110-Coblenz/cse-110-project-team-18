@@ -7,4 +7,3 @@ export class PauseMenuModel {
 		// Model can be extended in the future if needed
 	}
 }
-

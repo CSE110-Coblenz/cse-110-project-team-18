@@ -67,4 +67,3 @@ export class PauseMenuController extends ScreenController {
 		super.hide();
 	}
 }
-

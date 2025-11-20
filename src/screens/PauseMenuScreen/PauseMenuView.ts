@@ -17,11 +17,7 @@ export class PauseMenuView implements View {
 	 * @param onSaveClick - callback for save button
 	 * @param onMainMenuClick - callback for main menu button
 	 */
-	constructor(
-		onResumeClick: () => void,
-		onSaveClick: () => void,
-		onMainMenuClick: () => void
-	) {
+	constructor(onResumeClick: () => void, onSaveClick: () => void, onMainMenuClick: () => void) {
 		this.group = new Konva.Group({
 			visible: false,
 			id: 'pauseMenuScreen',
@@ -131,4 +127,3 @@ export class PauseMenuView implements View {
 		return this.group;
 	}
 }
-
