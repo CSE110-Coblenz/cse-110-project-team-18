@@ -43,6 +43,7 @@ class App implements ScreenSwitcher {
 	private pauseMenuController: PauseMenuController;
 	private helpButtonGroup?: Konva.Group;
 	private currentHelpContext: string | null = null;
+	private currentScreenType: Screen['type'] = 'menu';
 
 	private isPaused: boolean = false;
 
@@ -209,6 +210,7 @@ class App implements ScreenSwitcher {
 				break;
 		}
 
+		this.currentScreenType = screen.type;
 		this.updateHelpButton(screen.type);
 
 		// force redraw after switching screens
@@ -229,8 +231,19 @@ class App implements ScreenSwitcher {
 
 		if (this.isPaused) {
 			this.pauseMenuController.show();
+			if (this.helpButtonGroup) {
+				this.helpButtonGroup.visible(false);
+				this.helpButtonGroup.listening(false);
+			}
+			if (this.activeController === this.mercuryGameController) {
+				this.mercuryGameController.setInputVisible(false);
+			}
 		} else {
 			this.pauseMenuController.hide();
+			if (this.activeController === this.mercuryGameController) {
+				this.mercuryGameController.setInputVisible(true);
+			}
+			this.updateHelpButton(this.currentScreenType);
 		}
 
 		this.layer.batchDraw();

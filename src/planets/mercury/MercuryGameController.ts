@@ -82,6 +82,7 @@ export class MercuryGameController extends ScreenController {
 		});
 
 		this.inputBox = input;
+		this.setInputVisible(true);
 		this.focusInput();
 	}
 
@@ -93,6 +94,11 @@ export class MercuryGameController extends ScreenController {
 		if (!this.inputBox) return;
 		this.inputBox.remove();
 		this.inputBox = null;
+	}
+
+	public setInputVisible(isVisible: boolean): void {
+		if (!this.inputBox) return;
+		this.inputBox.style.display = isVisible ? 'block' : 'none';
 	}
 
 	private presentCurrentQuestion(): void {
