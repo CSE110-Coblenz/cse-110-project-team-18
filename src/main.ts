@@ -160,7 +160,6 @@ class App implements ScreenSwitcher {
 		// Hide pause menu when switching screens
 		this.pauseMenuController.hide();
 		this.isPaused = false;
-		this.hideHelpOverlay();
 
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
@@ -226,6 +225,13 @@ class App implements ScreenSwitcher {
 
 		this.currentScreenType = screen.type;
 		this.updateHelpButton(screen.type);
+		const context = this.getHelpContext(screen.type);
+		const slides = this.getHelpSlides(context || '');
+		if (slides.length === 0) {
+			console.log(`No help slides configured for ${screen.type}`);
+			return;
+		}
+		this.showHelpOverlay(slides);
 
 		// force redraw after switching screens
 		this.layer.batchDraw();
