@@ -26,7 +26,7 @@ export class PrimeNumberGameView implements View {
 			id: 'primeNumberGameScreen',
 		});
 
-		// BACKGROUND IMAGE	
+		// BACKGROUND IMAGE
 		const background = new Konva.Image({
 			x: 0,
 			y: 0,
