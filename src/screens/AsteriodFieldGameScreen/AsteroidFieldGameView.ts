@@ -2,6 +2,7 @@ import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { createButton } from '../../ui';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
+import { preloadImage } from '../../core/utils/AssetLoader';
 
 /**
  * AsteroidFieldGameView - Renders the asteroid field game screen
@@ -23,6 +24,22 @@ export class AsteroidFieldGameView implements View {
 			visible: false,
 			id: 'asteroidFieldGameScreen',
 		});
+
+		const background = new Konva.Image({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			listening: false,
+			image: new Image(),
+		});
+
+		void preloadImage('/assets/ui/AsteroidBG.png').then((img) => {
+			background.image(img);
+			this.group.getLayer()?.batchDraw();
+		});
+
+		this.group.add(background);
 
 		// Return to menu button
 		const returnToMenuBtn = createButton({

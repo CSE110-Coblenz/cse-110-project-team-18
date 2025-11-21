@@ -1,7 +1,8 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
-import { STAGE_WIDTH } from '../../configs/GameConfig';
+import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
 import { createButton } from '../../ui';
+import { preloadImage } from '../../core/utils/AssetLoader';
 
 /**
  * MenuScreenView - Renders the menu screen
@@ -29,20 +30,23 @@ export class MenuScreenView implements View {
 		});
 
 		//-------------------------------------------------------
-		// Title
+		// Background
 		//-------------------------------------------------------
-		const title = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: 150,
-			text: 'MATH EXPLORERS: GALACTIC QUEST',
-			fontSize: 48,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
+		const background = new Konva.Image({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			listening: false,
+			image: new Image(),
 		});
-		title.offsetX(title.width() / 2);
-		this.group.add(title);
 
+		void preloadImage('/assets/ui/MainMenuBG.png').then((img) => {
+			background.image(img);
+			this.group.getLayer()?.batchDraw();
+		});
+
+		this.group.add(background);
 		//-------------------------------------------------------
 		// Button container
 		//-------------------------------------------------------

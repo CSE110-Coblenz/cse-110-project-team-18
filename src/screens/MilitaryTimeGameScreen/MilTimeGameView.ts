@@ -3,6 +3,7 @@ import type { View } from '../../types';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { createButton } from '../../ui';
 import { theme } from '../../configs/ThemeConfig';
+import { preloadImage } from '../../core/utils/AssetLoader';
 
 export class MilitaryTimeGameView implements View {
 	private group: Konva.Group;
@@ -70,6 +71,23 @@ export class MilitaryTimeGameView implements View {
 	// -------------------------------
 	renderSlide(slide: any, index: number, total: number): void {
 		this.clear();
+
+		// BACKGROUND IMAGE
+		const background = new Konva.Image({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			listening: false,
+			image: new Image(),
+		});
+
+		void preloadImage('/assets/ui/EarthBG.png').then((img) => {
+			background.image(img);
+			this.group.getLayer()?.batchDraw();
+		});
+
+		this.group.add(background);
 
 		// RETURN TO MENU
 		const returnBtn = createButton({
