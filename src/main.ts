@@ -11,6 +11,7 @@ import { KnowledgeScreenController } from './screens/KnowledgeScreen/KnowledgeSc
 import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/MilTimeGameController.ts';
 import { PauseMenuController } from './screens/PauseMenuScreen/PauseMenuController.ts';
 import { preloadImage } from './core/utils/AssetLoader';
+import { createButton } from './ui';
 // Space Math Adventure - Main Entry Point
 /**
  * Main Application - Coordinates all screens
@@ -44,6 +45,13 @@ class App implements ScreenSwitcher {
 	private helpButtonGroup?: Konva.Group;
 	private currentHelpContext: string | null = null;
 	private currentScreenType: Screen['type'] = 'menu';
+	private helpOverlayGroup?: Konva.Group;
+	private helpOverlayImage?: Konva.Image;
+	private helpPrevButton?: Konva.Group;
+	private helpNextButton?: Konva.Group;
+	private helpReturnButton?: Konva.Group;
+	private helpSlides: string[] = [];
+	private helpSlideIndex: number = 0;
 
 	private isPaused: boolean = false;
 
@@ -98,6 +106,7 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.knowledgeController.getView().getGroup());
 
 		this.initializeHelpButton();
+		this.initializeHelpOverlay();
 
 		// Add pause menu last so it appears on top
 		this.layer.add(this.pauseMenuController.getView().getGroup());
@@ -118,7 +127,11 @@ class App implements ScreenSwitcher {
 			// Check for ESC key press to toggle pause (only when not on menu screen)
 			if (this.activeController !== this.menuController) {
 				if (inputManager.consumePress('escape', 200)) {
-					this.togglePause();
+					// If help overlay is visible, close it first
+					if (this.helpOverlayGroup && this.helpOverlayGroup.visible()) 
+						this.hideHelpOverlay();
+					else
+						this.togglePause();
 				}
 			}
 
@@ -147,6 +160,7 @@ class App implements ScreenSwitcher {
 		// Hide pause menu when switching screens
 		this.pauseMenuController.hide();
 		this.isPaused = false;
+		this.hideHelpOverlay();
 
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
@@ -230,6 +244,7 @@ class App implements ScreenSwitcher {
 		this.isPaused = !this.isPaused;
 
 		if (this.isPaused) {
+			console.log('Pausing game');
 			this.pauseMenuController.show();
 			if (this.helpButtonGroup) {
 				this.helpButtonGroup.visible(false);
@@ -239,6 +254,7 @@ class App implements ScreenSwitcher {
 				this.mercuryGameController.setInputVisible(false);
 			}
 		} else {
+			console.log('Unpausing game');
 			this.pauseMenuController.hide();
 			if (this.activeController === this.mercuryGameController) {
 				this.mercuryGameController.setInputVisible(true);
@@ -269,7 +285,12 @@ class App implements ScreenSwitcher {
 
 		this.helpButtonGroup.on('click tap', () => {
 			if (this.currentHelpContext) {
-				console.log(`${this.currentHelpContext} help button pressed`);
+				const slides = this.getHelpSlides(this.currentHelpContext);
+				if (slides.length === 0) {
+					console.log(`No help slides configured for ${this.currentHelpContext}`);
+					return;
+				}
+				this.showHelpOverlay(slides);
 			}
 		});
 
@@ -282,9 +303,13 @@ class App implements ScreenSwitcher {
 	}
 
 	private updateHelpButton(screenType: Screen['type']): void {
-		if (!this.helpButtonGroup) return;
+		if (!this.helpButtonGroup)
+			return;
 		const context = this.getHelpContext(screenType);
 		this.currentHelpContext = context;
+		if (!context) {
+			this.hideHelpOverlay();
+		}
 		const visible = Boolean(context);
 		this.helpButtonGroup.visible(visible);
 		this.helpButtonGroup.listening(visible);
@@ -313,6 +338,166 @@ class App implements ScreenSwitcher {
 				return 'Result';
 			default:
 				return screenType;
+		}
+	}
+
+	private initializeHelpOverlay(): void {
+		this.helpOverlayGroup = new Konva.Group({
+			visible: false,
+			listening: false,
+		});
+
+		const backdrop = new Konva.Rect({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			fill: 'rgba(0,0,0,0.85)',
+		});
+		this.helpOverlayGroup.add(backdrop);
+
+		this.helpOverlayImage = new Konva.Image({
+			x: STAGE_WIDTH * 0.1,
+			y: STAGE_HEIGHT * 0.1,
+			width: STAGE_WIDTH * 0.8,
+			height: STAGE_HEIGHT * 0.65,
+			listening: false,
+			image: new Image(),
+		});
+
+		this.helpOverlayGroup.add(this.helpOverlayImage);
+
+		this.helpPrevButton = createButton({
+			x: STAGE_WIDTH * 0.15,
+			y: STAGE_HEIGHT - 120,
+			width: 200,
+			height: 60,
+			text: 'PREVIOUS',
+			colorKey: 'cosmic_purple',
+			hoverColorKey: 'accent_blue',
+			onClick: () => this.changeHelpSlide(-1),
+		});
+
+		this.helpNextButton = createButton({
+			x: STAGE_WIDTH - STAGE_WIDTH * 0.15 - 200,
+			y: STAGE_HEIGHT - 120,
+			width: 200,
+			height: 60,
+			text: 'NEXT',
+			colorKey: 'cosmic_purple',
+			hoverColorKey: 'accent_blue',
+			onClick: () => this.changeHelpSlide(1),
+		});
+
+		this.helpReturnButton = createButton({
+			x: STAGE_WIDTH / 2 - 150,
+			y: STAGE_HEIGHT - 120,
+			width: 300,
+			height: 60,
+			text: 'RETURN TO GAME',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: () => this.hideHelpOverlay(),
+		});
+
+		this.helpOverlayGroup.add(this.helpPrevButton);
+		this.helpOverlayGroup.add(this.helpNextButton);
+		this.helpOverlayGroup.add(this.helpReturnButton);
+
+		this.layer.add(this.helpOverlayGroup);
+	}
+
+	private showHelpOverlay(slides: string[]): void {
+		if (!this.helpOverlayGroup || !this.helpOverlayImage) return;
+		this.helpSlides = slides;
+		this.helpSlideIndex = 0;
+		this.helpOverlayGroup.visible(true);
+		this.helpOverlayGroup.listening(true);
+		this.helpOverlayGroup.moveToTop();
+		this.pauseMenuController.hide();
+		this.isPaused = true;
+		this.loadHelpSlide(this.helpSlideIndex);
+		this.updateHelpNavigation();
+		if (this.helpButtonGroup) {
+			this.helpButtonGroup.listening(false);
+		}
+		// Hide input boxes when showing help (e.g., Mercury game)
+		if (this.activeController && 'setInputVisible' in this.activeController) {
+			(this.activeController as any).setInputVisible(false);
+		}
+		this.layer.batchDraw();
+	}
+
+	private hideHelpOverlay(): void {
+		if (!this.helpOverlayGroup) return;
+		this.helpOverlayGroup.visible(false);
+		this.helpOverlayGroup.listening(false);
+		this.isPaused = false;
+
+		if (this.helpButtonGroup && this.currentHelpContext) {
+			this.helpButtonGroup.listening(true);
+		}
+		// Restore input boxes when hiding help (e.g., Mercury game)
+		if (this.activeController && 'setInputVisible' in this.activeController) {
+			(this.activeController as any).setInputVisible(true);
+		}
+		this.helpSlides = [];
+		this.helpSlideIndex = 0;
+		if (this.helpPrevButton) this.helpPrevButton.visible(false);
+		if (this.helpNextButton) this.helpNextButton.visible(false);
+		this.layer.batchDraw();
+	}
+
+	private changeHelpSlide(delta: number): void {
+		if (this.helpSlides.length === 0) return;
+		const newIndex = this.helpSlideIndex + delta;
+		if (newIndex < 0 || newIndex >= this.helpSlides.length) return;
+		this.helpSlideIndex = newIndex;
+		this.loadHelpSlide(this.helpSlideIndex);
+		this.updateHelpNavigation();
+	}
+
+	private updateHelpNavigation(): void {
+		const hasMultiple = this.helpSlides.length > 1;
+		if (this.helpPrevButton) {
+			this.helpPrevButton.visible(hasMultiple);
+			this.helpPrevButton.listening(hasMultiple);
+		}
+		if (this.helpNextButton) {
+			this.helpNextButton.visible(hasMultiple);
+			this.helpNextButton.listening(hasMultiple);
+		}
+	}
+
+	private loadHelpSlide(index: number): void {
+		const imageNode = this.helpOverlayImage;
+		if (!imageNode) return;
+		const slide = this.helpSlides[index];
+		void preloadImage(slide)
+			.then((img) => {
+				const maxWidth = STAGE_WIDTH * 0.8;
+				const maxHeight = STAGE_HEIGHT * 0.65;
+				const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+				const width = img.width * scale;
+				const height = img.height * scale;
+				imageNode.width(width);
+				imageNode.height(height);
+				imageNode.x((STAGE_WIDTH - width) / 2);
+				imageNode.y((STAGE_HEIGHT - height) / 2 - 40);
+				imageNode.image(img);
+				this.layer.batchDraw();
+			})
+			.catch((err) => {
+				console.error(`Failed to load help slide: ${slide}`, err);
+			});
+	}
+
+	private getHelpSlides(context: string): string[] {
+		switch (context) {
+			case 'Asteroid Field':
+				return ['/assets/ui/AsteroidFieldHelp1.png', '/assets/ui/AsteroidFieldHelp2.png'];
+			default:
+				return [];
 		}
 	}
 }
