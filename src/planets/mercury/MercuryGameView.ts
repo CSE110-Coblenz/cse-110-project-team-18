@@ -2,6 +2,7 @@ import Konva from 'konva';
 import type { View } from '../../types';
 import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
 import { createButton } from '../../ui';
+import { preloadImage } from '../../core/utils/AssetLoader';
 
 /**
  * MercuryGameView renders the UI for the Mercury math challenge.
@@ -19,13 +20,20 @@ export class MercuryGameView implements View {
 			id: 'mercuryGameScreen',
 		});
 
-		const background = new Konva.Rect({
+		const background = new Konva.Image({
 			x: 0,
 			y: 0,
 			width: STAGE_WIDTH,
 			height: STAGE_HEIGHT,
-			fill: '#040D1A',
+			listening: false,
+			image: new Image(),
 		});
+
+		void preloadImage('/assets/ui/MercuryBG.png').then((img) => {
+			background.image(img);
+			this.group.getLayer()?.batchDraw();
+		});
+
 		this.group.add(background);
 
 		const title = new Konva.Text({
