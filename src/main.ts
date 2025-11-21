@@ -10,6 +10,7 @@ import { MercuryGameController } from './planets/mercury/MercuryGameController.t
 import { KnowledgeScreenController } from './screens/KnowledgeScreen/KnowledgeScreenController.ts';
 import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/MilTimeGameController.ts';
 import { PauseMenuController } from './screens/PauseMenuScreen/PauseMenuController.ts';
+import { preloadImage } from './core/utils/AssetLoader';
 // Space Math Adventure - Main Entry Point
 /**
  * Main Application - Coordinates all screens
@@ -40,6 +41,8 @@ class App implements ScreenSwitcher {
 	private knowledgeController: KnowledgeScreenController;
 	private militaryController: MilitaryTimeGameController;
 	private pauseMenuController: PauseMenuController;
+	private helpButtonGroup?: Konva.Group;
+	private currentHelpContext: string | null = null;
 
 	private isPaused: boolean = false;
 
@@ -64,8 +67,6 @@ class App implements ScreenSwitcher {
 		this.primeNumberGameController = new PrimeNumberGameController(this);
 		this.asteroidFieldGameController = new AsteroidFieldGameController(this);
 		this.mercuryGameController = new MercuryGameController(this);
-		// this.gameController = new GameScreenController(this);
-		// this.resultsController = new ResultsScreenController(this);
 
 		/*
 		initialize Earth screen controller below:
@@ -94,6 +95,8 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.earthController.getView().getGroup());
 		// add the knwledge screen group to the layer
 		this.layer.add(this.knowledgeController.getView().getGroup());
+
+		this.initializeHelpButton();
 
 		// Add pause menu last so it appears on top
 		this.layer.add(this.pauseMenuController.getView().getGroup());
@@ -206,6 +209,8 @@ class App implements ScreenSwitcher {
 				break;
 		}
 
+		this.updateHelpButton(screen.type);
+
 		// force redraw after switching screens
 		this.layer.batchDraw();
 	}
@@ -229,6 +234,73 @@ class App implements ScreenSwitcher {
 		}
 
 		this.layer.batchDraw();
+	}
+
+	private initializeHelpButton(): void {
+		this.helpButtonGroup = new Konva.Group({
+			x: STAGE_WIDTH - 100,
+			y: 30,
+			visible: false,
+			listening: true,
+		});
+
+		const helpButton = new Konva.Image({
+			width: 70,
+			height: 70,
+			image: new Image(),
+			listening: true,
+			cursor: 'pointer',
+		});
+
+		this.helpButtonGroup.add(helpButton);
+
+		this.helpButtonGroup.on('click tap', () => {
+			if (this.currentHelpContext) {
+				console.log(`${this.currentHelpContext} help button pressed`);
+			}
+		});
+
+		this.layer.add(this.helpButtonGroup);
+
+		void preloadImage('/assets/ui/HelpButton.png').then((img) => {
+			helpButton.image(img);
+			this.layer.batchDraw();
+		});
+	}
+
+	private updateHelpButton(screenType: Screen['type']): void {
+		if (!this.helpButtonGroup) return;
+		const context = this.getHelpContext(screenType);
+		this.currentHelpContext = context;
+		const visible = Boolean(context);
+		this.helpButtonGroup.visible(visible);
+		this.helpButtonGroup.listening(visible);
+		this.layer.batchDraw();
+	}
+
+	private getHelpContext(screenType: Screen['type']): string | null {
+		switch (screenType) {
+			case 'menu':
+				return null;
+			case 'asteroid field game':
+				return 'Asteroid Field';
+			case 'prime number game':
+				return 'Prime Number';
+			case 'mercury game':
+				return 'Mercury';
+			case 'earth':
+				return 'Earth';
+			case 'knowledge':
+				return 'Knowledge';
+			case 'military time game':
+				return 'Military Time';
+			case 'game':
+				return 'Game';
+			case 'result':
+				return 'Result';
+			default:
+				return screenType;
+		}
 	}
 }
 

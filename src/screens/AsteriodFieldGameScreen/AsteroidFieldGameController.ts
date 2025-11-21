@@ -39,7 +39,7 @@ export class AsteroidFieldGameController extends ScreenController {
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
-		this.view = new AsteroidFieldGameView(() => this.handleReturnToMenuClick());
+		this.view = new AsteroidFieldGameView();
 		this.inputManager = InputManager.getInstance();
 		this.model = new AsteroidFieldGameModel(
 			this.initialPlayerPosition.x,
