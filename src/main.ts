@@ -238,15 +238,15 @@ class App implements ScreenSwitcher {
 
 	private initializeHelpButton(): void {
 		this.helpButtonGroup = new Konva.Group({
-			x: STAGE_WIDTH - 100,
-			y: 30,
+			x: STAGE_WIDTH - 60,
+			y: 20,
 			visible: false,
 			listening: true,
 		});
 
 		const helpButton = new Konva.Image({
-			width: 70,
-			height: 70,
+			width: 45,
+			height: 45,
 			image: new Image(),
 			listening: true,
 			cursor: 'pointer',
