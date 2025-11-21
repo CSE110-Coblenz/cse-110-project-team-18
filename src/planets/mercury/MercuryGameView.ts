@@ -13,6 +13,12 @@ export class MercuryGameView implements View {
 	private feedbackLabel: Konva.Text;
 	private summaryLabel: Konva.Text;
 
+	/**
+	 * constructor designs the background, buttons, textbox, texts
+	 * 
+	 * @param onSubmitAnswer move to next question
+	 * @param onReturnToMenu move out to menu
+	*/
 	constructor(onSubmitAnswer: () => void, onReturnToMenu: () => void) {
 		this.group = new Konva.Group({
 			visible: false,
@@ -119,20 +125,38 @@ export class MercuryGameView implements View {
 		this.group.add(returnButton);
 	}
 
+	/**
+	 * get group returns konva group contains all Mercury screen nodes
+	 * 
+	 * @returns konva group containing all Mercury screen nodes
+	*/
 	getGroup(): Konva.Group {
 		return this.group;
 	}
 
+	/**
+	 * set group visible and trigger a layer redraw
+	 */ 
 	show(): void {
 		this.group.visible(true);
 		this.group.getLayer()?.batchDraw();
 	}
 
+	/**
+	 * set group invisible and hide the screen
+	 */ 
 	hide(): void {
 		this.group.visible(false);
 		this.group.getLayer()?.batchDraw();
 	}
 
+	/**
+	 * display current question
+	 *
+	 * @param questionIndex the index of current question
+	 * @param totalQuestions the max number of questions played
+	 * @param questionText the question as text
+	 */
 	public displayQuestion(
 		questionIndex: number,
 		totalQuestions: number,
@@ -145,12 +169,26 @@ export class MercuryGameView implements View {
 		this.group.getLayer()?.batchDraw();
 	}
 
+	/**
+	 * display message telling user whether they input anything correctly or not,
+	 * the answer given is correct or not
+	 *
+	 * @param message string of message wanted to display
+	 * @param color the color of the message with default of white
+	 */
 	public showMessage(message: string, color: string = '#C4D7FF'): void {
 		this.feedbackLabel.text(message);
 		this.feedbackLabel.fill(color);
 		this.group.getLayer()?.batchDraw();
 	}
 
+	/**
+	 * display result after every question
+	 *
+	 * @param isCorrect determine whether the answer is correct or not
+	 * @param questionText the question as text for displaying
+	 * @param answerText the answer as text for displaying
+	 */
 	public displayResult(isCorrect: boolean, questionText: string, answerText: number): void {
 		const color = isCorrect ? '#4ADE80' : '#F87171';
 		const message = isCorrect
@@ -159,6 +197,14 @@ export class MercuryGameView implements View {
 		this.showMessage(message, color);
 	}
 
+	/**
+	 * display summary after completing the game
+	 *
+	 * @param correctAnswers the number of correct answers the player achieved
+	 * @param maxNumberOfQuestions the max number of questions played
+	 * @param minNumberOfQuestionsToWin the min number of correct questions needed
+	 * to complete the mercury game
+	 */
 	public displaySummary(
 		correctAnswers: number,
 		maxNumberOfQuestions: number,

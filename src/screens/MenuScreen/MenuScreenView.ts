@@ -98,7 +98,7 @@ export class MenuScreenView implements View {
 			y: 600,
 			width: 400,
 			height: 60,
-			text: 'START MERCURY GAME',
+			text: 'START MERCURY MATH GAME',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: onMercuryClick,
