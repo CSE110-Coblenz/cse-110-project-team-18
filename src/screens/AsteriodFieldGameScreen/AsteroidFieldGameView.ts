@@ -1,6 +1,5 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
-import { createButton } from '../../ui';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { preloadImage } from '../../core/utils/AssetLoader';
 
@@ -9,7 +8,6 @@ import { preloadImage } from '../../core/utils/AssetLoader';
  */
 export class AsteroidFieldGameView implements View {
 	private group: Konva.Group;
-	private buttonGroup?: Konva.Group;
 	private targetLabel: Konva.Text;
 	private scoreLabel: Konva.Text;
 	private edgeFlashRect?: Konva.Rect;
@@ -19,12 +17,13 @@ export class AsteroidFieldGameView implements View {
 	/**
 	 * Constructor for the AsteroidFieldGameView
 	 */
-	constructor(onMenuClick: () => void) {
+	constructor() {
 		this.group = new Konva.Group({
 			visible: false,
 			id: 'asteroidFieldGameScreen',
 		});
 
+		// BACKGROUND IMAGE
 		const background = new Konva.Image({
 			x: 0,
 			y: 0,
@@ -41,46 +40,30 @@ export class AsteroidFieldGameView implements View {
 
 		this.group.add(background);
 
-		// Return to menu button
-		const returnToMenuBtn = createButton({
-			x: 50,
-			y: 50,
-			width: 275,
-			height: 60,
-			text: 'RETURN TO MENU',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			onClick: onMenuClick,
-		});
-
-		this.buttonGroup = returnToMenuBtn;
-		this.group.add(returnToMenuBtn);
-		returnToMenuBtn.moveToTop();
-
 		this.targetLabel = new Konva.Text({
 			text: 'Target: --',
-			x: STAGE_WIDTH - 200,
-			y: 40,
-			fontSize: 32,
+			x: 30,
+			y: 30,
+			fontSize: 45,
 			fontStyle: 'bold',
 			fill: '#FFFFFF',
 			stroke: '#000000',
-			strokeWidth: 2,
+			strokeWidth: 1,
+			align: 'left',
 		});
-		this.targetLabel.x(STAGE_WIDTH - this.targetLabel.width() - 40);
 		this.group.add(this.targetLabel);
 
 		this.scoreLabel = new Konva.Text({
 			text: 'Score: 0',
-			x: STAGE_WIDTH - 200,
-			y: 80,
-			fontSize: 28,
+			x: 35,
+			y: 85,
+			fontSize: 38,
 			fontStyle: 'bold',
 			fill: '#FFFFFF',
 			stroke: '#000000',
-			strokeWidth: 2,
+			strokeWidth: 1,
+			align: 'left',
 		});
-		this.scoreLabel.x(STAGE_WIDTH - this.scoreLabel.width() - 40);
 		this.group.add(this.scoreLabel);
 
 		// Create screen edge flash rectangle (initially invisible)
@@ -102,9 +85,6 @@ export class AsteroidFieldGameView implements View {
 	 * Ensure buttons are always on top (call this after sprite loads)
 	 */
 	ensureButtonsOnTop(): void {
-		if (this.buttonGroup) {
-			this.buttonGroup.moveToTop();
-		}
 		this.targetLabel.moveToTop();
 		this.scoreLabel.moveToTop();
 		if (this.edgeFlashRect) {
@@ -138,13 +118,11 @@ export class AsteroidFieldGameView implements View {
 
 	setTargetNumber(target: number): void {
 		this.targetLabel.text(`Target: ${target}`);
-		this.targetLabel.x(STAGE_WIDTH - this.targetLabel.width() - 40);
 		this.targetLabel.moveToTop();
 	}
 
 	setScore(score: number): void {
 		this.scoreLabel.text(`Score: ${score}`);
-		this.scoreLabel.x(STAGE_WIDTH - this.scoreLabel.width() - 40);
 		this.scoreLabel.moveToTop();
 	}
 
