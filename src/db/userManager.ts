@@ -1,4 +1,4 @@
-import db from 'src/db/connection.ts';
+import db, { initializeUserProgress } from 'src/db/connection.ts';
 import { hashPassword, comparePassword } from 'src/db/utils/bcrypt.ts';
 
 export interface User {
@@ -24,6 +24,7 @@ export function getUserByID(id: number): User | null {
 
 /**
  * Creates a new user with the provided username and password.
+ * Also calls initializeUserProgress to set up initial progress.
  *
  * @param username The desired username for the new user.
  * @param password The password for the new user.
@@ -35,7 +36,12 @@ export async function createUser(username: string, password: string): Promise<nu
 		'INSERT INTO users (username, password, lvl, score, current_planet_id) VALUES (?, ?, 1, 0, 1)'
 	);
 	const info = stmt.run(username, hashedPassword);
-	return info.lastInsertRowid as number;
+	const userID = info.lastInsertRowid as number;
+
+	// Initialize user progress
+	initializeUserProgress(userID);
+
+	return userID;
 }
 
 /**
@@ -52,4 +58,25 @@ export async function loginUser(username: string, password: string): Promise<Use
 		return user;
 	}
 	return null;
+}
+
+/**
+ * Changes the current planet that the user is on. 
+ * 
+ * @param userId The ID of the user whose current planet is being changed.
+ * @param planetId The ID of the new current planet for the user.
+ */
+export function changeUserCurrentPlanet(userId: number, planetId: number): void {
+	const stmt = db.prepare(
+		'UPDATE users SET current_planet_id = ? WHERE id = ?'
+	);
+	stmt.run(planetId, userId);
+}
+
+export function getUserCurrentPlanet(userId: number): number | null {
+    const stmt = db.prepare(
+        'SELECT current_planet_id FROM users WHERE id = ?'
+    );
+    const row = stmt.get(userId) as { current_planet_id: number } | null;
+    return row ? row.current_planet_id as number : null;
 }
