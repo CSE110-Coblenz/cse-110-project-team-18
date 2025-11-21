@@ -11,11 +11,7 @@ export class PauseManager {
 	private canPause: () => boolean;
 	private inputManager: InputManager;
 
-	constructor(
-		canPause: () => boolean,
-		onPause?: () => void,
-		onResume?: () => void
-	) {
+	constructor(canPause: () => boolean, onPause?: () => void, onResume?: () => void) {
 		this.canPause = canPause;
 		this.onPause = onPause;
 		this.onResume = onResume;

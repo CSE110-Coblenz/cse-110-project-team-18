@@ -249,7 +249,6 @@ class App implements ScreenSwitcher {
 		// force redraw after switching screens
 		this.layer.batchDraw();
 	}
-
 }
 
 // Initialize the application
