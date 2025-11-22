@@ -1,5 +1,6 @@
-import db, { initializeUserProgress } from 'src/db/connection.ts';
+import db from 'src/db/connection.ts';
 import { hashPassword, comparePassword } from 'src/db/utils/bcrypt.ts';
+import { initializeUserProgress } from 'src/db/savedataManager.ts';
 
 export interface User {
 	id: number;
