@@ -4,8 +4,9 @@ import { getUserCurrentPlanet } from 'src/db/userManager.ts';
 // SAVE_INTERVAL_MS = n minutes * 60 seconds/minute * 1000 milliseconds/second
 const SAVE_INTERVAL_MS : number = 5 * 60 * 1000; // 5 minutes
 
-const activeAutoSaves: Map<number, NodeJS.Timeout> = new Map();
+const activeAutoSaves: Map<number, NodeJS.Timeout> = new Map(); // store active auto-saves
 
+// === USER PROGRESS MANAGEMENT ===
 /**
  * Saves the current score and planet ID for a user.
  * 
