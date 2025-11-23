@@ -63,28 +63,24 @@ export async function loginUser(username: string, password: string): Promise<Use
 }
 
 /**
- * Changes the current planet that the user is on. 
- * 
+ * Changes the current planet that the user is on.
+ *
  * @param userId the current user ID.
  * @param planetId the ID of the new current planet for the user.
  */
 export function changeUserCurrentPlanet(userId: number, planetId: number): void {
-	const stmt = db.prepare(
-		'UPDATE users SET current_planet_id = ? WHERE id = ?'
-	);
+	const stmt = db.prepare('UPDATE users SET current_planet_id = ? WHERE id = ?');
 	stmt.run(planetId, userId);
 }
 
 /**
  * Get the current planet ID for the user.
- * 
+ *
  * @param userId the current user ID .
  * @returns the ID of the current planet the user is on.
  */
 export function getUserCurrentPlanet(userId: number): number | null {
-    const stmt = db.prepare(
-        'SELECT current_planet_id FROM users WHERE id = ?'
-    );
-    const row = stmt.get(userId) as { current_planet_id: number } | null;
-    return row ? row.current_planet_id as number : null;
+	const stmt = db.prepare('SELECT current_planet_id FROM users WHERE id = ?');
+	const row = stmt.get(userId) as { current_planet_id: number } | null;
+	return row ? (row.current_planet_id as number) : null;
 }
