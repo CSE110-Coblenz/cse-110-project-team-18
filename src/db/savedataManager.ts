@@ -14,7 +14,7 @@ const activeAutoSaves: Map<number, NodeJS.Timeout> = new Map(); // store active 
  * @param score the current score to save.
  * @param planet_id the current planet ID.
  */
-export function savePlanetScore(userId: number, score: number, planet_id: number): void {
+function savePlanetScore(userId: number, score: number, planet_id: number): void {
     const stmt = db.prepare(
         'UPDATE user_progress SET score = ? WHERE id = ? AND planet_id = ?'
     );
@@ -89,8 +89,6 @@ export function initializeUserProgress(userId: number): void {
     });
 }
 
-// === AUTOSAVE ===
-
 /**
  * Saves the current user's progress. 
  * Manual call when switching planets or logging out.
@@ -106,6 +104,8 @@ export function save(userId: number): void {
 
     savePlanetScore(userId, currentData.score, currentPlanet);
 }
+
+// === AUTOSAVE ===
 
 /**
  * Starts the auto-save interval for the current user.
