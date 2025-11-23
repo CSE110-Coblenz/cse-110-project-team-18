@@ -1,6 +1,6 @@
 import db from 'src/db/connection.ts';
 import { hashPassword, comparePassword } from 'src/db/utils/bcrypt.ts';
-import { initializeUserProgress } from 'src/db/savedataManager.ts';
+import { initializeUserProgress, startAutoSave } from 'src/db/savedataManager.ts';
 
 export interface User {
 	id: number;
@@ -56,6 +56,7 @@ export async function loginUser(username: string, password: string): Promise<Use
 	const stmt = db.prepare('SELECT * FROM users WHERE username = ?');
 	const user = stmt.get(username) as User | null;
 	if (user && (await comparePassword(password, user.password))) {
+		startAutoSave(user.id);
 		return user;
 	}
 	return null;
