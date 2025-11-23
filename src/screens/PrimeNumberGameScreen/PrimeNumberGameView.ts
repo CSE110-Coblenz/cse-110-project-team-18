@@ -1,8 +1,9 @@
 import Konva from 'konva';
 import type { View } from '../../types.ts';
-import { STAGE_WIDTH } from '../../configs/GameConfig.ts';
+import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
 import { theme } from '../../configs/ThemeConfig.ts';
 import { createButton, createTextBox, setElementText } from '../../ui/factory/ElementFactory.ts';
+import { preloadImage } from '../../core/utils/AssetLoader';
 
 /**
  * Manages all Konva UI elements for the Prime Number Game.
@@ -24,6 +25,23 @@ export class PrimeNumberGameView implements View {
 			visible: false,
 			id: 'primeNumberGameScreen',
 		});
+
+		// BACKGROUND IMAGE
+		const background = new Konva.Image({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			listening: false,
+			image: new Image(),
+		});
+
+		void preloadImage('/assets/ui/MarsBG.png').then((img) => {
+			background.image(img);
+			this.group.getLayer()?.batchDraw();
+		});
+
+		this.group.add(background);
 
 		// Score Number
 		this.scoreDisplay = createTextBox(

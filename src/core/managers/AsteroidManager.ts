@@ -148,12 +148,6 @@ export class AsteroidManager {
 				// Sprite sheet contains multiple asteroid frames in a single row
 				this.frameWidth = Math.floor(this.asteroidImage.width / this.frameCount);
 				this.frameHeight = this.asteroidImage.height;
-				console.log('Asteroid sprite sheet loaded:', {
-					width: this.asteroidImage.width,
-					height: this.asteroidImage.height,
-					frameWidth: this.frameWidth,
-					frameHeight: this.frameHeight,
-				});
 			}
 			this.isLoaded = true;
 		} catch (error) {
@@ -271,18 +265,6 @@ export class AsteroidManager {
 				this.handleAsteroidHit(asteroidData, other);
 			}
 		};
-		console.log('Asteroid spawned:', {
-			id: asteroidId,
-			x: centerX,
-			y: centerY,
-			frameIndex: randomFrameIndex,
-			frameX,
-			frameY,
-			frameWidth,
-			frameHeight,
-			value: asteroidValue,
-			isCorrect,
-		});
 	}
 
 	private handleAsteroidHit(asteroidData: AsteroidData, other: Projectile): void {

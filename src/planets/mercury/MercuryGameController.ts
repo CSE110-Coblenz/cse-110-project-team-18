@@ -117,6 +117,7 @@ export class MercuryGameController extends ScreenController {
 		});
 
 		this.inputBox = input;
+		this.setInputVisible(true);
 		this.focusInput();
 	}
 
@@ -139,6 +140,11 @@ export class MercuryGameController extends ScreenController {
 	/**
 	 * get the current question from model and send it to view
 	 */
+	public setInputVisible(isVisible: boolean): void {
+		if (!this.inputBox) return;
+		this.inputBox.style.display = isVisible ? 'block' : 'none';
+	}
+
 	private presentCurrentQuestion(): void {
 		if (!this.model.hasMoreQuestions()) return;
 
