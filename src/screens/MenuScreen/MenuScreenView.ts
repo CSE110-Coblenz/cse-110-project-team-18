@@ -70,7 +70,7 @@ export class MenuScreenView implements View {
 		// Prime Number Game Button
 		//-------------------------------------------------------
 		const primeGameButton = createButton({
-			x: STAGE_WIDTH / 2 - 200,
+			// x: STAGE_WIDTH / 2 - 200,
 			y: 450,
 			width: 400,
 			height: 60,
@@ -84,7 +84,7 @@ export class MenuScreenView implements View {
 		// Earth Time Crunch Button
 		//-------------------------------------------------------
 		const earthButton = createButton({
-			x: STAGE_WIDTH / 2 - 200,
+			// x: STAGE_WIDTH / 2 - 200,
 			y: 525,
 			width: 400,
 			height: 60,
@@ -98,7 +98,7 @@ export class MenuScreenView implements View {
 		// Mercury Game Button
 		//-------------------------------------------------------
 		const mercuryButton = createButton({
-			x: STAGE_WIDTH / 2 - 200,
+			// x: STAGE_WIDTH / 2 - 200,
 			y: 600,
 			width: 400,
 			height: 60,
