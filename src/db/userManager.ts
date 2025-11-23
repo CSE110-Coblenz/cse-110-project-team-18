@@ -14,8 +14,8 @@ export interface User {
 /**
  * Retrieves a user by their unique ID.
  *
- * @param id The unique identifier of the user.
- * @returns The User object if found, otherwise null.
+ * @param id the unique identifier of the user.
+ * @returns the User object if found, otherwise null.
  */
 export function getUserByID(id: number): User | null {
 	const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
@@ -27,9 +27,9 @@ export function getUserByID(id: number): User | null {
  * Creates a new user with the provided username and password.
  * Also calls initializeUserProgress to set up initial progress.
  *
- * @param username The desired username for the new user.
- * @param password The password for the new user.
- * @returns The ID of the newly created user.
+ * @param username the desired username for the new user.
+ * @param password the password for the new user.
+ * @returns the ID of the newly created user.
  */
 export async function createUser(username: string, password: string): Promise<number> {
 	const hashedPassword = await hashPassword(password);
@@ -48,9 +48,9 @@ export async function createUser(username: string, password: string): Promise<nu
 /**
  * Attempts to log in a user with any given username and password.
  *
- * @param username The username of the user attempting to log in.
- * @param password The password provided for authentication.
- * @returns The User object if login is successful, otherwise null.
+ * @param username the username of the user attempting to log in.
+ * @param password the password provided for authentication.
+ * @returns the User object if login is successful, otherwise null.
  */
 export async function loginUser(username: string, password: string): Promise<User | null> {
 	const stmt = db.prepare('SELECT * FROM users WHERE username = ?');
@@ -64,8 +64,8 @@ export async function loginUser(username: string, password: string): Promise<Use
 /**
  * Changes the current planet that the user is on. 
  * 
- * @param userId The ID of the user whose current planet is being changed.
- * @param planetId The ID of the new current planet for the user.
+ * @param userId the current user ID.
+ * @param planetId the ID of the new current planet for the user.
  */
 export function changeUserCurrentPlanet(userId: number, planetId: number): void {
 	const stmt = db.prepare(
@@ -74,6 +74,12 @@ export function changeUserCurrentPlanet(userId: number, planetId: number): void 
 	stmt.run(planetId, userId);
 }
 
+/**
+ * Get the current planet ID for the user.
+ * 
+ * @param userId the current user ID .
+ * @returns the ID of the current planet the user is on.
+ */
 export function getUserCurrentPlanet(userId: number): number | null {
     const stmt = db.prepare(
         'SELECT current_planet_id FROM users WHERE id = ?'

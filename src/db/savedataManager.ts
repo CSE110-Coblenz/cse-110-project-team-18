@@ -10,13 +10,13 @@ const activeAutoSaves: Map<number, NodeJS.Timeout> = new Map(); // store active 
 /**
  * Saves the current score and planet ID for a user.
  * 
- * @param userId the current user ID
- * @param score the current score to save
- * @param planet_id the current planet ID
+ * @param userId the current user ID.
+ * @param score the current score to save.
+ * @param planet_id the current planet ID.
  */
 export function savePlanetScore(userId: number, score: number, planet_id: number): void {
     const stmt = db.prepare(
-        'UPDATE user_progress SET score = ?, planet_id = ? WHERE id = ?'
+        'UPDATE user_progress SET score = ? WHERE id = ? AND planet_id = ?'
     );
     stmt.run(score, planet_id, userId);
 }
@@ -24,7 +24,7 @@ export function savePlanetScore(userId: number, score: number, planet_id: number
 /**
  * Gets the current saved score and planet ID for a user.
  * 
- * @param userId the current user ID
+ * @param userId the current user ID.
  * @returns An object containing score and planet_id, or null if not found (i.e., 
  * planet is locked).
  */
@@ -35,7 +35,7 @@ export function getCurrentPlanetScore(userId: number): { score: number; planet_i
 
     // use that ID to get score
     const stmt = db.prepare(
-        'SELECT score, planet_id FROM user_progress WHERE user_id = ? AND planet_id = ?'
+        'SELECT score, planet_id FROM user_progress WHERE id = ? AND planet_id = ?'
     );
     const data = stmt.get(userId, planetId) as { score: number; planet_id: number } | null;
     return data;
@@ -44,14 +44,14 @@ export function getCurrentPlanetScore(userId: number): { score: number; planet_i
 /**
  * Gets a list of unlocked planet IDs for the user.
  * 
- * @param userId the current user ID
- * @returns an array of unlocked planet IDs
+ * @param userId the current user ID.
+ * @returns an array of unlocked planet IDs.
  */
 export function getUnlockedPlanets(userId: number): number[] {
     const stmt = db.prepare(
         `SELECT DISTINCT up.planet_id
          FROM user_progress up
-         WHERE up.user_id = ? AND up.score IS NOT NULL
+         WHERE up.id = ? AND up.score IS NOT NULL
          ORDER BY up.planet_id`
     );
     const rows = stmt.all(userId) as { planet_id: number }[];
@@ -61,8 +61,8 @@ export function getUnlockedPlanets(userId: number): number[] {
 /**
  * Gets the planet ID given its name (case insensitive).
  * 
- * @param planetName the name of the planet
- * @returns the planet ID, or null if not found
+ * @param planetName the name of the planet.
+ * @returns the planet ID, or null if not found.
  */
 export function getPlanetIdByName(planetName: string): number | null {
     const stmt = db.prepare(
@@ -76,12 +76,12 @@ export function getPlanetIdByName(planetName: string): number | null {
  * Initializes user progress for all planets (0 for the first
  * planet, null for others) upon user creation.
  * 
- * @param userId user ID of newly created user
+ * @param userId user ID of newly created user.
  */
 export function initializeUserProgress(userId: number): void {
     const planets = db.prepare(
-        'SELECT id FROM planets ORDER BY planet_id').all() as { planet_id: number }[];
-    const stmt = db.prepare('INSERT INTO user_progress (user_id, planet_id, score) VALUES (?, ?, ?)');
+        'SELECT planet_id FROM planets ORDER BY planet_id').all() as { planet_id: number }[];
+    const stmt = db.prepare('INSERT INTO user_progress (id, planet_id, score) VALUES (?, ?, ?)');
 
     planets.forEach((planets, index) => {
         const score = index === 0 ? 0 : null; // Unlock first planet with score 0
@@ -95,7 +95,7 @@ export function initializeUserProgress(userId: number): void {
  * Saves the current user's progress. 
  * Manual call when switching planets or logging out.
  * 
- * @param userId the current user ID
+ * @param userId the current user ID.
  */
 export function save(userId: number): void {
     const currentPlanet = getUserCurrentPlanet(userId);
@@ -110,7 +110,7 @@ export function save(userId: number): void {
 /**
  * Starts the auto-save interval for the current user.
  * 
- * @param userId the current user ID
+ * @param userId the current user ID.
  */
 export function startAutoSave(userId: number): void {
     // prevent multiple auto-saves for same user
@@ -131,7 +131,7 @@ export function startAutoSave(userId: number): void {
  * Stops the auto-save inteerval for the current user.
  * Manually called on logout.
  * 
- * @param userId the current user ID
+ * @param userId the current user ID.
  */
 export function stopAutoSave(userId: number): void {
     const interval = activeAutoSaves.get(userId);
