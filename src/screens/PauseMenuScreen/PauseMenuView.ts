@@ -12,12 +12,17 @@ export class PauseMenuView implements View {
 	private buttonGroup: Konva.Group;
 
 	/**
-	 * PauseMenuView constructor
 	 * @param onResumeClick - callback for resume button
 	 * @param onSaveClick - callback for save button
-	 * @param onMainMenuClick - callback for main menu button
+	 * @param onLevelSelectionClick - callback for level selection button
+	 * @param onLogoutClick - callback for log out button
 	 */
-	constructor(onResumeClick: () => void, onSaveClick: () => void, onMainMenuClick: () => void) {
+	constructor(
+		onResumeClick: () => void,
+		onSaveClick: () => void,
+		onLevelSelectionClick: () => void,
+		onLogoutClick: () => void
+	) {
 		this.group = new Konva.Group({
 			visible: false,
 			id: 'pauseMenuScreen',
@@ -57,46 +62,70 @@ export class PauseMenuView implements View {
 		//-------------------------------------------------------
 		this.buttonGroup = new Konva.Group({ listening: true });
 
+		const BUTTON_WIDTH = 400;
+		const BUTTON_HEIGHT = 60;
+		const GAP = 80; // vertical gap between buttons
+
+		const x = STAGE_WIDTH / 2 - BUTTON_WIDTH / 2;
+		let y = STAGE_HEIGHT / 2 - 30; // starting y (close to your original)
+
 		//-------------------------------------------------------
 		// Resume Button
 		//-------------------------------------------------------
 		const resumeBtn = createButton({
-			x: STAGE_WIDTH / 2 - 200,
-			y: STAGE_HEIGHT / 2 - 30,
-			width: 400,
-			height: 60,
+			x,
+			y,
+			width: BUTTON_WIDTH,
+			height: BUTTON_HEIGHT,
 			text: 'RESUME',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: onResumeClick,
 		});
+		y += GAP;
 
 		//-------------------------------------------------------
 		// Save Button
 		//-------------------------------------------------------
 		const saveBtn = createButton({
-			x: STAGE_WIDTH / 2 - 200,
-			y: STAGE_HEIGHT / 2 + 50,
-			width: 400,
-			height: 60,
+			x,
+			y,
+			width: BUTTON_WIDTH,
+			height: BUTTON_HEIGHT,
 			text: 'SAVE',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: onSaveClick,
 		});
+		y += GAP;
 
 		//-------------------------------------------------------
-		// Main Menu Button
+		// Level Selection Button
 		//-------------------------------------------------------
-		const mainMenuBtn = createButton({
-			x: STAGE_WIDTH / 2 - 200,
-			y: STAGE_HEIGHT / 2 + 130,
-			width: 400,
-			height: 60,
-			text: 'MAIN MENU',
+		const levelSelectionBtn = createButton({
+			x,
+			y,
+			width: BUTTON_WIDTH,
+			height: BUTTON_HEIGHT,
+			text: 'LEVEL SELECTION',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
-			onClick: onMainMenuClick,
+			onClick: onLevelSelectionClick,
+		});
+		y += GAP;
+
+		//-------------------------------------------------------
+		// Log Out Button
+		//-------------------------------------------------------
+		const logoutBtn = createButton({
+			x,
+			y,
+			width: BUTTON_WIDTH,
+			height: BUTTON_HEIGHT,
+			text: 'LOG OUT',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: onLogoutClick,
 		});
 
 		//-------------------------------------------------------
@@ -104,7 +133,8 @@ export class PauseMenuView implements View {
 		//-------------------------------------------------------
 		this.buttonGroup.add(resumeBtn);
 		this.buttonGroup.add(saveBtn);
-		this.buttonGroup.add(mainMenuBtn);
+		this.buttonGroup.add(levelSelectionBtn);
+		this.buttonGroup.add(logoutBtn);
 		this.group.add(this.buttonGroup);
 	}
 
@@ -126,4 +156,11 @@ export class PauseMenuView implements View {
 	getGroup(): Konva.Group {
 		return this.group;
 	}
+}
+
+/**
+ * PauseMenuModel - The model for the pause menu screen
+ */
+export class PauseMenuModel {
+	constructor() {}
 }

@@ -80,7 +80,7 @@ export class MenuScreenController extends ScreenController {
 
 	private handleLogin() {
 		console.log('Login with', this.model.username, this.model.password);
-		// this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 
 	private handleGuestPlay() {

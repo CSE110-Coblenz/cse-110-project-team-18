@@ -12,6 +12,8 @@ import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/Mil
 import { PauseMenuController } from './screens/PauseMenuScreen/PauseMenuController.ts';
 import { HelpManager } from './core/managers/HelpManager';
 import { PauseManager } from './core/managers/PauseManager';
+
+import { LevelSelectionController } from './screens/LevelSelectionScreen/LevelSelectionController.ts';
 // Space Math Adventure - Main Entry Point
 /**
  * Main Application - Coordinates all screens
@@ -48,6 +50,8 @@ class App implements ScreenSwitcher {
 	private helpManager: HelpManager;
 	private pauseManager: PauseManager;
 
+	private levelSelectionController: LevelSelectionController;
+
 	constructor(container: string) {
 		// Initialize centralized input manager (single event listener system)
 		InputManager.getInstance().initialize();
@@ -76,6 +80,8 @@ class App implements ScreenSwitcher {
 		this.earthController = new EarthScreenController(this);
 		this.knowledgeController = new KnowledgeScreenController(this);
 		this.militaryController = new MilitaryTimeGameController(this);
+
+		this.levelSelectionController = new LevelSelectionController(this);
 
 		// Initialize managers first (they need to be created before pause menu controller)
 		this.helpManager = new HelpManager(this.layer);
@@ -130,6 +136,9 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.earthController.getView().getGroup());
 		// add the knwledge screen group to the layer
 		this.layer.add(this.knowledgeController.getView().getGroup());
+
+
+		this.layer.add(this.levelSelectionController.getView().getGroup());
 
 		// Add help button after screens so it appears above them
 		this.helpManager.addToLayer();
@@ -195,6 +204,8 @@ class App implements ScreenSwitcher {
 		this.earthController.hide(); // hide Earth screen
 		this.knowledgeController.hide(); // hide Knowledge screen
 		this.militaryController.hide();
+		this.levelSelectionController.hide();
+
 		this.layer.add(this.militaryController.getView().getGroup());
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
@@ -244,6 +255,11 @@ class App implements ScreenSwitcher {
 			case 'military time game':
 				this.militaryController.show();
 				this.activeController = this.militaryController;
+				break;
+
+			case 'level selection':
+				this.levelSelectionController.show();
+				this.activeController = this.levelSelectionController;
 				break;
 		}
 

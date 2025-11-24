@@ -56,7 +56,7 @@ export class LevelSelectionView implements View {
 			y,
 			width: 400,
 			height: 60,
-			text: 'LEVEL 1',
+			text: 'ASTROID GAME',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: onLevel1Click,
@@ -68,7 +68,7 @@ export class LevelSelectionView implements View {
 			y,
 			width: 400,
 			height: 60,
-			text: 'LEVEL 2',
+			text: 'PRIME NUMBER GAME',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: onLevel2Click,
@@ -80,21 +80,21 @@ export class LevelSelectionView implements View {
 			y,
 			width: 400,
 			height: 60,
-			text: 'LEVEL 3',
+			text: 'MILITARY TIME GAME',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: onLevel3Click,
 		});
 
-		y += 90;
+		y += 75;
 		const backBtn = createButton({
 			x: baseX,
 			y,
 			width: 400,
 			height: 60,
-			text: 'BACK TO MENU',
-			colorKey: 'cosmic_purple',
-			hoverColorKey: 'info_hover',
+			text: 'MERCURY GAME',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
 			onClick: onBackToMenu,
 		});
 
