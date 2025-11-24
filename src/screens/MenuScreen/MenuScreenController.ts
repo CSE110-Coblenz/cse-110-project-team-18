@@ -1,117 +1,282 @@
-import { ScreenController } from '../../types.ts';
-import type { ScreenSwitcher } from '../../types.ts';
-import { MenuScreenView } from './MenuScreenView.ts';
-import { MenuScreenModel } from './MenuScreenModel.ts';
-import { STAGE_WIDTH } from '../../configs/GameConfig';
-import { greenAlienSprite } from '../../core/sprites/AlienSprite';
-import { ScreenEntityManager } from '../../core/utils/ScreenEntityManager';
-import { createPlayerManager } from '../../core/factories/PlayerManagerFactory';
+// src/screens/menu/MenuScreenController.ts
 
-/**
- * MenuScreenController - Handles menu interactions
- */
+import { ScreenController } from '../../types';
+import type { ScreenSwitcher } from '../../types';
+import { STAGE_WIDTH } from '../../configs/GameConfig';
+import { MenuScreenView } from './MenuScreenView';
+import { MenuScreenModel } from './MenuScreenModel';
+
+// centralize API base path
+const USE_MOCK_AUTH = false;
+
+// // CHANGE: if Express server runs on localhost:3000, use this:
+const API_BASE = 'http://localhost:3000/api';
+// // If API from the same origin as the game, just do:
+// const API_BASE = '/api';
+
 export class MenuScreenController extends ScreenController {
 	private view: MenuScreenView;
 	private screenSwitcher: ScreenSwitcher;
 	private model: MenuScreenModel;
 
-	private readonly initialPlayerPosition = {
-		x: STAGE_WIDTH / 4,
-		y: 250,
-	};
-
-	private playerLifecycle: ScreenEntityManager<{
-		playerManager: ReturnType<typeof createPlayerManager>['playerManager'];
-		collisionManager: ReturnType<typeof createPlayerManager>['collisionManager'];
-	}>;
+	// native HTML inputs
+	private usernameInput: HTMLInputElement | null = null;
+	private passwordInput: HTMLInputElement | null = null;
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
 
-		// MENU VIEW with THREE BUTTON HANDLERS
 		this.view = new MenuScreenView(
-			() => this.handleAsteriodFieldClick(),
-			() => this.handlePrimeGameClick(),
-			() => this.handleEarthClick(),
-			() => this.handleMercuryClick()
+			() => {
+				void this.handleLogin();
+			},
+			() => this.handleGuestPlay(),
+			() => {
+				void this.handleCreateAccount();
+			}
 		);
+		this.model = new MenuScreenModel();
 
-		// MENU MODEL
-		this.model = new MenuScreenModel(this.initialPlayerPosition.x, this.initialPlayerPosition.y);
-
-		// PLAYER ENTITY MANAGEMENT (from main)
-		this.playerLifecycle = new ScreenEntityManager({
-			create: () => {
-				this.model.player = { ...this.initialPlayerPosition };
-
-				const { playerManager, collisionManager, model } = createPlayerManager({
-					group: this.view.getGroup(),
-					spriteConfig: greenAlienSprite,
-					position: this.initialPlayerPosition,
-					walkSpeed: 150,
-					model: this.model.player,
-				});
-
-				this.model.player = model;
-				return { playerManager, collisionManager };
-			},
-			dispose: ({ playerManager }) => {
-				playerManager.dispose();
-			},
-		});
+		// clicking the Konva fields focuses the real HTML inputs
+		this.view.getUsernameField().on('click tap', () => this.usernameInput?.focus());
+		this.view.getPasswordField().on('click tap', () => this.passwordInput?.focus());
 	}
 
-	// ---------------------------------------------------------
-	// BUTTON HANDLERS
-	// ---------------------------------------------------------
-	private handleAsteriodFieldClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'asteroid field game' });
-	}
-
-	private handlePrimeGameClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'prime number game' });
-	}
-
-	private handleEarthClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'knowledge' });
-	}
-
-	private handleMercuryClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'mercury game' });
-	}
-
-	// ---------------------------------------------------------
-	// VIEW IMPLEMENTATION
-	// ---------------------------------------------------------
 	getView(): MenuScreenView {
 		return this.view;
 	}
 
+	// ---------------- HTML INPUT SETUP ----------------
+
+	private ensureInputs(): void {
+		const container = document.getElementById('container');
+		if (!container) return;
+
+		container.style.position = 'relative';
+
+		// panel geometry must match MenuScreenView
+		const PANEL_WIDTH = 420;
+		const panelX = STAGE_WIDTH / 2 - PANEL_WIDTH / 2;
+		const panelY = 250;
+
+		// ---------- USERNAME ----------
+		if (!this.usernameInput) {
+			const input = document.createElement('input');
+			input.type = 'text';
+			input.placeholder = 'Enter username';
+
+			Object.assign(input.style, {
+				position: 'absolute',
+				width: `${PANEL_WIDTH - 48}px`,
+				padding: '10px 14px',
+				fontSize: '18px',
+				border: '2px solid rgba(148, 163, 184, 0.8)',
+				borderRadius: '12px',
+				background: '#020617',
+				color: 'white',
+				outline: 'none',
+				left: `${panelX + 24}px`,
+				top: `${panelY + 46}px`,
+				zIndex: '10',
+			});
+
+			input.addEventListener('input', () => {
+				this.model.username = input.value;
+			});
+
+			container.appendChild(input);
+			this.usernameInput = input;
+		}
+
+		// ---------- PASSWORD ----------
+		if (!this.passwordInput) {
+			const input = document.createElement('input');
+			input.type = 'password';
+			input.placeholder = 'Enter password';
+
+			Object.assign(input.style, {
+				position: 'absolute',
+				width: `${PANEL_WIDTH - 48}px`,
+				padding: '10px 14px',
+				fontSize: '18px',
+				border: '2px solid rgba(148, 163, 184, 0.8)',
+				borderRadius: '12px',
+				background: '#020617',
+				color: 'white',
+				outline: 'none',
+				left: `${panelX + 24}px`,
+				top: `${panelY + 126}px`,
+				zIndex: '10',
+			});
+
+			input.addEventListener('input', () => {
+				this.model.password = input.value;
+			});
+
+			input.addEventListener('keydown', (event) => {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					void this.handleLogin();
+				}
+			});
+
+			container.appendChild(input);
+			this.passwordInput = input;
+		}
+	}
+
+	private removeInputs(): void {
+		if (this.usernameInput) {
+			this.usernameInput.remove();
+			this.usernameInput = null;
+		}
+		if (this.passwordInput) {
+			this.passwordInput.remove();
+			this.passwordInput = null;
+		}
+	}
+
+	// ---------------- BUTTON HANDLERS ----------------
+
+	// LOGIN → call backend /api/login
+	private async handleLogin(): Promise<void> {
+		const username = this.usernameInput?.value.trim() ?? '';
+		const password = this.passwordInput?.value ?? '';
+
+		this.model.username = username;
+		this.model.password = password;
+
+		if (!username || !password) {
+			alert('Please enter a username and password.');
+			return;
+		}
+
+		if (USE_MOCK_AUTH) {
+			console.log('[DEV] Login with', username, password);
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+			return;
+		}
+
+		try {
+			const res = await fetch(`${API_BASE}/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username, password }),
+			});
+
+			if (!res.ok) {
+				console.error('Login HTTP error', res.status);
+				alert('Error logging in. Please try again.');
+				return;
+			}
+
+			const data = (await res.json()) as {
+				success: boolean;
+				message?: string;
+				user?: { id: number; username: string };
+			};
+
+			if (!data.success || !data.user) {
+				alert(data.message ?? 'Invalid username or password.');
+				return;
+			}
+
+			this.model.currentUserID = data.user.id;
+
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		} catch (err) {
+			console.error('Login error', err);
+			alert('Network / server error while logging in.');
+		}
+	}
+
+	// CREATE ACCOUNT → call backend /api/create-account
+	private async handleCreateAccount(): Promise<void> {
+		const username = this.usernameInput?.value.trim() ?? '';
+		const password = this.passwordInput?.value ?? '';
+
+		this.model.username = username;
+		this.model.password = password;
+
+		if (!username || !password) {
+			alert('Please enter a username and password.');
+			return;
+		}
+
+		if (USE_MOCK_AUTH) {
+			console.log('[DEV] Create account for', username);
+			alert('Account created! (mock)');
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+			return;
+		}
+
+		try {
+			const res = await fetch(`${API_BASE}/create-account`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username, password }),
+			});
+
+			if (!res.ok) {
+				console.error('Create account HTTP error', res.status);
+				alert('Error creating account. Please try again.');
+				return;
+			}
+
+			const data = (await res.json()) as {
+				success: boolean;
+				message?: string;
+				user?: { id: number; username: string };
+			};
+
+			if (!data.success || !data.user) {
+				alert(data.message ?? 'Could not create account. Username may already exist.');
+				return;
+			}
+
+			this.model.currentUserID = data.user.id;
+
+			// Backend should:
+			//   - create user
+			//   - initialize progress (planet 1 unlocked)
+			//   - set current_planet_id
+			//   - start autosave (if desired)
+			// so the client just treats them as logged in.
+
+			alert('Account created! You are now logged in.');
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		} catch (err) {
+			console.error('Create account error', err);
+			alert('Network / server error while creating account.');
+		}
+	}
+
+	private handleGuestPlay(): void {
+		// No DB, no autosave, just start game
+		this.screenSwitcher.switchToScreen({ type: 'level selection' });
+	}
+
+	// ---------------- LIFECYCLE ----------------
+
 	override show(): void {
 		super.show();
-		this.playerLifecycle.ensure();
-		this.view.ensureButtonsOnTop();
+		this.view.show();
+		this.ensureInputs();
+		this.usernameInput?.focus();
 	}
 
 	override hide(): void {
 		super.hide();
-		this.playerLifecycle.dispose();
+		this.view.hide();
+		this.removeInputs();
 	}
 
-	override update(deltaTime: number): void {
-		if (!this.view.getGroup().visible()) return;
-		const entities = this.playerLifecycle.get();
-		if (!entities) return;
-
-		entities.playerManager.update(deltaTime);
-		entities.collisionManager.update();
-
-		this.view.ensureButtonsOnTop();
-		this.view.getGroup().getLayer()?.draw();
+	override update(_dt: number): void {
+		// no per-frame logic needed
 	}
 
 	dispose(): void {
-		this.playerLifecycle.dispose();
+		this.removeInputs();
 	}
 }

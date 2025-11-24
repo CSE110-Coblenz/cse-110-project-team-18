@@ -12,6 +12,9 @@ import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/Mil
 import { PauseMenuController } from './screens/PauseMenuScreen/PauseMenuController.ts';
 import { HelpManager } from './core/managers/HelpManager';
 import { PauseManager } from './core/managers/PauseManager';
+
+import { LevelSelectionController } from './screens/LevelSelectionScreen/LevelSelectionController.ts';
+import { VenusGameController } from './planets/venus/VenusGameController.ts';
 // Space Math Adventure - Main Entry Point
 /**
  * Main Application - Coordinates all screens
@@ -23,6 +26,7 @@ import { PauseManager } from './core/managers/PauseManager';
  * Key concept: All screens are added to the same layer, but only one is
  * visible at a time. This is managed by the switchToScreen() method.
  */
+
 class App implements ScreenSwitcher {
 	private stage: Konva.Stage;
 	private layer: Konva.Layer;
@@ -33,6 +37,7 @@ class App implements ScreenSwitcher {
 	private primeNumberGameController: PrimeNumberGameController;
 	private asteroidFieldGameController: AsteroidFieldGameController;
 	private mercuryGameController: MercuryGameController;
+	private venusGameController: VenusGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
 	/*
@@ -44,6 +49,8 @@ class App implements ScreenSwitcher {
 	private pauseMenuController: PauseMenuController;
 	private helpManager: HelpManager;
 	private pauseManager: PauseManager;
+
+	private levelSelectionController: LevelSelectionController;
 
 	constructor(container: string) {
 		// Initialize centralized input manager (single event listener system)
@@ -66,6 +73,9 @@ class App implements ScreenSwitcher {
 		this.primeNumberGameController = new PrimeNumberGameController(this);
 		this.asteroidFieldGameController = new AsteroidFieldGameController(this);
 		this.mercuryGameController = new MercuryGameController(this);
+		this.venusGameController = new VenusGameController(this);
+		// this.gameController = new GameScreenController(this);
+		// this.resultsController = new ResultsScreenController(this);
 
 		/*
 		initialize Earth screen controller below:
@@ -73,6 +83,8 @@ class App implements ScreenSwitcher {
 		this.earthController = new EarthScreenController(this);
 		this.knowledgeController = new KnowledgeScreenController(this);
 		this.militaryController = new MilitaryTimeGameController(this);
+
+		this.levelSelectionController = new LevelSelectionController(this);
 
 		// Initialize managers first (they need to be created before pause menu controller)
 		this.helpManager = new HelpManager(this.layer);
@@ -118,6 +130,7 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.primeNumberGameController.getView().getGroup());
 		this.layer.add(this.asteroidFieldGameController.getView().getGroup());
 		this.layer.add(this.mercuryGameController.getView().getGroup());
+		this.layer.add(this.venusGameController.getView().getGroup());
 		// this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
 
@@ -127,6 +140,8 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.earthController.getView().getGroup());
 		// add the knwledge screen group to the layer
 		this.layer.add(this.knowledgeController.getView().getGroup());
+
+		this.layer.add(this.levelSelectionController.getView().getGroup());
 
 		// Add help button after screens so it appears above them
 		this.helpManager.addToLayer();
@@ -187,11 +202,14 @@ class App implements ScreenSwitcher {
 		this.primeNumberGameController.hide();
 		this.asteroidFieldGameController.hide();
 		this.mercuryGameController.hide();
+		this.venusGameController.hide();
 		// this.gameController.hide();
 		// this.resultsController.hide();
 		this.earthController.hide(); // hide Earth screen
 		this.knowledgeController.hide(); // hide Knowledge screen
 		this.militaryController.hide();
+		this.levelSelectionController.hide();
+
 		this.layer.add(this.militaryController.getView().getGroup());
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
@@ -221,6 +239,12 @@ class App implements ScreenSwitcher {
 				console.log('Showing mercury game screen');
 				break;
 
+			case 'venus game':
+				this.venusGameController.show();
+				this.activeController = this.venusGameController;
+				console.log('Showing venus game screen');
+				break;
+
 			// case "result":
 			// 	// Show results with the final score
 			// 	this.resultsController.showResults(screen.score);
@@ -241,6 +265,11 @@ class App implements ScreenSwitcher {
 			case 'military time game':
 				this.militaryController.show();
 				this.activeController = this.militaryController;
+				break;
+
+			case 'level selection':
+				this.levelSelectionController.show();
+				this.activeController = this.levelSelectionController;
 				break;
 		}
 
