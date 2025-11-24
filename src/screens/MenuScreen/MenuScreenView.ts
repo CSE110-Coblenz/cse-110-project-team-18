@@ -15,8 +15,13 @@ export class MenuScreenView implements View {
 
 	private usernameField: Konva.Group;
 	private passwordField: Konva.Group;
+	private feedbackLabel: Konva.Text;
 
-	constructor(onLoginClick: () => void, onGuestPlayClick: () => void) {
+	constructor(
+		onLoginClick: () => void,
+		onGuestPlayClick: () => void,
+		onCreateAccountClick: () => void
+	) {
 		this.group = new Konva.Group({
 			visible: true,
 			id: 'menuScreen',
@@ -45,7 +50,7 @@ export class MenuScreenView implements View {
 		// Login box container
 		//-------------------------------------------------------
 		const PANEL_WIDTH = 420;
-		const PANEL_HEIGHT = 320;
+		const PANEL_HEIGHT = 380;
 		const panelX = STAGE_WIDTH / 2 - PANEL_WIDTH / 2;
 		const panelY = 250;
 
@@ -89,7 +94,7 @@ export class MenuScreenView implements View {
 			width: PANEL_WIDTH - 48,
 			height: 40,
 			text: '',
-			colorKey: 'surface_alt', // from ThemeConfig
+			colorKey: 'surface_alt',
 			fontColorKey: 'text_inverse',
 			verticalAlign: 'middle',
 		});
@@ -138,19 +143,50 @@ export class MenuScreenView implements View {
 		this.loginGroup.add(loginButton);
 
 		//-------------------------------------------------------
-		// GUEST PLAY button
+		// CREATE ACCOUNT button
 		//-------------------------------------------------------
-		const guestButton = createButton({
+		const createAccountButton = createButton({
 			x: 24,
 			y: 250,
 			width: PANEL_WIDTH - 48,
 			height: 48,
-			text: 'GUEST PLAY',
+			text: 'CREATE ACCOUNT',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
+			onClick: onCreateAccountClick,
+		});
+		this.loginGroup.add(createAccountButton);
+
+		//-------------------------------------------------------
+		// GUEST PLAY button
+		//-------------------------------------------------------
+		const guestButton = createButton({
+			x: 24,
+			y: 310,
+			width: PANEL_WIDTH - 48,
+			height: 48,
+			text: 'GUEST PLAY',
+			colorKey: 'cosmic_purple',
+			hoverColorKey: 'cosmic_purple_hover',
 			onClick: onGuestPlayClick,
 		});
 		this.loginGroup.add(guestButton);
+
+		//-------------------------------------------------------
+		// Feedback label (simple popup text)
+		//-------------------------------------------------------
+		this.feedbackLabel = new Konva.Text({
+			x: 24,
+			y: PANEL_HEIGHT - 30,
+			width: PANEL_WIDTH - 48,
+			text: '',
+			align: 'center',
+			fontFamily: 'Press Start 2P',
+			fontSize: 10,
+			fill: '#F87171',
+			listening: false,
+		});
+		this.loginGroup.add(this.feedbackLabel);
 
 		this.group.add(this.loginGroup);
 	}
@@ -190,5 +226,22 @@ export class MenuScreenView implements View {
 
 	getPasswordField(): Konva.Group {
 		return this.passwordField;
+	}
+
+	// simple feedback popup
+	showFeedback(message: string, kind: 'error' | 'success' = 'error') {
+		if (!message) {
+			this.feedbackLabel.text('');
+			this.group.getLayer()?.batchDraw();
+			return;
+		}
+
+		this.feedbackLabel.text(message);
+		this.feedbackLabel.fill(kind === 'success' ? '#4ADE80' : '#F87171');
+		this.group.getLayer()?.batchDraw();
+	}
+
+	clearFeedback() {
+		this.showFeedback('');
 	}
 }

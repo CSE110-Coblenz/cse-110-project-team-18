@@ -25,6 +25,7 @@ export const theme = new Theme({
 		// --- Game-specific or themed colors ---
 		alien_green: '#4CBB17', // bright sci-fi "alien" green
 		cosmic_purple: '#8B5CF6',
+		cosmic_purple_hover: '#523790ff',
 		meteor_orange: '#F97316',
 		asteroid_gray: '#9CA3AF',
 		nebula_pink: '#EC4899',
