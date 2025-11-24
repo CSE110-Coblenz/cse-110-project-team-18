@@ -108,7 +108,6 @@ class App implements ScreenSwitcher {
 	 * This method implements screen management by:
 	 * 1. Hiding all screens (setting their Groups to invisible)
 	 * 2. Showing only the requested screen
-	 *
 	 * This pattern ensures only one screen is visible at a time.
 	 */
 	switchToScreen(screen: Screen): void {
