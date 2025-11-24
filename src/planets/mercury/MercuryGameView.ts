@@ -24,10 +24,10 @@ export class MercuryGameView implements View {
 
 	/**
 	 * constructor designs the background, buttons, textbox, texts
-	 * 
+	 *
 	 * @param onSubmitAnswer move to next question
 	 * @param onReturnToMenu move out to menu
-	*/
+	 */
 	constructor(onSubmitAnswer: () => void, onReturnToMenu: () => void) {
 		this.group = new Konva.Group({
 			visible: false,
@@ -236,9 +236,9 @@ export class MercuryGameView implements View {
 
 	/**
 	 * get group returns konva group contains all Mercury screen nodes
-	 * 
+	 *
 	 * @returns konva group containing all Mercury screen nodes
-	*/
+	 */
 	getGroup(): Konva.Group {
 		return this.group;
 	}
@@ -254,7 +254,7 @@ export class MercuryGameView implements View {
 
 	/**
 	 * set group visible and trigger a layer redraw
-	 */ 
+	 */
 	show(): void {
 		this.group.visible(true);
 		this.group.getLayer()?.batchDraw();
@@ -262,7 +262,7 @@ export class MercuryGameView implements View {
 
 	/**
 	 * set group invisible and hide the screen
-	 */ 
+	 */
 	hide(): void {
 		this.group.visible(false);
 		this.group.getLayer()?.batchDraw();

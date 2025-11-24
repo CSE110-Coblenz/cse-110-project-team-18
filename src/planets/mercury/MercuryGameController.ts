@@ -408,7 +408,9 @@ export class MercuryGameController extends ScreenController {
 		this.view.setSubmitLabel(passed ? 'GO TO MENU' : 'RETRY');
 		this.view.setReturnButtonVisible(false);
 		this.view.showMessage(
-			passed ? 'Challenge complete! Returning to the menu.' : 'Missed the target. Retry the speed round?',
+			passed
+				? 'Challenge complete! Returning to the menu.'
+				: 'Missed the target. Retry the speed round?',
 			passed ? '#A7F3D0' : '#FBBF24'
 		);
 	}
