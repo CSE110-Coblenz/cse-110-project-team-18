@@ -6,7 +6,8 @@
  */
 export class MenuScreenModel {
 	username = '';
-	password = ''
+	password = '';
+	currentUserID: number | null = null;
 
 	constructor() {
 		// Initialize later

@@ -6,12 +6,20 @@ import { STAGE_WIDTH } from '../../configs/GameConfig';
 import { MenuScreenView } from './MenuScreenView';
 import { MenuScreenModel } from './MenuScreenModel';
 
+// centralize API base path
+const USE_MOCK_AUTH = false;
+
+// // CHANGE: if Express server runs on localhost:3000, use this:
+const API_BASE = 'http://localhost:3000/api';
+// // If API from the same origin as the game, just do:
+// const API_BASE = '/api';
+
 export class MenuScreenController extends ScreenController {
 	private view: MenuScreenView;
 	private screenSwitcher: ScreenSwitcher;
 	private model: MenuScreenModel;
 
-	// native HTML inputs (like in Mercury)
+	// native HTML inputs
 	private usernameInput: HTMLInputElement | null = null;
 	private passwordInput: HTMLInputElement | null = null;
 
@@ -20,8 +28,9 @@ export class MenuScreenController extends ScreenController {
 		this.screenSwitcher = screenSwitcher;
 
 		this.view = new MenuScreenView(
-			() => this.handleLogin(),
-			() => this.handleGuestPlay()
+			() => { void this.handleLogin(); },
+			() => this.handleGuestPlay(),
+			() => { void this.handleCreateAccount(); },
 		);
 		this.model = new MenuScreenModel();
 
@@ -70,8 +79,6 @@ export class MenuScreenController extends ScreenController {
 
 			input.addEventListener('input', () => {
 				this.model.username = input.value;
-				// keep Konva display in sync (optional)
-				// this.view.setUsernameDisplay(input.value);
 			});
 
 			container.appendChild(input);
@@ -101,14 +108,12 @@ export class MenuScreenController extends ScreenController {
 
 			input.addEventListener('input', () => {
 				this.model.password = input.value;
-				// if you still want masked text in Konva:
-				// this.view.setPasswordDisplay('*'.repeat(input.value.length));
 			});
 
 			input.addEventListener('keydown', (event) => {
 				if (event.key === 'Enter') {
 					event.preventDefault();
-					this.handleLogin();
+					void this.handleLogin();
 				}
 			});
 
@@ -130,19 +135,121 @@ export class MenuScreenController extends ScreenController {
 
 	// ---------------- BUTTON HANDLERS ----------------
 
-	private handleLogin(): void {
+	// LOGIN → call backend /api/login
+	private async handleLogin(): Promise<void> {
 		const username = this.usernameInput?.value.trim() ?? '';
 		const password = this.passwordInput?.value ?? '';
 
 		this.model.username = username;
 		this.model.password = password;
 
-		console.log('Login with', username, password);
-		// later: call loginUser(...) here
-		this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		if (!username || !password) {
+			alert('Please enter a username and password.');
+			return;
+		}
+
+		if (USE_MOCK_AUTH) {
+			console.log('[DEV] Login with', username, password);
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+			return;
+		}
+
+		try {
+			const res = await fetch(`${API_BASE}/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username, password }),
+			});
+
+			if (!res.ok) {
+				console.error('Login HTTP error', res.status);
+				alert('Error logging in. Please try again.');
+				return;
+			}
+
+			const data = await res.json() as {
+				success: boolean;
+				message?: string;
+				user?: { id: number; username: string };
+			};
+
+			if (!data.success || !data.user) {
+				alert(data.message ?? 'Invalid username or password.');
+				return;
+			}
+
+			this.model.currentUserID = data.user.id;
+
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		} catch (err) {
+			console.error('Login error', err);
+			alert('Network / server error while logging in.');
+		}
+	}
+
+	// CREATE ACCOUNT → call backend /api/create-account
+	private async handleCreateAccount(): Promise<void> {
+		const username = this.usernameInput?.value.trim() ?? '';
+		const password = this.passwordInput?.value ?? '';
+
+		this.model.username = username;
+		this.model.password = password;
+
+		if (!username || !password) {
+			alert('Please enter a username and password.');
+			return;
+		}
+
+		if (USE_MOCK_AUTH) {
+			console.log('[DEV] Create account for', username);
+			alert('Account created! (mock)');
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+			return;
+		}
+
+		try {
+			const res = await fetch(`${API_BASE}/create-account`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ username, password }),
+			});
+
+			if (!res.ok) {
+				console.error('Create account HTTP error', res.status);
+				alert('Error creating account. Please try again.');
+				return;
+			}
+
+			const data = await res.json() as {
+				success: boolean;
+				message?: string;
+				user?: { id: number; username: string };
+			};
+
+			if (!data.success || !data.user) {
+				alert(data.message ?? 'Could not create account. Username may already exist.');
+				return;
+			}
+
+			this.model.currentUserID = data.user.id;
+
+			// Backend should:
+			//   - create user
+			//   - initialize progress (planet 1 unlocked)
+			//   - set current_planet_id
+			//   - start autosave (if desired)
+			// so the client just treats them as logged in.
+
+			alert('Account created! You are now logged in.');
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		} catch (err) {
+			console.error('Create account error', err);
+			alert('Network / server error while creating account.');
+		}
 	}
 
 	private handleGuestPlay(): void {
+		// No DB, no autosave, just start game
 		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 

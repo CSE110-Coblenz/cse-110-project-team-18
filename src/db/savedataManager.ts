@@ -1,5 +1,5 @@
-import db from 'src/db/connection.ts';
-import { getUserCurrentPlanet } from 'src/db/userManager.ts';
+import db from './connection.ts';
+import { getUserCurrentPlanet } from './userManager.ts';
 
 // SAVE_INTERVAL_MS = n minutes * 60 seconds/minute * 1000 milliseconds/second
 const SAVE_INTERVAL_MS: number = 5 * 60 * 1000; // 5 minutes
