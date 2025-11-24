@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"dev:server": "ts-node server/server.ts",
+		"dev:server": "tsx server/server.ts",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
 		"test": "jest",
