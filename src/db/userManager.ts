@@ -1,6 +1,6 @@
-import db from 'src/db/connection.ts';
-import { hashPassword, comparePassword } from 'src/db/utils/bcrypt.ts';
-import { initializeUserProgress, startAutoSave } from 'src/db/savedataManager.ts';
+import db from './connection.ts';
+import { hashPassword, comparePassword } from './utils/bcrypt.ts';
+import { initializeUserProgress, startAutoSave } from './savedataManager.ts';
 
 export interface User {
 	id: number;

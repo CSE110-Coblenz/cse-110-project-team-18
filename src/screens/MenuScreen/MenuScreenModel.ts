@@ -1,23 +1,15 @@
-/**
- * PlayerModel - The model for the player
- * @param x - The x position of the player
- * @param y - The y position of the player
- */
-export interface PlayerModel {
-	x: number;
-	y: number;
-}
+// src/screens/menu/MenuScreenModel.ts
 
 /**
- * MenuScreenModel - The model for the menu screen
- * @param player - The player model (optional)
+ * MenuScreenModel - Model for the login/menu screen.
+ * Right now it's just a placeholder so you can add login state later.
  */
 export class MenuScreenModel {
-	player?: PlayerModel;
+	username = '';
+	password = '';
+	currentUserID: number | null = null;
 
-	constructor(x?: number, y?: number) {
-		if (x !== undefined && y !== undefined) {
-			this.player = { x, y };
-		}
+	constructor() {
+		// Initialize later
 	}
 }
