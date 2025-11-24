@@ -1,29 +1,22 @@
+// src/screens/menu/MenuScreenView.ts
+
 import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
-import { createButton } from '../../ui';
+import { createButton, createTextBox, setElementText } from '../../ui';
 import { preloadImage } from '../../core/utils/AssetLoader';
 
 /**
- * MenuScreenView - Renders the menu screen
+ * MenuScreenView - Login screen view
  */
 export class MenuScreenView implements View {
 	private group: Konva.Group;
-	private buttonGroup?: Konva.Group;
+	private loginGroup: Konva.Group;
 
-	/**
-	 * MenuScreenView constructor
-	 * @param onAsteroidClick - callback for asteroid field game
-	 * @param onPrimeClick - callback for prime number game
-	 * @param onEarthClick - callback for earth time crunch game
-	 * @param onMercuryClick - callback for mercury game
-	 */
-	constructor(
-		onAsteroidClick: () => void,
-		onPrimeClick: () => void,
-		onEarthClick: () => void,
-		onMercuryClick: () => void
-	) {
+	private usernameField: Konva.Group;
+	private passwordField: Konva.Group;
+
+	constructor(onLoginClick: () => void, onGuestPlayClick: () => void) {
 		this.group = new Konva.Group({
 			visible: true,
 			id: 'menuScreen',
@@ -47,77 +40,119 @@ export class MenuScreenView implements View {
 		});
 
 		this.group.add(background);
-		//-------------------------------------------------------
-		// Button container
-		//-------------------------------------------------------
-		const buttonGroup = new Konva.Group({ listening: true });
 
 		//-------------------------------------------------------
-		// Asteroid Field Game Button
+		// Login box container
 		//-------------------------------------------------------
-		const asteroidFieldBtn = createButton({
-			x: STAGE_WIDTH / 2 - 200,
-			y: 375,
-			width: 400,
-			height: 60,
-			text: 'START ASTEROID FIELD GAME',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			onClick: onAsteroidClick,
+		const PANEL_WIDTH = 420;
+		const PANEL_HEIGHT = 320;
+		const panelX = STAGE_WIDTH / 2 - PANEL_WIDTH / 2;
+		const panelY = 250;
+
+		this.loginGroup = new Konva.Group({
+			x: panelX,
+			y: panelY,
+			listening: true,
 		});
 
+		const panelRect = new Konva.Rect({
+			x: 0,
+			y: 0,
+			width: PANEL_WIDTH,
+			height: PANEL_HEIGHT,
+			cornerRadius: 24,
+			fill: 'rgba(15,23,42,0.9)', // dark overlay
+			stroke: '#0B1220',
+			strokeWidth: 2,
+			shadowColor: 'rgba(0,0,0,0.45)',
+			shadowBlur: 18,
+			shadowOffsetY: 4,
+		});
+		this.loginGroup.add(panelRect);
+
 		//-------------------------------------------------------
-		// Prime Number Game Button
+		// USERNAME label + input field
 		//-------------------------------------------------------
-		const primeGameButton = createButton({
-			// x: STAGE_WIDTH / 2 - 200,
-			y: 450,
-			width: 400,
-			height: 60,
-			text: 'START PRIME NUMBER GAME',
+		const labelUsername = new Konva.Text({
+			x: 24,
+			y: 20,
+			text: 'USERNAME',
+			fontFamily: 'Press Start 2P',
+			fontSize: 14,
+			fill: '#FFFFFF',
+		});
+		this.loginGroup.add(labelUsername);
+
+		this.usernameField = createTextBox({
+			x: 24,
+			y: 46,
+			width: PANEL_WIDTH - 48,
+			height: 40,
+			text: '',
+			colorKey: 'surface_alt', // from ThemeConfig
+			fontColorKey: 'text_inverse',
+			verticalAlign: 'middle',
+		});
+		this.usernameField.listening(true);
+		this.loginGroup.add(this.usernameField);
+
+		//-------------------------------------------------------
+		// PASSWORD label + input field
+		//-------------------------------------------------------
+		const labelPassword = new Konva.Text({
+			x: 24,
+			y: 100,
+			text: 'PASSWORD',
+			fontFamily: 'Press Start 2P',
+			fontSize: 14,
+			fill: '#FFFFFF',
+		});
+		this.loginGroup.add(labelPassword);
+
+		this.passwordField = createTextBox({
+			x: 24,
+			y: 126,
+			width: PANEL_WIDTH - 48,
+			height: 40,
+			text: '',
+			colorKey: 'surface_alt',
+			fontColorKey: 'text_inverse',
+			verticalAlign: 'middle',
+		});
+		this.passwordField.listening(true);
+		this.loginGroup.add(this.passwordField);
+
+		//-------------------------------------------------------
+		// LOG IN button
+		//-------------------------------------------------------
+		const loginButton = createButton({
+			x: 24,
+			y: 190,
+			width: PANEL_WIDTH - 48,
+			height: 48,
+			text: 'LOG IN',
+			colorKey: 'primary',
+			hoverColorKey: 'primary_hover',
+			onClick: onLoginClick,
+		});
+		this.loginGroup.add(loginButton);
+
+		//-------------------------------------------------------
+		// GUEST PLAY button
+		//-------------------------------------------------------
+		const guestButton = createButton({
+			x: 24,
+			y: 250,
+			width: PANEL_WIDTH - 48,
+			height: 48,
+			text: 'GUEST PLAY',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
-			onClick: onPrimeClick,
+			onClick: onGuestPlayClick,
 		});
+		this.loginGroup.add(guestButton);
 
-		//-------------------------------------------------------
-		// Earth Time Crunch Button
-		//-------------------------------------------------------
-		const earthButton = createButton({
-			// x: STAGE_WIDTH / 2 - 200,
-			y: 525,
-			width: 400,
-			height: 60,
-			text: 'START EARTH TIME CRUNCH',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			onClick: onEarthClick,
-		});
-
-		//-------------------------------------------------------
-		// Mercury Game Button
-		//-------------------------------------------------------
-		const mercuryButton = createButton({
-			// x: STAGE_WIDTH / 2 - 200,
-			y: 600,
-			width: 400,
-			height: 60,
-			text: 'START MERCURY GAME',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			onClick: onMercuryClick,
-		});
-
-		//-------------------------------------------------------
-		// Add buttons to group
-		//-------------------------------------------------------
-		buttonGroup.add(asteroidFieldBtn);
-		buttonGroup.add(primeGameButton);
-		buttonGroup.add(earthButton);
-		buttonGroup.add(mercuryButton);
-
-		this.buttonGroup = buttonGroup;
-		this.group.add(buttonGroup);
+		this.group.add(this.loginGroup);
 	}
 
 	//-------------------------------------------------------
@@ -137,9 +172,23 @@ export class MenuScreenView implements View {
 		return this.group;
 	}
 
-	ensureButtonsOnTop(): void {
-		if (this.buttonGroup) {
-			this.buttonGroup.moveToTop();
-		}
+	getLoginGroup(): Konva.Group {
+		return this.loginGroup;
+	}
+
+	setUsernameDisplay(text: string) {
+		setElementText(this.usernameField, text);
+	}
+
+	setPasswordDisplay(text: string) {
+		setElementText(this.passwordField, text);
+	}
+
+	getUsernameField(): Konva.Group {
+		return this.usernameField;
+	}
+
+	getPasswordField(): Konva.Group {
+		return this.passwordField;
 	}
 }

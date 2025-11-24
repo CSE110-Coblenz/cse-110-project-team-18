@@ -16,6 +16,7 @@ export interface View {
  */
 export type Screen =
 	| { type: 'menu' }
+	| { type: 'level selection' }
 	| { type: 'game' }
 	| { type: 'earth' } // added earth screen type
 	| { type: 'asteroid field game' }

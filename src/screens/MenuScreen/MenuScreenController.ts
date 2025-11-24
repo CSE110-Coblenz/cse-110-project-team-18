@@ -1,117 +1,113 @@
+// src/screens/menu/MenuScreenController.ts
+
 import { ScreenController } from '../../types.ts';
 import type { ScreenSwitcher } from '../../types.ts';
-import { MenuScreenView } from './MenuScreenView.ts';
-import { MenuScreenModel } from './MenuScreenModel.ts';
-import { STAGE_WIDTH } from '../../configs/GameConfig';
-import { greenAlienSprite } from '../../core/sprites/AlienSprite';
-import { ScreenEntityManager } from '../../core/utils/ScreenEntityManager';
-import { createPlayerManager } from '../../core/factories/PlayerManagerFactory';
+import { MenuScreenView } from './MenuScreenView';
+import { MenuScreenModel } from './MenuScreenModel';
 
-/**
- * MenuScreenController - Handles menu interactions
- */
+type FocusedField = 'username' | 'password' | null;
+
 export class MenuScreenController extends ScreenController {
 	private view: MenuScreenView;
 	private screenSwitcher: ScreenSwitcher;
 	private model: MenuScreenModel;
 
-	private readonly initialPlayerPosition = {
-		x: STAGE_WIDTH / 4,
-		y: 250,
-	};
+	private focusedField: FocusedField = null;
 
-	private playerLifecycle: ScreenEntityManager<{
-		playerManager: ReturnType<typeof createPlayerManager>['playerManager'];
-		collisionManager: ReturnType<typeof createPlayerManager>['collisionManager'];
-	}>;
+	private handleKeyBound = (e: KeyboardEvent) => this.handleKey(e);
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
 
-		// MENU VIEW with THREE BUTTON HANDLERS
 		this.view = new MenuScreenView(
-			() => this.handleAsteriodFieldClick(),
-			() => this.handlePrimeGameClick(),
-			() => this.handleEarthClick(),
-			() => this.handleMercuryClick()
+			() => this.handleLogin(),
+			() => this.handleGuestPlay()
 		);
+		this.model = new MenuScreenModel();
 
-		// MENU MODEL
-		this.model = new MenuScreenModel(this.initialPlayerPosition.x, this.initialPlayerPosition.y);
+		// Click → focus field
+		this.view.getUsernameField().on('click tap', () => this.setFocus('username'));
+		this.view.getPasswordField().on('click tap', () => this.setFocus('password'));
 
-		// PLAYER ENTITY MANAGEMENT (from main)
-		this.playerLifecycle = new ScreenEntityManager({
-			create: () => {
-				this.model.player = { ...this.initialPlayerPosition };
-
-				const { playerManager, collisionManager, model } = createPlayerManager({
-					group: this.view.getGroup(),
-					spriteConfig: greenAlienSprite,
-					position: this.initialPlayerPosition,
-					walkSpeed: 150,
-					model: this.model.player,
-				});
-
-				this.model.player = model;
-				return { playerManager, collisionManager };
-			},
-			dispose: ({ playerManager }) => {
-				playerManager.dispose();
-			},
+		// Cursor hint (mouse cursor, not text caret)
+		this.view.getUsernameField().on('mouseenter', () => {
+			this.view.getGroup().getStage()?.container().style.setProperty('cursor', 'text');
+		});
+		this.view.getPasswordField().on('mouseenter', () => {
+			this.view.getGroup().getStage()?.container().style.setProperty('cursor', 'text');
+		});
+		this.view.getLoginGroup().on('mouseleave', () => {
+			this.view.getGroup().getStage()?.container().style.setProperty('cursor', 'default');
 		});
 	}
 
-	// ---------------------------------------------------------
-	// BUTTON HANDLERS
-	// ---------------------------------------------------------
-	private handleAsteriodFieldClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'asteroid field game' });
+	private setFocus(field: FocusedField) {
+		this.focusedField = field;
 	}
 
-	private handlePrimeGameClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'prime number game' });
+	private handleKey(e: KeyboardEvent) {
+		if (!this.focusedField) return;
+
+		e.preventDefault();
+
+		let value =
+			this.focusedField === 'username'
+				? this.model.username
+				: this.model.password;
+
+		if (e.key === 'Backspace') {
+			value = value.slice(0, -1);
+		} else if (e.key === 'Enter') {
+			if (this.focusedField === 'password') {
+				this.handleLogin();
+			}
+			return;
+		} else if (e.key.length === 1) {
+			value += e.key;
+		} else {
+			return;
+		}
+
+		if (this.focusedField === 'username') {
+			this.model.username = value;
+			this.view.setUsernameDisplay(value);
+		} else {
+			this.model.password = value;
+			this.view.setPasswordDisplay('*'.repeat(value.length));
+		}
 	}
 
-	private handleEarthClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'knowledge' });
+	private handleLogin() {
+		console.log('Login with', this.model.username, this.model.password);
+		// this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 
-	private handleMercuryClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'mercury game' });
+	private handleGuestPlay() {
+		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 
-	// ---------------------------------------------------------
-	// VIEW IMPLEMENTATION
-	// ---------------------------------------------------------
 	getView(): MenuScreenView {
 		return this.view;
 	}
 
 	override show(): void {
 		super.show();
-		this.playerLifecycle.ensure();
-		this.view.ensureButtonsOnTop();
+		this.view.show();
+		window.addEventListener('keydown', this.handleKeyBound);
 	}
 
 	override hide(): void {
 		super.hide();
-		this.playerLifecycle.dispose();
+		this.view.hide();
+		window.removeEventListener('keydown', this.handleKeyBound);
 	}
 
-	override update(deltaTime: number): void {
-		if (!this.view.getGroup().visible()) return;
-		const entities = this.playerLifecycle.get();
-		if (!entities) return;
-
-		entities.playerManager.update(deltaTime);
-		entities.collisionManager.update();
-
-		this.view.ensureButtonsOnTop();
-		this.view.getGroup().getLayer()?.draw();
+	override update(_dt: number): void {
+		// No per-frame logic needed yet
 	}
 
 	dispose(): void {
-		this.playerLifecycle.dispose();
+		window.removeEventListener('keydown', this.handleKeyBound);
 	}
 }

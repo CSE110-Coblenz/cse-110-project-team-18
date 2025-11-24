@@ -23,6 +23,9 @@ import { PauseManager } from './core/managers/PauseManager';
  * Key concept: All screens are added to the same layer, but only one is
  * visible at a time. This is managed by the switchToScreen() method.
  */
+
+
+
 class App implements ScreenSwitcher {
 	private stage: Konva.Stage;
 	private layer: Konva.Layer;
