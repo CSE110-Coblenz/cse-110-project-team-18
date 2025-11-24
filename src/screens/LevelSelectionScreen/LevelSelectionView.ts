@@ -100,16 +100,16 @@ export class LevelSelectionView implements View {
 		});
 
 		y += 75;
-        const level5Btn = createButton({
-            x: baseX,
-            y,
-            width: 400,
-            height: 60,
-            text: 'VENUS MATH MISSION', 
-            colorKey: 'alien_green',
-            hoverColorKey: 'success_hover',
-            onClick: onLevel5Click,
-        });
+		const level5Btn = createButton({
+			x: baseX,
+			y,
+			width: 400,
+			height: 60,
+			text: 'VENUS MATH MISSION',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			onClick: onLevel5Click,
+		});
 
 		buttonGroup.add(level1Btn);
 		buttonGroup.add(level2Btn);

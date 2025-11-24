@@ -124,11 +124,11 @@ export class VenusGameModel {
 				text = `${first} x ${second}`;
 				break;
 			case '/': {
-				second = randomInt(5, 15); 
+				second = randomInt(5, 15);
 				const quotient = randomInt(5, 15);
-				
+
 				first = second * quotient;
-				answer = quotient; 
+				answer = quotient;
 				text = `${first} / ${second}`;
 				break;
 			}

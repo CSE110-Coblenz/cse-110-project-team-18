@@ -240,10 +240,10 @@ class App implements ScreenSwitcher {
 				break;
 
 			case 'venus game':
-                this.venusGameController.show();
-                this.activeController = this.venusGameController;
-                console.log('Showing venus game screen');
-                break;
+				this.venusGameController.show();
+				this.activeController = this.venusGameController;
+				console.log('Showing venus game screen');
+				break;
 
 			// case "result":
 			// 	// Show results with the final score
