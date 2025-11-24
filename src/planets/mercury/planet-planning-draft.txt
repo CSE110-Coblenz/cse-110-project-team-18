@@ -1,7 +1,0 @@
-Changes:
-    MenuScreenController():
-        this.view
-        handleMercuryClick()
-    MenuScreenView():
-        mercuryButton
-        buttonGroup.add(mercuryButton)
