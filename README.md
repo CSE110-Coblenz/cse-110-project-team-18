@@ -4,10 +4,9 @@ An educational math game created for CSE 110.
 
 ## Setup & Start
 
-```bash
-npm install
-npm run dev
-```
+1. Run `npm install`
+2. In one terminal: `npm run dev:server`
+3. In another terminal: `npm run dev`
 
 The application will be available at `http://localhost:5173` (or the port Vite assigns).
 
