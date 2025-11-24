@@ -22,6 +22,7 @@ export type Screen =
 	| { type: 'asteroid field game' }
 	| { type: 'prime number game' }
 	| { type: 'mercury game' }
+	| { type: 'venus game' }
 	| { type: 'knowledge' } // added knowledge screen type
 	| { type: 'military time game' } // added military time game screen type
 	| { type: 'result'; score: number };

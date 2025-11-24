@@ -17,7 +17,8 @@ export class LevelSelectionView implements View {
 		onLevel1Click: () => void,
 		onLevel2Click: () => void,
 		onLevel3Click: () => void,
-		onBackToMenu: () => void
+		onBackToMenu: () => void,
+		onLevel5Click: () => void
 	) {
 		this.group = new Konva.Group({
 			visible: true,
@@ -98,10 +99,23 @@ export class LevelSelectionView implements View {
 			onClick: onBackToMenu,
 		});
 
+		y += 75;
+        const level5Btn = createButton({
+            x: baseX,
+            y,
+            width: 400,
+            height: 60,
+            text: 'VENUS MATH MISSION', 
+            colorKey: 'alien_green',
+            hoverColorKey: 'success_hover',
+            onClick: onLevel5Click,
+        });
+
 		buttonGroup.add(level1Btn);
 		buttonGroup.add(level2Btn);
 		buttonGroup.add(level3Btn);
 		buttonGroup.add(backBtn);
+		buttonGroup.add(level5Btn);
 
 		this.buttonGroup = buttonGroup;
 		this.group.add(buttonGroup);
