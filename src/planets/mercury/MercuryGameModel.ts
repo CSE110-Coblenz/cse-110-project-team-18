@@ -16,8 +16,9 @@ type Question = {
 export class MercuryGameModel {
 	/* Mercury Game Model Fields */
 	private questionsBank: Question[] = []; // Questions Bank storing questions
-	private readonly maxNumberOfQuestions = 10; // Max number of questions
-	private readonly minNumberOfQuestionsToWin: number; // Min number of questions
+	private readonly defaultMaxNumberOfQuestions = 10; // Default max number of questions
+	private maxNumberOfQuestions: number; // Max number of questions
+	private minNumberOfQuestionsToWin: number; // Min number of questions
 	private questionIndex = 0; // current question
 	private correctAnswers = 0; // keep track of correct answers
 
@@ -25,14 +26,19 @@ export class MercuryGameModel {
 	 * constructor setups fields when the game is created
 	 */
 	constructor() {
+		this.maxNumberOfQuestions = this.defaultMaxNumberOfQuestions;
 		this.minNumberOfQuestionsToWin = Math.ceil(this.maxNumberOfQuestions * 0.8);
-		this.reset();
+		this.reset(this.defaultMaxNumberOfQuestions);
 	}
 
 	/**
 	 * reset all fields
+	 *
+	 * @param questionCount optional override for number of questions (default main-game size)
 	 */
-	public reset(): void {
+	public reset(questionCount: number = this.defaultMaxNumberOfQuestions): void {
+		this.maxNumberOfQuestions = questionCount;
+		this.minNumberOfQuestionsToWin = Math.ceil(this.maxNumberOfQuestions * 0.8);
 		this.questionsBank = this.generateQuestions();
 		this.questionIndex = 0;
 		this.correctAnswers = 0;
@@ -120,6 +126,15 @@ export class MercuryGameModel {
 			totalQuestions: this.maxNumberOfQuestions,
 			minNumberOfQuestionsToWin: this.minNumberOfQuestionsToWin,
 		};
+	}
+
+	/**
+	 * get how many questions have been answered correctly so far
+	 *
+	 * @returns the number of correct answers
+	 */
+	public getCorrectAnswers(): number {
+		return this.correctAnswers;
 	}
 
 	/**

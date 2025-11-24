@@ -2,7 +2,37 @@ import Konva from 'konva';
 import type { Screen } from '../../types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { preloadImage } from '../utils/AssetLoader';
-import { createButton } from '../../ui';
+import { createButton, setElementText } from '../../ui';
+
+const createSvgDataUri = (svgContent: string): string =>
+	`data:image/svg+xml;utf8,${encodeURIComponent(svgContent)}`;
+
+const mercuryHelpSlides: string[] = [
+	createSvgDataUri(`
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+			<defs>
+				<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+					<stop offset="0%" stop-color="#0b1224"/>
+					<stop offset="100%" stop-color="#132241"/>
+				</linearGradient>
+			</defs>
+			<rect width="1200" height="800" fill="url(#bg)"/>
+			<rect x="40" y="40" width="1120" height="720" rx="28" fill="#16233d" stroke="#4b6fa8" stroke-width="5"/>
+			<text x="600" y="150" fill="#e5ecff" font-size="54" font-family="Arial" font-weight="700" text-anchor="middle" letter-spacing="1">
+				Mercury Quick Guide
+			</text>
+			<text x="160" y="260" fill="#dce7ff" font-size="28" font-family="Arial" letter-spacing="0.8">
+				• Read the question in the box and enter a whole-number answer.
+			</text>
+			<text x="160" y="330" fill="#dce7ff" font-size="28" font-family="Arial" letter-spacing="0.8">
+				• Press Submit (or Enter). The Correct counter tracks your wins.
+			</text>
+			<text x="160" y="400" fill="#dce7ff" font-size="28" font-family="Arial" letter-spacing="0.8">
+				• Score 80% to unlock the 5-second speed challenge.
+			</text>
+		</svg>
+	`),
+];
 
 /**
  * HelpManager - Manages help button and overlay functionality
@@ -255,6 +285,10 @@ export class HelpManager {
 		this.helpOverlayGroup.visible(true);
 		this.helpOverlayGroup.listening(true);
 		this.helpOverlayGroup.moveToTop();
+		if (this.helpReturnButton) {
+			const label = this.currentHelpContext === 'Mercury' ? 'RETURN' : 'RETURN TO GAME';
+			setElementText(this.helpReturnButton, label);
+		}
 		this.loadHelpSlide(this.helpSlideIndex);
 		this.updateHelpNavigation();
 		if (this.helpButtonGroup) {
@@ -287,13 +321,14 @@ export class HelpManager {
 
 	private updateHelpNavigation(): void {
 		const hasMultiple = this.helpSlides.length > 1;
+		const showNav = hasMultiple && this.currentHelpContext !== 'Mercury';
 		if (this.helpPrevButton) {
-			this.helpPrevButton.visible(hasMultiple);
-			this.helpPrevButton.listening(hasMultiple);
+			this.helpPrevButton.visible(showNav);
+			this.helpPrevButton.listening(showNav);
 		}
 		if (this.helpNextButton) {
-			this.helpNextButton.visible(hasMultiple);
-			this.helpNextButton.listening(hasMultiple);
+			this.helpNextButton.visible(showNav);
+			this.helpNextButton.listening(showNav);
 		}
 	}
 
@@ -349,6 +384,8 @@ export class HelpManager {
 		switch (context) {
 			case 'Asteroid Field':
 				return ['/assets/ui/AsteroidFieldHelp1.png', '/assets/ui/AsteroidFieldHelp2.png'];
+			case 'Mercury':
+				return mercuryHelpSlides;
 			default:
 				return [];
 		}

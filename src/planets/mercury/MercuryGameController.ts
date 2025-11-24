@@ -4,6 +4,8 @@ import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
 import { MercuryGameView } from './MercuryGameView';
 import { MercuryGameModel } from './MercuryGameModel';
 
+type MercuryPhase = 'main' | 'mainSummary' | 'challengeIntro' | 'challenge' | 'challengeSummary';
+
 /**
  * MercuryGameController class handles screen switcher,
  * displays, and inputs
@@ -12,6 +14,19 @@ export class MercuryGameController extends ScreenController {
 	private readonly screenSwitcher: ScreenSwitcher;
 	private readonly view: MercuryGameView;
 	private readonly model: MercuryGameModel;
+	private phase: MercuryPhase = 'main';
+	private challengeTimerMs = 0;
+	private readonly challengeDurationMs = 5000;
+	private readonly challengeQuestionCount = 5;
+	private lastSummary?:
+		| {
+				correct: number;
+				total: number;
+				minToWin: number;
+				passed: boolean;
+				phase: 'main' | 'challenge';
+		  }
+		| undefined;
 	private inputBox: HTMLInputElement | null = null;
 
 	/**
@@ -47,9 +62,7 @@ export class MercuryGameController extends ScreenController {
 	 */
 	override show(): void {
 		super.show();
-		this.model.reset();
-		this.ensureInputBox();
-		this.presentCurrentQuestion();
+		this.startMainGame();
 	}
 
 	/**
@@ -59,13 +72,23 @@ export class MercuryGameController extends ScreenController {
 	override hide(): void {
 		super.hide();
 		this.removeInputBox();
+		this.view.hideModal();
+		this.view.hideTimer();
 	}
 
 	/**
 	 * default is empty
 	 */
-	update(_deltaTime: number): void {
-		// no per-frame updates needed
+	update(deltaTimeMs: number): void {
+		if (this.phase === 'challenge' && this.model.hasMoreQuestions()) {
+			if (this.challengeTimerMs > 0) {
+				this.challengeTimerMs = Math.max(0, this.challengeTimerMs - deltaTimeMs);
+				this.updateTimerLabel();
+				if (this.challengeTimerMs <= 0) {
+					this.handleChallengeTimeout();
+				}
+			}
+		}
 	}
 
 	/**
@@ -74,6 +97,23 @@ export class MercuryGameController extends ScreenController {
 	 */
 	private handleReturnToMenuClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'menu' });
+	}
+
+	/**
+	 * reset state and launch the main (untimed) quiz flow
+	 */
+	private startMainGame(): void {
+		this.phase = 'main';
+		this.model.reset();
+		this.lastSummary = undefined;
+		this.view.setSubmitLabel('SUBMIT');
+		this.view.hideModal();
+		this.view.hideTimer();
+		this.view.setReturnButtonVisible(true);
+		this.ensureInputBox();
+		this.view.showMessage('');
+		this.view.updateCorrectCount(0);
+		this.presentCurrentQuestion();
 	}
 
 	/**
@@ -145,8 +185,14 @@ export class MercuryGameController extends ScreenController {
 		this.inputBox.style.display = isVisible ? 'block' : 'none';
 	}
 
+	/**
+	 * show the next question or finish the current phase
+	 */
 	private presentCurrentQuestion(): void {
-		if (!this.model.hasMoreQuestions()) return;
+		if (!this.model.hasMoreQuestions()) {
+			this.handlePhaseComplete();
+			return;
+		}
 
 		const question = this.model.getCurrentQuestion();
 		if (question === undefined) return;
@@ -154,25 +200,66 @@ export class MercuryGameController extends ScreenController {
 		this.view.displayQuestion(
 			this.model.getCurrentQuestionIndex(),
 			this.model.getTotalQuestions(),
-			`${question.text} = ?`
+			`${question.text} = ?`,
+			this.model.getCorrectAnswers()
 		);
 
+		if (this.phase === 'challenge') {
+			this.challengeTimerMs = this.challengeDurationMs;
+			this.updateTimerLabel();
+		} else {
+			this.view.hideTimer();
+		}
+
 		this.focusInput();
+	}
+
+	/**
+	 * refresh the countdown label during the timed challenge
+	 */
+	private updateTimerLabel(): void {
+		const secondsLeft = Math.max(0, this.challengeTimerMs) / 1000;
+		this.view.updateTimer(`Time left: ${secondsLeft.toFixed(1)}s`);
 	}
 
 	/**
 	 * handle the given answer
 	 */
 	private handleSubmitAnswer(): void {
+		if (this.phase === 'mainSummary') {
+			if (this.lastSummary?.passed) {
+				this.startChallengeIntro();
+			} else {
+				this.startMainGame();
+			}
+			return;
+		}
+
+		if (this.phase === 'challengeIntro') {
+			this.startChallengeGame();
+			return;
+		}
+
+		if (this.phase === 'challengeSummary') {
+			if (this.lastSummary?.passed) {
+				this.screenSwitcher.switchToScreen({ type: 'menu' });
+			} else {
+				this.startChallengeGame();
+			}
+			return;
+		}
+
 		if (this.inputBox === null) return;
 
-		// finish the game
 		if (!this.model.hasMoreQuestions()) {
 			this.view.showMessage('All questions answered! Review your summary.');
 			return;
 		}
 
-		// check if any inputs are typed
+		if (this.phase === 'challenge' && this.challengeTimerMs <= 0) {
+			return;
+		}
+
 		const rawInput = this.inputBox.value.trim();
 		if (rawInput.length === 0) {
 			this.view.showMessage('Please enter a number before submitting.', '#FBBF24');
@@ -180,7 +267,6 @@ export class MercuryGameController extends ScreenController {
 			return;
 		}
 
-		// check if inputs are numbers
 		const parsedAnswer = Number(rawInput);
 		if (!Number.isFinite(parsedAnswer)) {
 			this.view.showMessage('Answers need to be numbers.', '#F87171');
@@ -188,28 +274,142 @@ export class MercuryGameController extends ScreenController {
 			return;
 		}
 
-		// get question
 		const question = this.model.getCurrentQuestion();
-		// check answer for correctness
 		if (question === undefined) return;
 		const result = this.model.submitAnswer(parsedAnswer);
 
-		// display result
 		this.view.displayResult(result.isCorrect, question.text, result.correctAnswer);
+		this.view.updateCorrectCount(this.model.getCorrectAnswers());
 		this.inputBox.value = '';
 
-		// move to next question or display summary screen after finishing
-		// the set of questions
-		if (this.model.hasMoreQuestions()) {
-			window.setTimeout(() => this.presentCurrentQuestion(), 1200);
-		} else {
-			const summary = this.model.getSummary();
-			this.view.displaySummary(
-				summary.correctAnswers,
-				summary.totalQuestions,
-				summary.minNumberOfQuestionsToWin
-			);
-			this.removeInputBox();
+		if (this.phase === 'challenge') {
+			this.challengeTimerMs = 0;
+			this.view.hideTimer();
 		}
+
+		this.scheduleNextStep();
+	}
+
+	/**
+	 * move to the next question or end-of-phase summary
+	 */
+	private scheduleNextStep(): void {
+		if (this.model.hasMoreQuestions()) {
+			window.setTimeout(() => this.presentCurrentQuestion(), 900);
+		} else {
+			this.handlePhaseComplete();
+		}
+	}
+
+	/**
+	 * route completion to the appropriate handler for the active phase
+	 */
+	private handlePhaseComplete(): void {
+		if (this.phase === 'main') {
+			this.handleMainComplete();
+		} else if (this.phase === 'challenge') {
+			this.handleChallengeComplete();
+		}
+	}
+
+	/**
+	 * finalize the main game, show summary, and offer retry/challenge
+	 */
+	private handleMainComplete(): void {
+		const summary = this.model.getSummary();
+		const passed = summary.correctAnswers >= summary.minNumberOfQuestionsToWin;
+		this.lastSummary = {
+			correct: summary.correctAnswers,
+			total: summary.totalQuestions,
+			minToWin: summary.minNumberOfQuestionsToWin,
+			passed,
+			phase: 'main',
+		};
+
+		this.view.displaySummary(
+			summary.correctAnswers,
+			summary.totalQuestions,
+			summary.minNumberOfQuestionsToWin
+		);
+		this.view.hideTimer();
+		this.removeInputBox();
+		this.phase = 'mainSummary';
+		this.view.setSubmitLabel(passed ? 'CHALLENGE' : 'RETRY');
+		this.view.showMessage(
+			passed ? 'Ready for a 5-second speed round?' : 'Score under 80%. Tap retry to try again.',
+			passed ? '#A7F3D0' : '#FBBF24'
+		);
+	}
+
+	/**
+	 * show one-page intro before starting the timed challenge
+	 */
+	private startChallengeIntro(): void {
+		this.phase = 'challengeIntro';
+		this.view.showModal(
+			'Timed mini-mission: 5 seconds per question.\nAnswer quickly to keep pace.\nPress Start to begin.'
+		);
+		this.view.setSubmitLabel('START CHALLENGE');
+		this.view.hideTimer();
+	}
+
+	/**
+	 * start the timed challenge run with a shorter question set
+	 */
+	private startChallengeGame(): void {
+		this.phase = 'challenge';
+		this.view.hideModal();
+		this.model.reset(this.challengeQuestionCount);
+		this.lastSummary = undefined;
+		this.challengeTimerMs = 0;
+		this.ensureInputBox();
+		this.view.setSubmitLabel('SUBMIT');
+		this.view.showMessage('');
+		this.view.updateCorrectCount(0);
+		this.presentCurrentQuestion();
+	}
+
+	/**
+	 * auto-mark incorrect if the timer hits zero mid-challenge
+	 */
+	private handleChallengeTimeout(): void {
+		if (this.phase !== 'challenge') return;
+		const question = this.model.getCurrentQuestion();
+		if (!question) return;
+		const result = this.model.submitAnswer(Number.NaN);
+		this.view.displayResult(false, question.text, result.correctAnswer);
+		this.view.updateCorrectCount(this.model.getCorrectAnswers());
+		if (this.inputBox) this.inputBox.value = '';
+		this.challengeTimerMs = 0;
+		this.scheduleNextStep();
+	}
+
+	/**
+	 * wrap up the challenge, adjust button labels, and offer retry/menu
+	 */
+	private handleChallengeComplete(): void {
+		const summary = this.model.getSummary();
+		const passed = summary.correctAnswers >= summary.minNumberOfQuestionsToWin;
+		this.lastSummary = {
+			correct: summary.correctAnswers,
+			total: summary.totalQuestions,
+			minToWin: summary.minNumberOfQuestionsToWin,
+			passed,
+			phase: 'challenge',
+		};
+		this.view.displaySummary(
+			summary.correctAnswers,
+			summary.totalQuestions,
+			summary.minNumberOfQuestionsToWin
+		);
+		this.view.hideTimer();
+		this.removeInputBox();
+		this.phase = 'challengeSummary';
+		this.view.setSubmitLabel(passed ? 'GO TO MENU' : 'RETRY');
+		this.view.setReturnButtonVisible(false);
+		this.view.showMessage(
+			passed ? 'Challenge complete! Returning to the menu.' : 'Missed the target. Retry the speed round?',
+			passed ? '#A7F3D0' : '#FBBF24'
+		);
 	}
 }
