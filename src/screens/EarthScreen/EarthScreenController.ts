@@ -225,7 +225,7 @@ export class EarthScreenController extends ScreenController {
 		}
 
 		// --------------------------------------------------------
-		// 🟢 RESTORE COMPLETED QUESTION UI — BUG 2 FIX
+		// RESTORE COMPLETED QUESTION UI — BUG 2 FIX
 		// --------------------------------------------------------
 		if (entry.completed) {
 			const correctText = this.formatTime(entry.data.correctHour, entry.data.correctMinute);

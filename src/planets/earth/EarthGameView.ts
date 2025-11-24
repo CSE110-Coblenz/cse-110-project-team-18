@@ -47,6 +47,7 @@ export class EarthGameView {
 
 	/** Sets the clock hands to a given time */
 	setHands(hour: number, minute: number): void {
+		// manually compute angles
 		const minuteAngle = (minute / 60) * 360;
 		const hourAngle = (hour % 12) * 30 + (minute / 60) * 0.5;
 
