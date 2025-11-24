@@ -26,3 +26,6 @@ dist-ssr
 # Ignore generated documentation files
 docs/api/
 docs/design/
+
+# Ignore local test files
+src/db/testDB.ts

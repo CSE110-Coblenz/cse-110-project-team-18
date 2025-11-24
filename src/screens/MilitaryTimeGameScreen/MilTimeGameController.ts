@@ -80,7 +80,7 @@ export class MilitaryTimeGameController extends ScreenController {
 	}
 
 	private goNext() {
-		const slide = this.model.getCurrentSlide();
+		// const slide = this.model.getCurrentSlide();
 
 		// Final question? → Show result
 		if (this.model.currentIndex === this.model.questionsTotal) {

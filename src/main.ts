@@ -6,8 +6,15 @@ import { STAGE_WIDTH, STAGE_HEIGHT } from './configs/GameConfig';
 import { InputManager } from './core/input/InputManager';
 import { EarthScreenController } from './screens/EarthScreen/EarthScreenController';
 import { PrimeNumberGameController } from './screens/PrimeNumberGameScreen/PrimeNumberGameController.ts';
+import { MercuryGameController } from './planets/mercury/MercuryGameController.ts';
 import { KnowledgeScreenController } from './screens/KnowledgeScreen/KnowledgeScreenController.ts';
 import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/MilTimeGameController.ts';
+import { PauseMenuController } from './screens/PauseMenuScreen/PauseMenuController.ts';
+import { HelpManager } from './core/managers/HelpManager';
+import { PauseManager } from './core/managers/PauseManager';
+
+import { LevelSelectionController } from './screens/LevelSelectionScreen/LevelSelectionController.ts';
+import { VenusGameController } from './planets/venus/VenusGameController.ts';
 // Space Math Adventure - Main Entry Point
 /**
  * Main Application - Coordinates all screens
@@ -19,6 +26,7 @@ import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/Mil
  * Key concept: All screens are added to the same layer, but only one is
  * visible at a time. This is managed by the switchToScreen() method.
  */
+
 class App implements ScreenSwitcher {
 	private stage: Konva.Stage;
 	private layer: Konva.Layer;
@@ -28,6 +36,8 @@ class App implements ScreenSwitcher {
 	private menuController: MenuScreenController;
 	private primeNumberGameController: PrimeNumberGameController;
 	private asteroidFieldGameController: AsteroidFieldGameController;
+	private mercuryGameController: MercuryGameController;
+	private venusGameController: VenusGameController;
 	// private gameController: GameScreenController;
 	// private resultsController: ResultsScreenController;
 	/*
@@ -36,6 +46,11 @@ class App implements ScreenSwitcher {
 	private earthController: EarthScreenController;
 	private knowledgeController: KnowledgeScreenController;
 	private militaryController: MilitaryTimeGameController;
+	private pauseMenuController: PauseMenuController;
+	private helpManager: HelpManager;
+	private pauseManager: PauseManager;
+
+	private levelSelectionController: LevelSelectionController;
 
 	constructor(container: string) {
 		// Initialize centralized input manager (single event listener system)
@@ -57,6 +72,8 @@ class App implements ScreenSwitcher {
 		this.menuController = new MenuScreenController(this);
 		this.primeNumberGameController = new PrimeNumberGameController(this);
 		this.asteroidFieldGameController = new AsteroidFieldGameController(this);
+		this.mercuryGameController = new MercuryGameController(this);
+		this.venusGameController = new VenusGameController(this);
 		// this.gameController = new GameScreenController(this);
 		// this.resultsController = new ResultsScreenController(this);
 
@@ -66,11 +83,54 @@ class App implements ScreenSwitcher {
 		this.earthController = new EarthScreenController(this);
 		this.knowledgeController = new KnowledgeScreenController(this);
 		this.militaryController = new MilitaryTimeGameController(this);
+
+		this.levelSelectionController = new LevelSelectionController(this);
+
+		// Initialize managers first (they need to be created before pause menu controller)
+		this.helpManager = new HelpManager(this.layer);
+		this.helpManager.setGetActiveController(() => this.activeController as any);
+
+		this.pauseManager = new PauseManager(
+			() => this.activeController !== this.menuController,
+			() => {
+				this.pauseMenuController.show();
+				this.helpManager.hideHelpButton();
+				if (this.activeController === this.mercuryGameController) {
+					this.mercuryGameController.setInputVisible(false);
+				}
+			},
+			() => {
+				this.pauseMenuController.hide();
+				if (this.activeController === this.mercuryGameController) {
+					this.mercuryGameController.setInputVisible(true);
+				}
+				this.helpManager.showHelpButton();
+			}
+		);
+
+		// Initialize pause menu controller with callback to pause manager
+		this.pauseMenuController = new PauseMenuController(this, () => {
+			this.pauseManager.togglePause();
+		});
+
+		// Set up help manager callbacks (needs pause manager and pause menu controller)
+		this.helpManager.setOnHelpShown(() => {
+			// Hide pause menu if it's showing, then pause silently (don't show pause menu)
+			this.pauseMenuController.hide();
+			this.pauseManager.setPausedSilently(true);
+		});
+		this.helpManager.setOnHelpHidden(() => {
+			// Unpause silently when help is closed
+			this.pauseManager.setPausedSilently(false);
+		});
+
 		// Add all screen groups to the layer
 		// All screens exist simultaneously but only one is visible at a time
 		this.layer.add(this.menuController.getView().getGroup());
 		this.layer.add(this.primeNumberGameController.getView().getGroup());
 		this.layer.add(this.asteroidFieldGameController.getView().getGroup());
+		this.layer.add(this.mercuryGameController.getView().getGroup());
+		this.layer.add(this.venusGameController.getView().getGroup());
 		// this.layer.add(this.gameController.getView().getGroup());
 		// this.layer.add(this.resultsController.getView().getGroup());
 
@@ -80,6 +140,14 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.earthController.getView().getGroup());
 		// add the knwledge screen group to the layer
 		this.layer.add(this.knowledgeController.getView().getGroup());
+
+		this.layer.add(this.levelSelectionController.getView().getGroup());
+
+		// Add help button after screens so it appears above them
+		this.helpManager.addToLayer();
+
+		// Add pause menu last so it appears on top
+		this.layer.add(this.pauseMenuController.getView().getGroup());
 
 		// Draw the layer (render everything to the canvas)
 		this.layer.draw();
@@ -92,9 +160,22 @@ class App implements ScreenSwitcher {
 		const loop = (now: number) => {
 			const dt = now - lastTime; // ms
 			lastTime = now;
-			if (this.activeController) {
+
+			// Check for ESC key press to toggle pause (only when not on menu screen)
+			// If help overlay is visible, close it first
+			if (this.helpManager.isHelpOverlayVisible()) {
+				if (InputManager.getInstance().consumePress('escape', 200)) {
+					this.helpManager.hideHelpOverlay();
+				}
+			} else {
+				this.pauseManager.update();
+			}
+
+			// Only update active controller if not paused
+			if (!this.pauseManager.isGamePaused() && this.activeController) {
 				this.activeController.update(dt);
 			}
+
 			requestAnimationFrame(loop);
 		};
 		requestAnimationFrame(loop);
@@ -111,15 +192,23 @@ class App implements ScreenSwitcher {
 	 * This pattern ensures only one screen is visible at a time.
 	 */
 	switchToScreen(screen: Screen): void {
+		// Hide pause menu when switching screens
+		this.pauseMenuController.hide();
+		this.pauseManager.reset();
+
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
 		this.primeNumberGameController.hide();
 		this.asteroidFieldGameController.hide();
+		this.mercuryGameController.hide();
+		this.venusGameController.hide();
 		// this.gameController.hide();
 		// this.resultsController.hide();
 		this.earthController.hide(); // hide Earth screen
 		this.knowledgeController.hide(); // hide Knowledge screen
 		this.militaryController.hide();
+		this.levelSelectionController.hide();
+
 		this.layer.add(this.militaryController.getView().getGroup());
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
@@ -143,6 +232,18 @@ class App implements ScreenSwitcher {
 				console.log('Showing prime number game screen');
 				break;
 
+			case 'mercury game':
+				this.mercuryGameController.show();
+				this.activeController = this.mercuryGameController;
+				console.log('Showing mercury game screen');
+				break;
+
+			case 'venus game':
+				this.venusGameController.show();
+				this.activeController = this.venusGameController;
+				console.log('Showing venus game screen');
+				break;
+
 			// case "result":
 			// 	// Show results with the final score
 			// 	this.resultsController.showResults(screen.score);
@@ -164,7 +265,14 @@ class App implements ScreenSwitcher {
 				this.militaryController.show();
 				this.activeController = this.militaryController;
 				break;
+
+			case 'level selection':
+				this.levelSelectionController.show();
+				this.activeController = this.levelSelectionController;
+				break;
 		}
+
+		this.helpManager.updateForScreen(screen.type);
 
 		// force redraw after switching screens
 		this.layer.batchDraw();

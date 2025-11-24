@@ -74,9 +74,13 @@ marked.setOptions({
 // List of guide files with their titles
 const guideFiles = [
 	{ file: 'DEVELOPER_GUIDE.md', title: 'Developer Guide' },
-	{ file: 'SCREEN_SWITCHING.md', title: 'Screen Switching Guide' },
-	{ file: 'INPUT_HANDLING.md', title: 'Input Handling Guide' },
-	{ file: 'CHARACTER_LOADING.md', title: 'Character Loading Guide' },
+	{ file: 'SCREEN_SWITCHING.md', title: 'Screen Switching' },
+	{ file: 'INPUT_HANDLING.md', title: 'Input Handling' },
+	{ file: 'CHARACTER_LOADING.md', title: 'Character Loading' },
+	{ file: 'DATABASE_METHODS.md', title: 'Database Methods' },
+	{ file: 'UI_ELEMENT_FACTORY.md', title: 'UI Element Factory' },
+	{ file: 'REPO_WORKFLOW.md', title: 'Repository Workflow' },
+	{ file: 'DOCUMENTATION_WORKFLOW.md', title: 'Documentation Workflow' },
 ];
 
 // Convert markdown to HTML and create HTML pages
@@ -415,6 +419,30 @@ const guidesIndexHtml = `<!DOCTYPE html>
             <h2>Character Loading</h2>
             <p>Complete guide to loading sprites, creating animations, and managing characters.</p>
             <a href="guides/CHARACTER_LOADING.html" class="guide-link">Read Guide →</a>
+        </div>
+        
+        <div class="guide-card">
+            <h2>Database Methods</h2>
+            <p>Guide to working with the database methods, including creating users and logging in users.</p>
+            <a href="guides/DATABASE_METHODS.html" class="guide-link">Read Guide →</a>
+        </div>
+        
+        <div class="guide-card">
+            <h2>UI Element Factory</h2>
+            <p>Learn how to use the UI Element Factory to create consistent, theme-aware buttons and text boxes.</p>
+            <a href="guides/UI_ELEMENT_FACTORY.html" class="guide-link">Read Guide →</a>
+        </div>
+        
+        <div class="guide-card">
+            <h2>Repository Workflow</h2>
+            <p>Cheatsheet for branching, daily workflow, commits, PRs, and code quality checks.</p>
+            <a href="guides/REPO_WORKFLOW.html" class="guide-link">Read Guide →</a>
+        </div>
+        
+        <div class="guide-card">
+            <h2>Documentation Workflow</h2>
+            <p>Guidelines for adding and updating developer guides, documentation style, and review process.</p>
+            <a href="guides/DOCUMENTATION_WORKFLOW.html" class="guide-link">Read Guide →</a>
         </div>
     </div>
     

@@ -16,10 +16,13 @@ export interface View {
  */
 export type Screen =
 	| { type: 'menu' }
+	| { type: 'level selection' }
 	| { type: 'game' }
 	| { type: 'earth' } // added earth screen type
 	| { type: 'asteroid field game' }
 	| { type: 'prime number game' }
+	| { type: 'mercury game' }
+	| { type: 'venus game' }
 	| { type: 'knowledge' } // added knowledge screen type
 	| { type: 'military time game' } // added military time game screen type
 	| { type: 'result'; score: number };
