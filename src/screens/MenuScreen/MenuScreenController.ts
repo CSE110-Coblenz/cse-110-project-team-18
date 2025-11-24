@@ -28,9 +28,13 @@ export class MenuScreenController extends ScreenController {
 		this.screenSwitcher = screenSwitcher;
 
 		this.view = new MenuScreenView(
-			() => { void this.handleLogin(); },
+			() => {
+				void this.handleLogin();
+			},
 			() => this.handleGuestPlay(),
-			() => { void this.handleCreateAccount(); },
+			() => {
+				void this.handleCreateAccount();
+			}
 		);
 		this.model = new MenuScreenModel();
 
@@ -167,7 +171,7 @@ export class MenuScreenController extends ScreenController {
 				return;
 			}
 
-			const data = await res.json() as {
+			const data = (await res.json()) as {
 				success: boolean;
 				message?: string;
 				user?: { id: number; username: string };
@@ -220,7 +224,7 @@ export class MenuScreenController extends ScreenController {
 				return;
 			}
 
-			const data = await res.json() as {
+			const data = (await res.json()) as {
 				success: boolean;
 				message?: string;
 				user?: { id: number; username: string };

@@ -29,12 +29,12 @@ export class LevelSelectionController extends ScreenController {
 		this.screenSwitcher = screenSwitcher;
 
 		// VIEW with handlers
-        this.view = new LevelSelectionView(
-            () => this.handleAsteriodFieldClick(),
-            () => this.handlePrimeGameClick(),
-            () => this.handleEarthClick(),
-            () => this.handleMercuryClick()
-        );
+		this.view = new LevelSelectionView(
+			() => this.handleAsteriodFieldClick(),
+			() => this.handlePrimeGameClick(),
+			() => this.handleEarthClick(),
+			() => this.handleMercuryClick()
+		);
 
 		this.model = new LevelSelectionModel(
 			this.initialPlayerPosition.x,

@@ -26,8 +26,6 @@ import { LevelSelectionController } from './screens/LevelSelectionScreen/LevelSe
  * visible at a time. This is managed by the switchToScreen() method.
  */
 
-
-
 class App implements ScreenSwitcher {
 	private stage: Konva.Stage;
 	private layer: Konva.Layer;
@@ -136,7 +134,6 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.earthController.getView().getGroup());
 		// add the knwledge screen group to the layer
 		this.layer.add(this.knowledgeController.getView().getGroup());
-
 
 		this.layer.add(this.levelSelectionController.getView().getGroup());
 
