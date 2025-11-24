@@ -1,5 +1,0 @@
-Changes:
-MercuryController:
-    question delay: 0.9 -> 0
-Model:
-    min question to win: 80% -> 0%
