@@ -2,12 +2,15 @@ import Konva from 'konva';
 import type { View } from '../../types';
 import { preloadImage } from '../../core/utils/AssetLoader';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
+import { createButton } from '../../ui';
 
 export class PerformanceDashboardView implements View {
 	private group: Konva.Group;
+	private onBack: () => void;
 
-	constructor() {
+	constructor(onBack: () => void) {
 		this.group = new Konva.Group({ visible: false });
+		this.onBack = onBack;
 	}
 
 	getGroup(): Konva.Group {
@@ -54,6 +57,24 @@ export class PerformanceDashboardView implements View {
 		});
 
 		this.group.add(title);
+
+		//const BTN_WIDTH = 240;
+		//const BTN_HEIGHT = 55;
+
+		// back to menu button
+		const returnButton = createButton({
+			x: STAGE_WIDTH - 300, // bottom-right
+			y: STAGE_HEIGHT - 110, // bottom-right
+			width: 275,
+			height: 60,
+			text: 'RETURN TO MENU',
+			colorKey: 'alien_green',
+			hoverColorKey: 'success_hover',
+			fontColorKey: 'text_inverse',
+			onClick: this.onBack,
+		});
+
+		this.group.add(returnButton);
 
 		let y = 100;
 
