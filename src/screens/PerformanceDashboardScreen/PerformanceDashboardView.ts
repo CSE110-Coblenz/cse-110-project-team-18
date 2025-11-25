@@ -48,7 +48,7 @@ export class PerformanceDashboardView implements View {
 			});
 
 			const bar = new Konva.Rect({
-				x: 250,
+				x: 275,
 				y,
 				width: d.accuracy * 300,
 				height: 25,
