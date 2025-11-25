@@ -25,6 +25,7 @@ export type Screen =
 	| { type: 'venus game' }
 	| { type: 'knowledge' } // added knowledge screen type
 	| { type: 'military time game' } // added military time game screen type
+	| { type: 'performance dashboard' } // added performance dashboard
 	| { type: 'result'; score: number };
 
 export abstract class ScreenController {

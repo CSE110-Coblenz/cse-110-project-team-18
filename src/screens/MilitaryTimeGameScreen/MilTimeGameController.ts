@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ScreenController } from '../../types';
 import type { ScreenSwitcher } from '../../types';
 import { MilitaryTimeGameModel } from './MilTimeGameModel';
