@@ -11,26 +11,29 @@ export class PerformanceDashboardController extends ScreenController {
 		super();
 		this.switcher = switcher;
 
-		this.view = new PerformanceDashboardView(() => this.switcher.switchToScreen({ type: 'menu' }));
+		this.view = new PerformanceDashboardView(() => {
+			this.switcher.switchToScreen({ type: 'menu' });
+		});
+
 		this.model = new PerformanceDashboardModel();
 	}
 
-	// must implement getView()
 	getView(): PerformanceDashboardView {
 		return this.view;
 	}
 
 	override show(): void {
 		super.show();
-		// Load data every time screen opens
-		const data = this.model.getAccuracyData();
+
+		// Load fresh data every time dashboard opens
+		const data = this.model.getGameData();
 		this.view.render(data);
 
-		// Bring to top if needed
 		this.view.getGroup().moveToTop();
 	}
 
 	override hide(): void {
 		super.hide();
+		this.view.clear();
 	}
 }

@@ -1,8 +1,9 @@
 import Konva from 'konva';
 import type { View } from '../../types';
-import { preloadImage } from '../../core/utils/AssetLoader';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { createButton } from '../../ui';
+import { theme } from '../../configs/ThemeConfig';
+import { preloadImage } from '../../core/utils/AssetLoader';
 
 export class PerformanceDashboardView implements View {
 	private group: Konva.Group;
@@ -13,26 +14,31 @@ export class PerformanceDashboardView implements View {
 		this.onBack = onBack;
 	}
 
-	getGroup(): Konva.Group {
+	getGroup() {
 		return this.group;
 	}
 
-	show(): void {
+	show() {
 		this.group.visible(true);
 		this.group.getLayer()?.batchDraw();
 	}
 
-	hide(): void {
+	hide() {
 		this.group.visible(false);
-		this.group.destroyChildren(); // optional: wipe old bars
-		this.group.getLayer()?.batchDraw();
+		this.group.destroyChildren();
 	}
 
-	render(data: { topic: string; accuracy: number }[]): void {
+	clear() {
 		this.group.destroyChildren();
+	}
 
-		// background
-		const background = new Konva.Image({
+	render(rows: any[]) {
+		this.clear();
+
+		// ============================
+		// BACKGROUND IMAGE
+		// ============================
+		const bg = new Konva.Image({
 			x: 0,
 			y: 0,
 			width: STAGE_WIDTH,
@@ -41,66 +47,96 @@ export class PerformanceDashboardView implements View {
 			image: new Image(),
 		});
 
-		void preloadImage('/assets/ui/MercuryBG.png').then((img) => {
-			background.image(img);
+		// Load actual image
+		void preloadImage('/assets/ui/EarthBG.png').then((img) => {
+			bg.image(img);
 			this.group.getLayer()?.batchDraw();
 		});
 
-		this.group.add(background);
-		// title and bars
-		const title = new Konva.Text({
-			x: 50,
-			y: 20,
-			text: 'Performance Dashboard',
-			fontSize: 32,
-			fill: 'white',
-		});
+		this.group.add(bg);
 
+		// ============================
+		// TITLE
+		// ============================
+		const title = new Konva.Text({
+			text: 'Performance Dashboard',
+			x: STAGE_WIDTH / 2,
+			y: 40,
+			width: STAGE_WIDTH,
+			align: 'center',
+			fontSize: 40,
+			fill: theme.get('white'),
+		});
+		title.offsetX(STAGE_WIDTH / 2);
 		this.group.add(title);
 
-		//const BTN_WIDTH = 240;
-		//const BTN_HEIGHT = 55;
+		let y = 150;
 
-		// back to menu button
-		const returnButton = createButton({
-			x: STAGE_WIDTH - 300, // bottom-right
-			y: STAGE_HEIGHT - 110, // bottom-right
-			width: 275,
+		for (const row of rows) {
+			this.renderRow(row, y);
+			y += 100; // compact spacing
+		}
+
+		// ============================
+		// BACK BUTTON
+		// ============================
+		const backBtn = createButton({
+			x: STAGE_WIDTH - 260,
+			y: STAGE_HEIGHT - 90,
+			width: 240,
 			height: 60,
-			text: 'RETURN TO MENU',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			fontColorKey: 'text_inverse',
+			text: 'BACK',
+			colorKey: 'primary',
+			hoverColorKey: 'primary_hover',
 			onClick: this.onBack,
 		});
+		this.group.add(backBtn);
 
-		this.group.add(returnButton);
+		this.group.getLayer()?.batchDraw();
+	}
 
-		let y = 100;
-
-		data.forEach((d) => {
-			const label = new Konva.Text({
-				x: 50,
-				y,
-				text: `${d.topic}: ${Math.round(d.accuracy * 100)}%`,
-				fontSize: 22,
-				fill: 'white',
-			});
-
-			const bar = new Konva.Rect({
-				x: 330,
-				y,
-				width: d.accuracy * 300,
-				height: 25,
-				fill: d.accuracy >= 0.6 ? 'green' : 'red',
-			});
-
-			this.group.add(label);
-			this.group.add(bar);
-
-			y += 50;
+	private renderRow(row: any, y: number) {
+		const label = new Konva.Text({
+			text: row.label,
+			x: 50,
+			y,
+			fontSize: 28,
+			fill: theme.get('white'),
 		});
+		this.group.add(label);
 
-		this.group.getLayer()?.draw();
+		const barBgX = 500;
+
+		// Accuracy bar background
+		const barBg = new Konva.Rect({
+			x: barBgX,
+			y: y + 10,
+			width: 300,
+			height: 25,
+			fill: '#333',
+			cornerRadius: 6,
+		});
+		this.group.add(barBg);
+
+		// Accuracy bar fill
+		const barFill = new Konva.Rect({
+			x: barBgX,
+			y: y + 10,
+			width: 300 * row.accuracy,
+			height: 25,
+			fill: row.passed ? 'green' : 'red',
+			cornerRadius: 6,
+		});
+		this.group.add(barFill);
+
+		// Score text
+		const scoreText = new Konva.Text({
+			text: `${row.score}/${row.total}`,
+			x: barBgX + 330,
+			y,
+			fontSize: 24,
+			fill: theme.get('info'),
+		});
+		this.group.add(scoreText);
 	}
 }
