@@ -57,7 +57,7 @@ export class LevelSelectionView implements View {
 			y,
 			width: 400,
 			height: 60,
-			text: 'ASTROID GAME',
+			text: 'ASTEROID GAME',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: onLevel1Click,
