@@ -439,7 +439,7 @@ export class EarthScreenController extends ScreenController {
 	}
 
 	private handleReturnToMenu(): void {
-		this.screenSwitcher.switchToScreen({ type: 'menu' });
+		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 
 	override show(): void {
