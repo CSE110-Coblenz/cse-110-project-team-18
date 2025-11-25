@@ -1,11 +1,30 @@
+import { ProgressStore } from '../../core/managers/ProgressStore';
+
 export class PerformanceDashboardModel {
-	getDummyAccuracyData() {
+	getAccuracyData() {
+		const store = ProgressStore.getInstance();
+
 		return [
-			{ topic: 'Prime Number Game', accuracy: 0.75 },
-			{ topic: 'Asteroid Game', accuracy: 0.5 },
-			{ topic: 'Military Time Game', accuracy: 0.9 },
-			{ topic: 'Mercury Game', accuracy: 0.6 },
-			{ topic: 'Venus Math Mission', accuracy: 0.6 },
+			{
+				topic: 'Earth Time Arithmetic',
+				accuracy: store.getAccuracy('Earth Time Arithmetic'),
+			},
+			{
+				topic: 'Mercury Math',
+				accuracy: store.getAccuracy('Mercury Math'),
+			},
+			{
+				topic: 'Prime Number Game',
+				accuracy: store.getAccuracy('Prime Number Game'),
+			},
+			{
+				topic: 'Venus Math Mission',
+				accuracy: store.getAccuracy('Venus Math Mission'),
+			},
+			{
+				topic: 'Asteroid Field',
+				accuracy: store.getAccuracy('Asteroid Field'),
+			},
 		];
 	}
 }

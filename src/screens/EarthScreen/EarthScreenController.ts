@@ -9,6 +9,7 @@ import { EarthLogic } from '../../planets/earth/EarthLogic';
 import Konva from 'konva';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { generateTimeQuestion } from '../../core/utils/timeArithmetic';
+import { ProgressStore } from '../../core/managers/ProgressStore';
 
 export class EarthScreenController extends ScreenController {
 	private view: EarthScreenView;
@@ -391,6 +392,9 @@ export class EarthScreenController extends ScreenController {
 
 	private showGameOver(): void {
 		this.clearFeedback();
+
+		const accuracy = this.model.correctAnswers / this.model.totalQuestions;
+		ProgressStore.getInstance().setAccuracy('Military Time Game', accuracy);
 
 		const box = new Konva.Rect({
 			x: STAGE_WIDTH / 2 - 250,

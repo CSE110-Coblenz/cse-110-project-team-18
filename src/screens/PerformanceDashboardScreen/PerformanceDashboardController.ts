@@ -23,7 +23,7 @@ export class PerformanceDashboardController extends ScreenController {
 	override show(): void {
 		super.show();
 		// Load data every time screen opens
-		const data = this.model.getDummyAccuracyData();
+		const data = this.model.getAccuracyData();
 		this.view.render(data);
 
 		// Bring to top if needed
