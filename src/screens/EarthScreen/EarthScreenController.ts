@@ -405,33 +405,68 @@ export class EarthScreenController extends ScreenController {
 			played: true,
 			passed: accuracy >= 0.7,
 		});
-		const box = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 250,
-			y: STAGE_HEIGHT / 2 - 60,
-			width: 500,
-			height: 120,
+		// ------------------------------
+		// DIM BACKGROUND
+		// ------------------------------
+		const overlay = new Konva.Rect({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			fill: 'black',
+			opacity: 0.65,
+		});
+		this.view.getGroup().add(overlay);
+
+		// ------------------------------
+		// RESULT TEXT
+		// ------------------------------
+		const msg = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: STAGE_HEIGHT / 2 - 50,
+			text: `You completed all ${this.model.totalQuestions} questions!\nScore: ${this.model.correctAnswers}/${this.model.totalQuestions}`,
+			fontSize: 32,
 			fill: 'white',
-			opacity: 0.85,
+			align: 'center',
+			width: 600,
+		});
+		msg.offsetX(300);
+		this.view.getGroup().add(msg);
+
+		// ------------------------------
+		// BIG DONE BUTTON
+		// ------------------------------
+		const doneBtn = new Konva.Rect({
+			x: STAGE_WIDTH / 2 - 150,
+			y: STAGE_HEIGHT / 2 + 40,
+			width: 300,
+			height: 70,
+			fill: '#4CBB17',
 			cornerRadius: 15,
 		});
-		this.view.getGroup().add(box);
+		this.view.getGroup().add(doneBtn);
 
-		const text = new Konva.Text({
+		const doneText = new Konva.Text({
 			x: STAGE_WIDTH / 2,
-			y: STAGE_HEIGHT / 2,
-			text: `You completed all ${this.model.totalQuestions} questions!\nScore: ${this.model.correctAnswers}/${this.model.totalQuestions}`,
-			fontSize: 26,
-			fontFamily: 'Arial',
-			fill: 'black',
+			y: STAGE_HEIGHT / 2 + 60,
+			text: 'DONE',
+			fontSize: 30,
+			fill: 'white',
 			align: 'center',
+			width: 300,
 		});
-		text.offsetX(text.width() / 2);
-		text.offsetY(text.height() / 2);
-		this.view.getGroup().add(text);
+		doneText.offsetX(150);
+		this.view.getGroup().add(doneText);
+
+		// Click → Level selection
+		const goBack = () => this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		doneBtn.on('click', goBack);
+		doneText.on('click', goBack);
+
+		// Disable input box so user can't type
+		if (this.inputBox) this.inputBox.disabled = true;
 
 		this.view.getGroup().getLayer()?.batchDraw();
-
-		if (this.inputBox) this.inputBox.disabled = true;
 	}
 
 	private formatTime(hour: number, minute: number): string {
