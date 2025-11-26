@@ -202,4 +202,54 @@ export class PrimeNumberGameView implements View {
 			handler('no');
 		});
 	}
+
+	public showGameOverScreen(onDone: () => void): void {
+		// Clear feedback + disable buttons
+		setElementText(this.feedbackText, ' ');
+
+		this.setAnswerButtonsDisabled(true);
+
+		// Dark overlay
+		const overlay = new Konva.Rect({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			fill: 'black',
+			opacity: 0.65,
+		});
+		this.group.add(overlay);
+
+		// Game Over text
+		const msg = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: STAGE_HEIGHT / 2 - 40,
+			text: 'GAME OVER!',
+			fontSize: 48,
+			fontFamily: 'Arial',
+			fill: 'white',
+			align: 'center',
+		});
+		msg.offsetX(msg.width() / 2);
+		this.group.add(msg);
+
+		// BIG DONE BUTTON
+		const doneBtn = createButton(
+			{
+				x: STAGE_WIDTH / 2 - 150,
+				y: STAGE_HEIGHT / 2 + 20,
+				width: 300,
+				height: 70,
+				text: 'DONE',
+				colorKey: 'primary',
+				hoverColorKey: 'primary_hover',
+				onClick: onDone,
+			},
+			theme
+		);
+
+		this.group.add(doneBtn);
+
+		this.group.getLayer()?.batchDraw();
+	}
 }

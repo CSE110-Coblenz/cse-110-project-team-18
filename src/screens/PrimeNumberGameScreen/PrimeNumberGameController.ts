@@ -1,6 +1,7 @@
 import { PrimeNumberGameModel } from './PrimeNumberGameModel.ts';
 import { PrimeNumberGameView } from './PrimeNumberGameView.ts';
 import type { ScreenSwitcher, ScreenController } from '../../types.ts';
+import { ProgressManager } from '../../core/managers/ProgressManager';
 
 /**
  * Connects the Model and View. Handles user input.
@@ -66,11 +67,24 @@ export class PrimeNumberGameController implements ScreenController {
 
 		setTimeout(() => {
 			if (result.isGameOver) {
-				const { score } = this.model.getFinalScore();
-
+				const { score, maxScore } = this.model.getFinalScore();
+				/*
 				this.screenSwitcher.switchToScreen({
 					type: 'result',
 					score: score,
+				});
+				*/
+				ProgressManager.getInstance().setResult('mars_prime', {
+					label: 'Prime Number Game',
+					score,
+					total: maxScore,
+					accuracy: score / maxScore,
+					played: true,
+					passed: score >= maxScore * 0.7,
+				});
+
+				this.view.showGameOverScreen(() => {
+					this.screenSwitcher.switchToScreen({ type: 'level selection' });
 				});
 			} else {
 				this.showNextQuestion();
