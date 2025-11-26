@@ -8,12 +8,10 @@ import { preloadImage } from '../../core/utils/AssetLoader';
 export class MilitaryTimeGameView implements View {
 	private group: Konva.Group;
 	private onChoice: (choice: string) => void;
-	private onMenu: () => void;
 
-	constructor(onChoice: (choice: string) => void, onMenu: () => void) {
+	constructor(onChoice: (choice: string) => void) {
 		this.group = new Konva.Group({ visible: false });
 		this.onChoice = onChoice;
-		this.onMenu = onMenu;
 	}
 
 	getGroup() {
@@ -89,20 +87,6 @@ export class MilitaryTimeGameView implements View {
 			background.moveToBottom();
 			this.group.getLayer()?.batchDraw();
 		};
-		//===============
-
-		// RETURN TO MENU
-		const returnBtn = createButton({
-			x: 30,
-			y: STAGE_HEIGHT - 90,
-			width: 240,
-			height: 55,
-			text: 'RETURN TO MENU',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			onClick: this.onMenu,
-		});
-		this.group.add(returnBtn);
 
 		// --- TITLE ---
 		const titleText = slide.type === 'question' ? slide.question : slide.title;
