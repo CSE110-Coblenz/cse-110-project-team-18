@@ -12,7 +12,7 @@ export class PerformanceDashboardController extends ScreenController {
 		this.switcher = switcher;
 
 		this.view = new PerformanceDashboardView(() => {
-			this.switcher.switchToScreen({ type: 'menu' });
+			this.switcher.switchToScreen({ type: 'level selection' });
 		});
 
 		this.model = new PerformanceDashboardModel();
