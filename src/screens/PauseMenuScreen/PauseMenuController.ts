@@ -62,9 +62,13 @@ export class PauseMenuController extends ScreenController {
 	override show(): void {
 		super.show();
 		this.view.getGroup().moveToTop();
+		// Notify active game controllers
+		document.dispatchEvent(new Event('pauseMenuOpened'));
 	}
 
 	override hide(): void {
 		super.hide();
+		// Notify controllers the game resumed
+		document.dispatchEvent(new Event('pauseMenuClosed'));
 	}
 }

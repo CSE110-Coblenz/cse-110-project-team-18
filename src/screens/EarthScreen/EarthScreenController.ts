@@ -35,6 +35,10 @@ export class EarthScreenController extends ScreenController {
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
+		// Listen for pause/resume events
+		document.addEventListener('pauseMenuOpened', () => this.hideInputBoxTemporarily());
+		document.addEventListener('pauseMenuClosed', () => this.showInputBoxAgain());
+
 		this.screenSwitcher = screenSwitcher;
 		//this.view = new EarthScreenView();
 		this.view = new EarthScreenView();
@@ -471,6 +475,21 @@ export class EarthScreenController extends ScreenController {
 
 	private formatTime(hour: number, minute: number): string {
 		return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+	}
+
+	// Hide the input box
+	private hideInputBoxTemporarily(): void {
+		if (this.inputBox) {
+			this.inputBox.style.display = 'none';
+		}
+	}
+
+	// Show the input box again ONLY if question isn't completed
+	private showInputBoxAgain(): void {
+		const entry = this.history[this.currentIndex];
+		if (this.inputBox && (!entry || !entry.completed)) {
+			this.inputBox.style.display = 'block';
+		}
 	}
 
 	override show(): void {
