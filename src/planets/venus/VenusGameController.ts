@@ -4,6 +4,7 @@ import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
 import { VenusGameView } from './VenusGameView';
 import { VenusGameModel } from './VenusGameModel';
 import { theme } from '../../configs/ThemeConfig.ts';
+import { ProgressManager } from '../../core/managers/ProgressManager';
 
 export class VenusGameController extends ScreenController {
 	private readonly screenSwitcher: ScreenSwitcher;
@@ -147,6 +148,18 @@ export class VenusGameController extends ScreenController {
 				summary.totalQuestions,
 				summary.minNumberOfQuestionsToWin
 			);
+
+			// === SAVE VENUS DATA FOR PERFORMANCE DASHBOARD ===
+			const pm = ProgressManager.getInstance();
+			pm.setResult('venus', {
+				label: 'Venus Math Mission',
+				score: summary.correctAnswers,
+				total: summary.totalQuestions,
+				accuracy: summary.correctAnswers / summary.totalQuestions,
+				played: true,
+				passed: summary.correctAnswers >= summary.minNumberOfQuestionsToWin,
+			});
+
 			this.removeInputBox();
 		}
 	}
