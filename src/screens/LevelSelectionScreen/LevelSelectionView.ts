@@ -6,6 +6,11 @@ import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
 import { createButton } from '../../ui';
 import { preloadImage } from '../../core/utils/AssetLoader';
 
+let LS_FONT = 16;
+let LS_HEIGHT = 60;
+let LS_WIDTH = 110;
+
+
 /**
  * LevelSelectionView - Renders the level selection screen
  */
@@ -14,11 +19,11 @@ export class LevelSelectionView implements View {
 	private buttonGroup?: Konva.Group;
 
 	constructor(
-		onLevel1Click: () => void,
-		onLevel2Click: () => void,
-		onLevel3Click: () => void,
-		onBackToMenu: () => void,
-		onLevel5Click: () => void
+		astroidBtnClick: () => void,
+		marsBtnClick: () => void,
+		earthBtnClick: () => void,
+		mercuryBtnClick: () => void,
+		venusBtnClick: () => void
 	) {
 		this.group = new Konva.Group({
 			visible: true,
@@ -37,7 +42,7 @@ export class LevelSelectionView implements View {
 			image: new Image(),
 		});
 
-		void preloadImage('/assets/ui/MainMenuBG.png').then((img) => {
+		void preloadImage('/assets/ui/LevelSelectBG.png').then((img) => {
 			background.image(img);
 			this.group.getLayer()?.batchDraw();
 		});
@@ -50,72 +55,73 @@ export class LevelSelectionView implements View {
 		const buttonGroup = new Konva.Group({ listening: true });
 
 		const baseX = STAGE_WIDTH / 2 - 200;
-		let y = 350;
+		let y = 350;	
 
-		const level1Btn = createButton({
-			x: baseX,
-			y,
-			width: 400,
-			height: 60,
-			text: 'ASTROID GAME',
+		const astroidBtn = createButton({
+			x: baseX+480,
+			y: y-70,
+			fontSize: LS_FONT,
+			width: LS_WIDTH,
+			height: LS_HEIGHT,
+			text: 'ASTROID',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
-			onClick: onLevel1Click,
+			onClick: astroidBtnClick,
 		});
 
-		y += 75;
-		const level2Btn = createButton({
-			x: baseX,
-			y,
-			width: 400,
-			height: 60,
-			text: 'PRIME NUMBER GAME',
+		const marsBtn = createButton({
+			x: baseX+355,
+			y:y-20,
+			width: LS_WIDTH,
+			height: LS_HEIGHT,
+			text: 'MARS',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
-			onClick: onLevel2Click,
+			fontSize: LS_FONT,
+			onClick: marsBtnClick,
 		});
 
-		y += 75;
-		const level3Btn = createButton({
-			x: baseX,
-			y,
-			width: 400,
-			height: 60,
-			text: 'MILITARY TIME GAME',
+		const earthBtn = createButton({
+			x: baseX+200,
+			y: y+45,
+			width: LS_WIDTH,
+			height: LS_HEIGHT,
+			text: 'EARTH',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
-			onClick: onLevel3Click,
+			fontSize: LS_FONT,
+			onClick: earthBtnClick,
 		});
 
-		y += 75;
-		const backBtn = createButton({
-			x: baseX,
-			y,
-			width: 400,
-			height: 60,
-			text: 'MERCURY GAME',
+		const mercuryBtn = createButton({
+			x: 150,
+			y: y+200,
+			width: LS_WIDTH,
+			height: LS_HEIGHT,
+			text: 'MERCURY',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
-			onClick: onBackToMenu,
+			fontSize: LS_FONT,
+			onClick: mercuryBtnClick,
 		});
 
-		y += 75;
-		const level5Btn = createButton({
-			x: baseX,
-			y,
-			width: 400,
-			height: 60,
-			text: 'VENUS MATH MISSION',
+		const venusBtn = createButton({
+			x: baseX-20,
+			y: y+130,
+			width: LS_WIDTH,
+			height: LS_HEIGHT,
+			text: 'VENUS',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
-			onClick: onLevel5Click,
+			fontSize: LS_FONT,
+			onClick: venusBtnClick,
 		});
 
-		buttonGroup.add(level1Btn);
-		buttonGroup.add(level2Btn);
-		buttonGroup.add(level3Btn);
-		buttonGroup.add(backBtn);
-		buttonGroup.add(level5Btn);
+		buttonGroup.add(astroidBtn);
+		buttonGroup.add(marsBtn);
+		buttonGroup.add(earthBtn);
+		buttonGroup.add(mercuryBtn);
+		buttonGroup.add(venusBtn);
 
 		this.buttonGroup = buttonGroup;
 		this.group.add(buttonGroup);
