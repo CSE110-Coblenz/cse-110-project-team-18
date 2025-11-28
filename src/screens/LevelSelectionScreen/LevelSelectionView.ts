@@ -10,7 +10,6 @@ let LS_FONT = 16;
 let LS_HEIGHT = 60;
 let LS_WIDTH = 110;
 
-
 /**
  * LevelSelectionView - Renders the level selection screen
  */
@@ -55,11 +54,11 @@ export class LevelSelectionView implements View {
 		const buttonGroup = new Konva.Group({ listening: true });
 
 		const baseX = STAGE_WIDTH / 2 - 200;
-		let y = 350;	
+		let y = 350;
 
 		const astroidBtn = createButton({
-			x: baseX+480,
-			y: y-70,
+			x: baseX + 480,
+			y: y - 70,
 			fontSize: LS_FONT,
 			width: LS_WIDTH,
 			height: LS_HEIGHT,
@@ -70,8 +69,8 @@ export class LevelSelectionView implements View {
 		});
 
 		const marsBtn = createButton({
-			x: baseX+355,
-			y:y-20,
+			x: baseX + 355,
+			y: y - 20,
 			width: LS_WIDTH,
 			height: LS_HEIGHT,
 			text: 'MARS',
@@ -82,8 +81,8 @@ export class LevelSelectionView implements View {
 		});
 
 		const earthBtn = createButton({
-			x: baseX+200,
-			y: y+45,
+			x: baseX + 200,
+			y: y + 45,
 			width: LS_WIDTH,
 			height: LS_HEIGHT,
 			text: 'EARTH',
@@ -95,7 +94,7 @@ export class LevelSelectionView implements View {
 
 		const mercuryBtn = createButton({
 			x: 150,
-			y: y+200,
+			y: y + 200,
 			width: LS_WIDTH,
 			height: LS_HEIGHT,
 			text: 'MERCURY',
@@ -106,8 +105,8 @@ export class LevelSelectionView implements View {
 		});
 
 		const venusBtn = createButton({
-			x: baseX-20,
-			y: y+130,
+			x: baseX - 20,
+			y: y + 130,
 			width: LS_WIDTH,
 			height: LS_HEIGHT,
 			text: 'VENUS',
