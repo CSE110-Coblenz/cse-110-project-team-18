@@ -9,6 +9,7 @@ import { EarthLogic } from '../../planets/earth/EarthLogic';
 import Konva from 'konva';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { generateTimeQuestion } from '../../core/utils/timeArithmetic';
+import { ProgressManager } from '../../core/managers/ProgressManager';
 
 export class EarthScreenController extends ScreenController {
 	private view: EarthScreenView;
@@ -34,9 +35,13 @@ export class EarthScreenController extends ScreenController {
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
+		// Listen for pause/resume events
+		document.addEventListener('pauseMenuOpened', () => this.hideInputBoxTemporarily());
+		document.addEventListener('pauseMenuClosed', () => this.showInputBoxAgain());
+
 		this.screenSwitcher = screenSwitcher;
 		//this.view = new EarthScreenView();
-		this.view = new EarthScreenView(() => this.handleReturnToMenu());
+		this.view = new EarthScreenView();
 		this.model = new EarthScreenModel();
 		this.logic = new EarthLogic(this.view.getGroup());
 		this.logic.initializeClock();
@@ -225,7 +230,7 @@ export class EarthScreenController extends ScreenController {
 		}
 
 		// --------------------------------------------------------
-		// 🟢 RESTORE COMPLETED QUESTION UI — BUG 2 FIX
+		// RESTORE COMPLETED QUESTION UI — BUG 2 FIX
 		// --------------------------------------------------------
 		if (entry.completed) {
 			const correctText = this.formatTime(entry.data.correctHour, entry.data.correctMinute);
@@ -392,39 +397,99 @@ export class EarthScreenController extends ScreenController {
 	private showGameOver(): void {
 		this.clearFeedback();
 
-		const box = new Konva.Rect({
-			x: STAGE_WIDTH / 2 - 250,
-			y: STAGE_HEIGHT / 2 - 60,
-			width: 500,
-			height: 120,
+		const accuracy = this.model.correctAnswers / this.model.totalQuestions;
+
+		// =================
+		// Save progress
+		ProgressManager.getInstance().setResult('earth_time', {
+			label: 'Earth Time Arithmetic',
+			score: this.model.correctAnswers,
+			total: this.model.totalQuestions,
+			accuracy,
+			played: true,
+			passed: accuracy >= 0.7,
+		});
+		// ------------------------------
+		// DIM BACKGROUND
+		// ------------------------------
+		const overlay = new Konva.Rect({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			fill: 'black',
+			opacity: 0.65,
+		});
+		this.view.getGroup().add(overlay);
+
+		// ------------------------------
+		// RESULT TEXT
+		// ------------------------------
+		const msg = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: STAGE_HEIGHT / 2 - 50,
+			text: `You completed all ${this.model.totalQuestions} questions!\nScore: ${this.model.correctAnswers}/${this.model.totalQuestions}`,
+			fontSize: 32,
 			fill: 'white',
-			opacity: 0.85,
+			align: 'center',
+			width: 600,
+		});
+		msg.offsetX(300);
+		this.view.getGroup().add(msg);
+
+		// ------------------------------
+		// BIG DONE BUTTON
+		// ------------------------------
+		const doneBtn = new Konva.Rect({
+			x: STAGE_WIDTH / 2 - 150,
+			y: STAGE_HEIGHT / 2 + 40,
+			width: 300,
+			height: 70,
+			fill: '#4CBB17',
 			cornerRadius: 15,
 		});
-		this.view.getGroup().add(box);
+		this.view.getGroup().add(doneBtn);
 
-		const text = new Konva.Text({
+		const doneText = new Konva.Text({
 			x: STAGE_WIDTH / 2,
-			y: STAGE_HEIGHT / 2,
-			text: `You completed all ${this.model.totalQuestions} questions!\nScore: ${this.model.correctAnswers}/${this.model.totalQuestions}`,
-			fontSize: 26,
-			fontFamily: 'Arial',
-			fill: 'black',
+			y: STAGE_HEIGHT / 2 + 60,
+			text: 'DONE',
+			fontSize: 30,
+			fill: 'white',
 			align: 'center',
+			width: 300,
 		});
-		text.offsetX(text.width() / 2);
-		text.offsetY(text.height() / 2);
-		this.view.getGroup().add(text);
+		doneText.offsetX(150);
+		this.view.getGroup().add(doneText);
 
+		// Click → Level selection
+		const goBack = () => this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		doneBtn.on('click', goBack);
+		doneText.on('click', goBack);
+
+		// Disable input box so user can't type
 		if (this.inputBox) this.inputBox.disabled = true;
+
+		this.view.getGroup().getLayer()?.batchDraw();
 	}
 
 	private formatTime(hour: number, minute: number): string {
 		return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 	}
 
-	private handleReturnToMenu(): void {
-		this.screenSwitcher.switchToScreen({ type: 'menu' });
+	// Hide the input box
+	private hideInputBoxTemporarily(): void {
+		if (this.inputBox) {
+			this.inputBox.style.display = 'none';
+		}
+	}
+
+	// Show the input box again ONLY if question isn't completed
+	private showInputBoxAgain(): void {
+		const entry = this.history[this.currentIndex];
+		if (this.inputBox && (!entry || !entry.completed)) {
+			this.inputBox.style.display = 'block';
+		}
 	}
 
 	override show(): void {

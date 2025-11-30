@@ -12,6 +12,7 @@ import { MilitaryTimeGameController } from './screens/MilitaryTimeGameScreen/Mil
 import { PauseMenuController } from './screens/PauseMenuScreen/PauseMenuController.ts';
 import { HelpManager } from './core/managers/HelpManager';
 import { PauseManager } from './core/managers/PauseManager';
+import { PerformanceDashboardController } from './screens/PerformanceDashboardScreen/PerformanceDashboardController';
 
 import { LevelSelectionController } from './screens/LevelSelectionScreen/LevelSelectionController.ts';
 import { VenusGameController } from './planets/venus/VenusGameController.ts';
@@ -47,6 +48,7 @@ class App implements ScreenSwitcher {
 	private knowledgeController: KnowledgeScreenController;
 	private militaryController: MilitaryTimeGameController;
 	private pauseMenuController: PauseMenuController;
+	private performanceDashboardController: PerformanceDashboardController;
 	private helpManager: HelpManager;
 	private pauseManager: PauseManager;
 
@@ -85,6 +87,7 @@ class App implements ScreenSwitcher {
 		this.militaryController = new MilitaryTimeGameController(this);
 
 		this.levelSelectionController = new LevelSelectionController(this);
+		this.performanceDashboardController = new PerformanceDashboardController(this);
 
 		// Initialize managers first (they need to be created before pause menu controller)
 		this.helpManager = new HelpManager(this.layer);
@@ -140,9 +143,11 @@ class App implements ScreenSwitcher {
 		this.layer.add(this.earthController.getView().getGroup());
 		// add the knwledge screen group to the layer
 		this.layer.add(this.knowledgeController.getView().getGroup());
-
+		this.layer.add(this.militaryController.getView().getGroup()); // moved here for consistency
 		this.layer.add(this.levelSelectionController.getView().getGroup());
 
+		// add the perf dashboard group to konva layer
+		this.layer.add(this.performanceDashboardController.getView().getGroup());
 		// Add help button after screens so it appears above them
 		this.helpManager.addToLayer();
 
@@ -189,7 +194,6 @@ class App implements ScreenSwitcher {
 	 * This method implements screen management by:
 	 * 1. Hiding all screens (setting their Groups to invisible)
 	 * 2. Showing only the requested screen
-	 *
 	 * This pattern ensures only one screen is visible at a time.
 	 */
 	switchToScreen(screen: Screen): void {
@@ -209,8 +213,8 @@ class App implements ScreenSwitcher {
 		this.knowledgeController.hide(); // hide Knowledge screen
 		this.militaryController.hide();
 		this.levelSelectionController.hide();
+		this.performanceDashboardController.hide(); // hide perf dashboard
 
-		this.layer.add(this.militaryController.getView().getGroup());
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
 			case 'menu':
@@ -270,6 +274,11 @@ class App implements ScreenSwitcher {
 			case 'level selection':
 				this.levelSelectionController.show();
 				this.activeController = this.levelSelectionController;
+				break;
+
+			case 'performance dashboard':
+				this.performanceDashboardController.show();
+				this.activeController = this.performanceDashboardController;
 				break;
 		}
 

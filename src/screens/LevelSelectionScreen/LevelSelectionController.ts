@@ -34,7 +34,8 @@ export class LevelSelectionController extends ScreenController {
 			() => this.handlePrimeGameClick(),
 			() => this.handleEarthClick(),
 			() => this.handleMercuryClick(),
-			() => this.handleVenusClick()
+			() => this.handleVenusClick(),
+			() => this.handleCheckProgressClick()
 		);
 
 		this.model = new LevelSelectionModel(
@@ -88,6 +89,11 @@ export class LevelSelectionController extends ScreenController {
 	private handleVenusClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'venus game' });
 	}
+
+	private handleCheckProgressClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'performance dashboard' });
+	}
+
 	// ---------------------------------------------------------
 	// VIEW IMPLEMENTATION
 	// ---------------------------------------------------------

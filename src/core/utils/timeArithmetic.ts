@@ -24,9 +24,9 @@ export function generateTimeQuestion(): TimeQuestion {
 	const deltaHours = deltaHourOptions[Math.floor(Math.random() * deltaHourOptions.length)];
 	const deltaMinutes = Math.round(deltaHours * 60) * (add ? 1 : -1);
 
-	// Apply change and wrap around 24 hours
+	//  Applied the change and wrapped around 24 hours
 	let totalMinutes = startHour * 60 + startMinute + deltaMinutes;
-	totalMinutes = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
+	totalMinutes = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60); // normalize using modulo
 
 	const correctHour = Math.floor(totalMinutes / 60);
 	const correctMinute = totalMinutes % 60;

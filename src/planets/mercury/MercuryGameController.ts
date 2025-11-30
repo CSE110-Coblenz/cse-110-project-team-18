@@ -3,6 +3,7 @@ import type { ScreenSwitcher } from '../../types';
 import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
 import { MercuryGameView } from './MercuryGameView';
 import { MercuryGameModel } from './MercuryGameModel';
+import { ProgressManager } from '../../core/managers/ProgressManager';
 
 type MercuryPhase = 'main' | 'mainSummary' | 'challengeIntro' | 'challenge' | 'challengeSummary';
 
@@ -326,6 +327,16 @@ export class MercuryGameController extends ScreenController {
 			phase: 'main',
 		};
 
+		// === SAVE PROGRESS: MERCURY MAIN QUIZ ===
+		ProgressManager.getInstance().setResult('mercury_main', {
+			label: 'Mercury Math — Main Quiz',
+			score: summary.correctAnswers,
+			total: summary.totalQuestions,
+			accuracy: summary.correctAnswers / summary.totalQuestions,
+			played: true,
+			passed: passed,
+		});
+
 		this.view.displaySummary(
 			summary.correctAnswers,
 			summary.totalQuestions,
@@ -390,6 +401,17 @@ export class MercuryGameController extends ScreenController {
 	private handleChallengeComplete(): void {
 		const summary = this.model.getSummary();
 		const passed = summary.correctAnswers >= summary.minNumberOfQuestionsToWin;
+
+		// === SAVE PROGRESS: MERCURY CHALLENGE ===
+		ProgressManager.getInstance().setResult('mercury_challenge', {
+			label: 'Mercury Math — Speed Challenge',
+			score: summary.correctAnswers,
+			total: summary.totalQuestions,
+			accuracy: summary.correctAnswers / summary.totalQuestions,
+			played: true,
+			passed: passed,
+		});
+
 		this.lastSummary = {
 			correct: summary.correctAnswers,
 			total: summary.totalQuestions,
@@ -397,6 +419,7 @@ export class MercuryGameController extends ScreenController {
 			passed,
 			phase: 'challenge',
 		};
+
 		this.view.displaySummary(
 			summary.correctAnswers,
 			summary.totalQuestions,
