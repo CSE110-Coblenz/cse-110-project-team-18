@@ -178,12 +178,16 @@ export function saveUserCurrentPercentageCorrect(userId: number, percentage: num
  *
  * @param userId the current user ID
  */
-export function getUserPercentageCorrect(userId: number): number[] {
+export function getUserPercentageCorrect(userId: number): Map<number, number> {
 	const stmt = db.prepare(
 		'SELECT percent_correct FROM user_progress WHERE id = ? ORDER BY planet_id'
 	);
 	const rows = stmt.all(userId) as { percent_correct: number }[];
-	return rows.map((r) => r.percent_correct);
+	const percentageMap: Map<number, number> = new Map();
+	rows.forEach((row, index) => {
+		percentageMap.set(index + 1, row.percent_correct); // planet_id starts from 1
+	});
+	return percentageMap;
 }
 
 // === AUTOSAVE ===
