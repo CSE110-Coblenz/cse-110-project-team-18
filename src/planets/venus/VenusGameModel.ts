@@ -13,17 +13,30 @@ type Question = {
  */
 export class VenusGameModel {
 	private questionsBank: Question[] = [];
-	private readonly maxNumberOfQuestions = 10;
-	private readonly minNumberOfQuestionsToWin: number;
+	/* ---------------- Rapid-fire Game Modified ---------------- */
+	// add constant for the max number of questions
+	private readonly defaultMaxNumberOfQuestions = 10;
+	/* ---------------- End Rapid-fire Game Modified ---------------- */
+	private maxNumberOfQuestions: number;
+	private minNumberOfQuestionsToWin: number;
 	private questionIndex = 0;
 	private correctAnswers = 0;
 
 	constructor() {
+		/* ---------------- Rapid-fire Game Modified ---------------- */
+		// initialize the fields
+		this.maxNumberOfQuestions = this.defaultMaxNumberOfQuestions;
 		this.minNumberOfQuestionsToWin = Math.ceil(this.maxNumberOfQuestions * 0.8);
-		this.reset();
+		this.reset(this.defaultMaxNumberOfQuestions);
+		/* ---------------- Rapid-fire Game Modified ---------------- */
 	}
 
-	public reset(): void {
+	public reset(questionCount: number = this.defaultMaxNumberOfQuestions): void {
+		/* ---------------- Rapid-fire Game Modified ---------------- */
+		// allow to choose the max number of questions; default is 10
+		this.maxNumberOfQuestions = questionCount;
+		this.minNumberOfQuestionsToWin = Math.ceil(this.maxNumberOfQuestions * 0.8);
+		/* ---------------- Rapid-fire Game Modified ---------------- */
 		this.questionsBank = this.generateQuestions();
 		this.questionIndex = 0;
 		this.correctAnswers = 0;
@@ -62,6 +75,17 @@ export class VenusGameModel {
 			correctAnswer: currentQuestion.answer,
 		};
 	}
+
+	/* ---------------- Rapid-fire Game Modified ---------------- */
+	/**
+	 * return the number of correct answers so far
+	 *
+	 * @returns the number of correct answers
+	 */
+	public getCorrectAnswers(): number {
+		return this.correctAnswers;
+	}
+	/* ---------------- End Rapid-fire Game Modified ---------------- */
 
 	public getSummary(): {
 		correctAnswers: number;

@@ -25,10 +25,10 @@ const mercuryHelpSlides: string[] = [
 				• Read the question in the box and enter a whole-number answer.
 			</text>
 			<text x="160" y="330" fill="#dce7ff" font-size="28" font-family="Arial" letter-spacing="0.8">
-				• Press Submit (or Enter). The Correct counter tracks your wins.
+				• Press Submit (or Enter) and We will track your wins.
 			</text>
 			<text x="160" y="400" fill="#dce7ff" font-size="28" font-family="Arial" letter-spacing="0.8">
-				• Score 80% to unlock the 5-second speed challenge.
+				• Score 80% to go to Venus.
 			</text>
 		</svg>
 	`),

@@ -194,8 +194,8 @@ export class MercuryGameModel {
 				answer = first - second;
 				break;
 			case '*':
-				answer = first * second;
 				text = `${first} x ${second}`;
+				answer = first * second;
 				break;
 			case '/': {
 				second = Math.max(1, second);

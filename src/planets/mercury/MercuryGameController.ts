@@ -5,7 +5,7 @@ import { MercuryGameView } from './MercuryGameView';
 import { MercuryGameModel } from './MercuryGameModel';
 import { ProgressManager } from '../../core/managers/ProgressManager';
 
-type MercuryPhase = 'main' | 'mainSummary' | 'challengeIntro' | 'challenge' | 'challengeSummary';
+type MercuryPhase = 'main' | 'mainSummary';
 
 /**
  * MercuryGameController class handles screen switcher,
@@ -16,18 +16,7 @@ export class MercuryGameController extends ScreenController {
 	private readonly view: MercuryGameView;
 	private readonly model: MercuryGameModel;
 	private phase: MercuryPhase = 'main';
-	private challengeTimerMs = 0;
-	private readonly challengeDurationMs = 5000;
-	private readonly challengeQuestionCount = 5;
-	private lastSummary?:
-		| {
-				correct: number;
-				total: number;
-				minToWin: number;
-				passed: boolean;
-				phase: 'main' | 'challenge';
-		  }
-		| undefined;
+	private mainPassed = false;
 	private inputBox: HTMLInputElement | null = null;
 
 	/**
@@ -42,7 +31,7 @@ export class MercuryGameController extends ScreenController {
 		this.model = new MercuryGameModel();
 		this.view = new MercuryGameView(
 			() => this.handleSubmitAnswer(),
-			() => this.handleReturnToMenuClick()
+			() => this.handleReturnToLevelClick()
 		);
 	}
 
@@ -73,31 +62,21 @@ export class MercuryGameController extends ScreenController {
 	override hide(): void {
 		super.hide();
 		this.removeInputBox();
-		this.view.hideModal();
-		this.view.hideTimer();
 	}
 
 	/**
 	 * default is empty
 	 */
-	update(deltaTimeMs: number): void {
-		if (this.phase === 'challenge' && this.model.hasMoreQuestions()) {
-			if (this.challengeTimerMs > 0) {
-				this.challengeTimerMs = Math.max(0, this.challengeTimerMs - deltaTimeMs);
-				this.updateTimerLabel();
-				if (this.challengeTimerMs <= 0) {
-					this.handleChallengeTimeout();
-				}
-			}
-		}
+	update(): void {
+		// no-op
 	}
 
 	/**
 	 * handle return to menu's button that returns to menu
 	 * screen when clicked
 	 */
-	private handleReturnToMenuClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'menu' });
+	private handleReturnToLevelClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 
 	/**
@@ -106,10 +85,7 @@ export class MercuryGameController extends ScreenController {
 	private startMainGame(): void {
 		this.phase = 'main';
 		this.model.reset();
-		this.lastSummary = undefined;
 		this.view.setSubmitLabel('SUBMIT');
-		this.view.hideModal();
-		this.view.hideTimer();
 		this.view.setReturnButtonVisible(true);
 		this.ensureInputBox();
 		this.view.showMessage('');
@@ -205,22 +181,7 @@ export class MercuryGameController extends ScreenController {
 			this.model.getCorrectAnswers()
 		);
 
-		if (this.phase === 'challenge') {
-			this.challengeTimerMs = this.challengeDurationMs;
-			this.updateTimerLabel();
-		} else {
-			this.view.hideTimer();
-		}
-
 		this.focusInput();
-	}
-
-	/**
-	 * refresh the countdown label during the timed challenge
-	 */
-	private updateTimerLabel(): void {
-		const secondsLeft = Math.max(0, this.challengeTimerMs) / 1000;
-		this.view.updateTimer(`Time left: ${secondsLeft.toFixed(1)}s`);
 	}
 
 	/**
@@ -228,24 +189,10 @@ export class MercuryGameController extends ScreenController {
 	 */
 	private handleSubmitAnswer(): void {
 		if (this.phase === 'mainSummary') {
-			if (this.lastSummary?.passed) {
-				this.startChallengeIntro();
+			if (this.mainPassed) {
+				this.screenSwitcher.switchToScreen({ type: 'venus game' });
 			} else {
 				this.startMainGame();
-			}
-			return;
-		}
-
-		if (this.phase === 'challengeIntro') {
-			this.startChallengeGame();
-			return;
-		}
-
-		if (this.phase === 'challengeSummary') {
-			if (this.lastSummary?.passed) {
-				this.screenSwitcher.switchToScreen({ type: 'menu' });
-			} else {
-				this.startChallengeGame();
 			}
 			return;
 		}
@@ -254,10 +201,6 @@ export class MercuryGameController extends ScreenController {
 
 		if (!this.model.hasMoreQuestions()) {
 			this.view.showMessage('All questions answered! Review your summary.');
-			return;
-		}
-
-		if (this.phase === 'challenge' && this.challengeTimerMs <= 0) {
 			return;
 		}
 
@@ -283,11 +226,6 @@ export class MercuryGameController extends ScreenController {
 		this.view.updateCorrectCount(this.model.getCorrectAnswers());
 		this.inputBox.value = '';
 
-		if (this.phase === 'challenge') {
-			this.challengeTimerMs = 0;
-			this.view.hideTimer();
-		}
-
 		this.scheduleNextStep();
 	}
 
@@ -308,8 +246,6 @@ export class MercuryGameController extends ScreenController {
 	private handlePhaseComplete(): void {
 		if (this.phase === 'main') {
 			this.handleMainComplete();
-		} else if (this.phase === 'challenge') {
-			this.handleChallengeComplete();
 		}
 	}
 
@@ -319,13 +255,7 @@ export class MercuryGameController extends ScreenController {
 	private handleMainComplete(): void {
 		const summary = this.model.getSummary();
 		const passed = summary.correctAnswers >= summary.minNumberOfQuestionsToWin;
-		this.lastSummary = {
-			correct: summary.correctAnswers,
-			total: summary.totalQuestions,
-			minToWin: summary.minNumberOfQuestionsToWin,
-			passed,
-			phase: 'main',
-		};
+		this.mainPassed = passed;
 
 		// === SAVE PROGRESS: MERCURY MAIN QUIZ ===
 		ProgressManager.getInstance().setResult('mercury_main', {
@@ -342,98 +272,11 @@ export class MercuryGameController extends ScreenController {
 			summary.totalQuestions,
 			summary.minNumberOfQuestionsToWin
 		);
-		this.view.hideTimer();
 		this.removeInputBox();
 		this.phase = 'mainSummary';
-		this.view.setSubmitLabel(passed ? 'CHALLENGE' : 'RETRY');
+		this.view.setSubmitLabel(passed ? 'GO TO VENUS' : 'RETRY');
 		this.view.showMessage(
-			passed ? 'Ready for a 5-second speed round?' : 'Score under 80%. Tap retry to try again.',
-			passed ? '#A7F3D0' : '#FBBF24'
-		);
-	}
-
-	/**
-	 * show one-page intro before starting the timed challenge
-	 */
-	private startChallengeIntro(): void {
-		this.phase = 'challengeIntro';
-		this.view.showModal(
-			'Timed mini-mission: 5 seconds per question.\nAnswer quickly to keep pace.\nPress Start to begin.'
-		);
-		this.view.setSubmitLabel('START CHALLENGE');
-		this.view.hideTimer();
-	}
-
-	/**
-	 * start the timed challenge run with a shorter question set
-	 */
-	private startChallengeGame(): void {
-		this.phase = 'challenge';
-		this.view.hideModal();
-		this.model.reset(this.challengeQuestionCount);
-		this.lastSummary = undefined;
-		this.challengeTimerMs = 0;
-		this.ensureInputBox();
-		this.view.setSubmitLabel('SUBMIT');
-		this.view.showMessage('');
-		this.view.updateCorrectCount(0);
-		this.presentCurrentQuestion();
-	}
-
-	/**
-	 * auto-mark incorrect if the timer hits zero mid-challenge
-	 */
-	private handleChallengeTimeout(): void {
-		if (this.phase !== 'challenge') return;
-		const question = this.model.getCurrentQuestion();
-		if (!question) return;
-		const result = this.model.submitAnswer(Number.NaN);
-		this.view.displayResult(false, question.text, result.correctAnswer);
-		this.view.updateCorrectCount(this.model.getCorrectAnswers());
-		if (this.inputBox) this.inputBox.value = '';
-		this.challengeTimerMs = 0;
-		this.scheduleNextStep();
-	}
-
-	/**
-	 * wrap up the challenge, adjust button labels, and offer retry/menu
-	 */
-	private handleChallengeComplete(): void {
-		const summary = this.model.getSummary();
-		const passed = summary.correctAnswers >= summary.minNumberOfQuestionsToWin;
-
-		// === SAVE PROGRESS: MERCURY CHALLENGE ===
-		ProgressManager.getInstance().setResult('mercury_challenge', {
-			label: 'Mercury Math — Speed Challenge',
-			score: summary.correctAnswers,
-			total: summary.totalQuestions,
-			accuracy: summary.correctAnswers / summary.totalQuestions,
-			played: true,
-			passed: passed,
-		});
-
-		this.lastSummary = {
-			correct: summary.correctAnswers,
-			total: summary.totalQuestions,
-			minToWin: summary.minNumberOfQuestionsToWin,
-			passed,
-			phase: 'challenge',
-		};
-
-		this.view.displaySummary(
-			summary.correctAnswers,
-			summary.totalQuestions,
-			summary.minNumberOfQuestionsToWin
-		);
-		this.view.hideTimer();
-		this.removeInputBox();
-		this.phase = 'challengeSummary';
-		this.view.setSubmitLabel(passed ? 'GO TO MENU' : 'RETRY');
-		this.view.setReturnButtonVisible(false);
-		this.view.showMessage(
-			passed
-				? 'Challenge complete! Returning to the menu.'
-				: 'Missed the target. Retry the speed round?',
+			passed ? 'Nice work!' : 'Score under 80%. Tap retry to try again.',
 			passed ? '#A7F3D0' : '#FBBF24'
 		);
 	}
