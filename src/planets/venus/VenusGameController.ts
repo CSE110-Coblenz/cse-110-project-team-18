@@ -6,6 +6,9 @@ import { VenusGameModel } from './VenusGameModel';
 import { theme } from '../../configs/ThemeConfig.ts';
 import { ProgressManager } from '../../core/managers/ProgressManager';
 
+/* same API base pattern as MenuScreenController */
+const API_BASE = 'http://localhost:3000/api';
+
 /* ---------------- Rapid-fire Game Modified ---------------- */
 // add phases
 type VenusPhase = 'main' | 'mainSummary' | 'challengeIntro' | 'challenge' | 'challengeSummary';
@@ -385,6 +388,35 @@ export class VenusGameController extends ScreenController {
 		this.presentCurrentQuestion();
 	}
 
+	/** helper to save Venus score + unlock Earth (planet 3) */
+	private async saveVenusScore(finalScore: number): Promise<void> {
+		const userId = (window as any).__CURRENT_USER_ID__ as number | undefined;
+		if (!userId) {
+			console.warn('[Venus] No current user ID; skipping DB save.');
+			return;
+		}
+
+		try {
+			const res = await fetch(`${API_BASE}/progress/update-score`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId,
+					planetId: 2, // Venus = planet_id 2
+					score: finalScore, // must be > 0 to unlock Earth (3)
+				}),
+			});
+
+			if (!res.ok) {
+				console.error('[Venus] Failed to save score:', res.status, await res.text());
+			} else {
+				console.log('[Venus] Score saved successfully for user', userId);
+			}
+		} catch (err) {
+			console.error('[Venus] Error saving score:', err);
+		}
+	}
+
 	/**
 	 * handle challenge completion: display summary screen, decide whether
 	 * players can move on to Earth or retry the rapid-fire game
@@ -399,6 +431,12 @@ export class VenusGameController extends ScreenController {
 			passed,
 			phase: 'challenge',
 		};
+
+		// === SAVE PROGRESS: VENUS CHALLENGE ===
+		if (passed && summary.correctAnswers > 0) {
+			void this.saveVenusScore(summary.correctAnswers);
+		}
+
 		this.view.displaySummary(
 			summary.correctAnswers,
 			summary.totalQuestions,

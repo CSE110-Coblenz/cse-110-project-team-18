@@ -17,6 +17,13 @@ export class LevelSelectionView implements View {
 	private group: Konva.Group;
 	private buttonGroup?: Konva.Group;
 
+	// ⭐ keep references so we can lock/unlock later
+	private asteroidBtn!: Konva.Group;
+	private marsBtn!: Konva.Group;
+	private earthBtn!: Konva.Group;
+	private mercuryBtn!: Konva.Group;
+	private venusBtn!: Konva.Group;
+
 	constructor(
 		astroidBtnClick: () => void,
 		marsBtnClick: () => void,
@@ -60,7 +67,7 @@ export class LevelSelectionView implements View {
 			text: 'CHECK PROGRESS',
 			colorKey: 'accent_blue',
 			hoverColorKey: 'accent_blue_hover',
-			onClick: onCheckProgressClick, // now the LAST arg
+			onClick: onCheckProgressClick,
 		});
 
 		this.group.add(progressBtn);
@@ -68,7 +75,6 @@ export class LevelSelectionView implements View {
 		//-------------------------------------------------------
 		// SPECIAL EFFECTS FOR PROGRESS BUTTON
 		//-------------------------------------------------------
-
 		const pulse = () => {
 			progressBtn.to({
 				scaleX: 1.07,
@@ -86,10 +92,8 @@ export class LevelSelectionView implements View {
 				},
 			});
 		};
+		pulse();
 
-		pulse(); // start the loop
-
-		// Hover pop-out
 		progressBtn.on('mouseenter', () => {
 			progressBtn.to({
 				scaleX: 1.12,
@@ -98,8 +102,6 @@ export class LevelSelectionView implements View {
 				duration: 0.15,
 			});
 		});
-
-		// Hover leave
 		progressBtn.on('mouseleave', () => {
 			progressBtn.to({
 				scaleX: 1,
@@ -108,8 +110,6 @@ export class LevelSelectionView implements View {
 				duration: 0.15,
 			});
 		});
-
-		// Click bounce
 		progressBtn.on('mousedown', () => {
 			progressBtn.to({
 				scaleX: 0.92,
@@ -199,7 +199,14 @@ export class LevelSelectionView implements View {
 		buttonGroup.add(mercuryBtn);
 		buttonGroup.add(venusBtn);
 
+		// ⭐ store references
 		this.buttonGroup = buttonGroup;
+		this.asteroidBtn = astroidBtn;
+		this.marsBtn = marsBtn;
+		this.earthBtn = earthBtn;
+		this.mercuryBtn = mercuryBtn;
+		this.venusBtn = venusBtn;
+
 		this.group.add(buttonGroup);
 	}
 
@@ -224,5 +231,42 @@ export class LevelSelectionView implements View {
 		if (this.buttonGroup) {
 			this.buttonGroup.moveToTop();
 		}
+	}
+
+	//-------------------------------------------------------
+	// NEW: lock / unlock visuals
+	//-------------------------------------------------------
+	/**
+	 * Update which planets appear locked/unlocked based on DB.
+	 * @param unlockedPlanets list of planet_ids that are unlocked (1..5)
+	 */
+	setLockState(unlockedPlanets: number[]): void {
+		const set = new Set(unlockedPlanets);
+
+		// Small helper: dim + disable when locked
+		const setLocked = (btn: Konva.Group | undefined, locked: boolean) => {
+			if (!btn) return;
+			btn.listening(!locked);
+			btn.opacity(locked ? 0.4 : 1.0);
+		};
+
+		// 1 Mercury, 2 Venus, 3 Earth, 4 Mars, 5 asteroidField
+
+		// Mercury: always playable as first planet
+		setLocked(this.mercuryBtn, false);
+
+		// Venus locked unless 2 is in the unlocked list
+		setLocked(this.venusBtn, !set.has(2));
+
+		// Earth
+		setLocked(this.earthBtn, !set.has(3));
+
+		// Mars
+		setLocked(this.marsBtn, !set.has(4));
+
+		// Asteroid field
+		setLocked(this.asteroidBtn, !set.has(5));
+
+		this.group.getLayer()?.batchDraw();
 	}
 }

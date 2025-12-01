@@ -184,6 +184,10 @@ export class MenuScreenController extends ScreenController {
 
 			this.model.currentUserID = data.user.id;
 
+			// expose current user globally so other screens (level selection, planets)
+			// can read it when calling progress APIs
+			(window as any).__CURRENT_USER_ID__ = data.user.id;
+
 			this.screenSwitcher.switchToScreen({ type: 'level selection' });
 		} catch (err) {
 			console.error('Login error', err);
@@ -236,6 +240,7 @@ export class MenuScreenController extends ScreenController {
 			}
 
 			this.model.currentUserID = data.user.id;
+			(window as any).__CURRENT_USER_ID__ = data.user.id;
 
 			// Backend should:
 			//   - create user

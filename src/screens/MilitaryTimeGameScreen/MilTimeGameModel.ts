@@ -30,7 +30,7 @@ export class MilitaryTimeGameModel {
 			title: "Let's Practice Military Time!",
 			text:
 				"You'll answer 10 questions.\n" +
-				'You must get at least 7 correct to move to the Earth Game.\n\n' +
+				'You must get at least 7 correct to move to the Mars Game.\n\n' +
 				'Military time uses hours 00–23.\n' +
 				'Example: 1 PM → 13:00',
 		});
