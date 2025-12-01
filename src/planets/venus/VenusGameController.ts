@@ -39,7 +39,7 @@ export class VenusGameController extends ScreenController {
 		this.model = new VenusGameModel();
 		this.view = new VenusGameView(
 			() => this.handleSubmitAnswer(),
-			() => this.handleReturnToMenuClick()
+			() => this.handleReturnToLevelClick()
 		);
 	}
 
@@ -110,8 +110,8 @@ export class VenusGameController extends ScreenController {
 	}
 	/* ---------------- End Rapid-fire Game Modified ---------------- */
 
-	private handleReturnToMenuClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'menu' });
+	private handleReturnToLevelClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 
 	private ensureInputBox(): void {
@@ -353,7 +353,7 @@ export class VenusGameController extends ScreenController {
 		this.view.showModal(
 			'Rapid-fire finale: 5 seconds per question.\nStay sharp to reach Earth.\nPress Start to begin.'
 		);
-		this.view.setSubmitLabel('START FINALE');
+		this.view.setSubmitLabel('START');
 		this.view.hideTimer();
 	}
 
