@@ -23,9 +23,9 @@ export class MercuryGameView implements View {
 	 * constructor designs the background, buttons, textbox, texts
 	 *
 	 * @param onSubmitAnswer move to next question
-	 * @param onReturnToMenu move out to menu
+	 * @param onReturnToLevel move out to level selection
 	 */
-	constructor(onSubmitAnswer: () => void, onReturnToMenu: () => void) {
+	constructor(onSubmitAnswer: () => void, onReturnToLevel: () => void) {
 		this.group = new Konva.Group({
 			visible: false,
 			id: 'mercuryGameScreen',
@@ -141,7 +141,7 @@ export class MercuryGameView implements View {
 			fontFamily: FONT_FAMILY,
 			fill: '#FDE68A',
 			visible: false,
-			lineHeight: 1.25,
+			lineHeight: 1.10,
 			letterSpacing: 1,
 		});
 		this.summaryLabel.offsetX((STAGE_WIDTH - 200) / 2);
@@ -164,10 +164,10 @@ export class MercuryGameView implements View {
 			y: 50,
 			width: 275,
 			height: 60,
-			text: 'RETURN TO MENU',
+			text: 'RETURN TO LEVEL',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
-			onClick: onReturnToMenu,
+			onClick: onReturnToLevel,
 		});
 		this.group.add(this.returnButton);
 	}
@@ -288,7 +288,7 @@ export class MercuryGameView implements View {
 		const passed = correctAnswers >= minNumberOfQuestionsToWin;
 		const summary = `You answered ${correctAnswers} / ${maxNumberOfQuestions} correctly.\n\n${
 			passed
-				? 'You gathered enough data to leave Mercury!'
+				? 'Ready to challenge Venus!'
 				: `Keep practicing until you reach ${minNumberOfQuestionsToWin}.`
 		}`;
 		this.summaryLabel.text(summary);

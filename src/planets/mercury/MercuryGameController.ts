@@ -15,6 +15,7 @@ export class MercuryGameController extends ScreenController {
 	private readonly view: MercuryGameView;
 	private readonly model: MercuryGameModel;
 	private phase: MercuryPhase = 'main';
+	private mainPassed = false;
 	private inputBox: HTMLInputElement | null = null;
 
 	/**
@@ -29,7 +30,7 @@ export class MercuryGameController extends ScreenController {
 		this.model = new MercuryGameModel();
 		this.view = new MercuryGameView(
 			() => this.handleSubmitAnswer(),
-			() => this.handleReturnToMenuClick()
+			() => this.handleReturnToLevelClick()
 		);
 	}
 
@@ -73,8 +74,8 @@ export class MercuryGameController extends ScreenController {
 	 * handle return to menu's button that returns to menu
 	 * screen when clicked
 	 */
-	private handleReturnToMenuClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'menu' });
+	private handleReturnToLevelClick(): void {
+		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 
 	/**
@@ -187,7 +188,11 @@ export class MercuryGameController extends ScreenController {
 	 */
 	private handleSubmitAnswer(): void {
 		if (this.phase === 'mainSummary') {
-			this.startMainGame();
+			if (this.mainPassed) {
+				this.screenSwitcher.switchToScreen({ type: 'venus game' });
+			} else {
+				this.startMainGame();
+			}
 			return;
 		}
 
@@ -249,6 +254,7 @@ export class MercuryGameController extends ScreenController {
 	private handleMainComplete(): void {
 		const summary = this.model.getSummary();
 		const passed = summary.correctAnswers >= summary.minNumberOfQuestionsToWin;
+		this.mainPassed = passed;
 
 		this.view.displaySummary(
 			summary.correctAnswers,
@@ -257,10 +263,10 @@ export class MercuryGameController extends ScreenController {
 		);
 		this.removeInputBox();
 		this.phase = 'mainSummary';
-		this.view.setSubmitLabel('RETRY');
+		this.view.setSubmitLabel(passed ? 'GO TO VENUS' : 'RETRY');
 		this.view.showMessage(
 			passed
-				? 'Nice work! Tap retry to practice again or return to the menu.'
+				? 'Nice work!'
 				: 'Score under 80%. Tap retry to try again.',
 			passed ? '#A7F3D0' : '#FBBF24'
 		);
