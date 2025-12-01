@@ -258,9 +258,6 @@ export class MenuScreenController extends ScreenController {
 	}
 
 	private handleGuestPlay(): void {
-		// Guest: no DB user, so clear any previous login
-		(window as any).__CURRENT_USER_ID__ = undefined;
-
 		// No DB, no autosave, just start game
 		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}

@@ -18,6 +18,13 @@ export class LevelSelectionController extends ScreenController {
 
 	// 1 Mercury, 2 Venus, 3 Earth, 4 Mars, 5 asteroidField
 	private isPlanetUnlocked(planetId: number): boolean {
+		// If there's no logged-in user, assume guest play → everything unlocked
+		const currentUserId = (window as any).__CURRENT_USER_ID__ as number | undefined;
+		if (!currentUserId) {
+			return true; // guest mode: no locks
+		}
+
+		// Normal behavior for logged-in players:
 		// Mercury is always unlocked as the first planet
 		if (planetId === 1) return true;
 		return this.unlockedPlanets.has(planetId);
@@ -160,9 +167,11 @@ export class LevelSelectionController extends ScreenController {
 
 		const currentUserId = (window as any).__CURRENT_USER_ID__ as number | undefined;
 		if (currentUserId) {
+			// Logged-in user → fetch unlocks from DB
 			void this.refreshLockStateForUser(currentUserId);
 		} else {
-			console.warn('No current user ID set; only Mercury will be logically unlocked.');
+			// Guest mode → no DB, all planets unlocked via isPlanetUnlocked()
+			console.log('[LevelSelection] Guest play: all planets unlocked');
 		}
 	}
 
