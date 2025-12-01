@@ -156,6 +156,36 @@ export function save(userId: number): void {
 	savePlanetScore(userId, currentData.score, currentPlanet);
 }
 
+/**
+ * Saves the percentage of correct answers for the current user on the current planet.
+ *
+ * @param userId the current user ID.
+ * @param percentage the percentage of correct answers (between 0 and 1).
+ * @throws Error if percentage is out of bounds.
+ */
+export function saveUserCurrentPercentageCorrect(userId: number, percentage: number): void {
+	const currentPlanet = getUserCurrentPlanet(userId);
+	if (currentPlanet === null) return; // erronious call
+	if (percentage < 0 || percentage > 1) throw new Error('Percentage must be between 0 and 1');
+
+	const stmt = db.prepare(
+		'UPDATE user_progress SET percent_correct = ? WHERE id = ? AND planet_id = ?'
+	);
+	stmt.run(percentage, userId, currentPlanet);
+}
+/**
+ * Gets the percentage of correct answers for the current user on all planets
+ *
+ * @param userId the current user ID
+ */
+export function getUserPercentageCorrect(userId: number): number[] {
+	const stmt = db.prepare(
+		'SELECT percent_correct FROM user_progress WHERE id = ? ORDER BY planet_id'
+	);
+	const rows = stmt.all(userId) as { percent_correct: number }[];
+	return rows.map((r) => r.percent_correct);
+}
+
 // === AUTOSAVE ===
 
 /**
