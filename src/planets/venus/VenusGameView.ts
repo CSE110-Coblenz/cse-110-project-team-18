@@ -11,12 +11,16 @@ import { preloadImage } from '../../core/utils/AssetLoader';
 export class VenusGameView implements View {
 	private group: Konva.Group;
 
-	// UI Elements
+	// UI Elements (includes rapid-fire HUD pieces)
 	private progressLabel: Konva.Group;
+	private correctCountLabel: Konva.Group; // live correct counter for speed round
 	private questionLabel: Konva.Group;
 	private feedbackLabel: Konva.Group;
 	private summaryLabel: Konva.Group;
 	private submitButton: Konva.Group;
+	private timerLabel: Konva.Group; // countdown for rapid-fire
+	private modalGroup: Konva.Group; // intro overlay for rapid-fire
+	private modalBody: Konva.Text;
 	private returnButton: Konva.Group;
 
 	constructor(onSubmitAnswer: () => void, onReturnToMenu: () => void) {
@@ -73,6 +77,22 @@ export class VenusGameView implements View {
 		);
 		this.group.add(this.progressLabel);
 
+		this.correctCountLabel = createTextBox(
+			{
+				x: STAGE_WIDTH - 250,
+				y: 170,
+				width: 200,
+				height: 30,
+				text: 'Correct: 0',
+				colorKey: 'transparent',
+				fontColorKey: 'info',
+				fontSize: 22,
+				padding: 0,
+			},
+			theme
+		);
+		this.group.add(this.correctCountLabel);
+
 		// Question Label
 		this.questionLabel = createTextBox(
 			{
@@ -107,6 +127,23 @@ export class VenusGameView implements View {
 		);
 		this.group.add(this.feedbackLabel);
 
+		this.timerLabel = createTextBox(
+			{
+				x: 50,
+				y: 170,
+				width: 200,
+				height: 30,
+				text: '',
+				colorKey: 'transparent',
+				fontColorKey: 'warning',
+				fontSize: 20,
+				padding: 0,
+			},
+			theme
+		);
+		this.timerLabel.visible(false);
+		this.group.add(this.timerLabel);
+
 		// Summary Label
 		this.summaryLabel = createTextBox(
 			{
@@ -138,6 +175,52 @@ export class VenusGameView implements View {
 		});
 		this.group.add(this.submitButton);
 
+		this.modalGroup = new Konva.Group({
+			visible: false,
+			x: STAGE_WIDTH / 2,
+			y: STAGE_HEIGHT / 2,
+		});
+
+		const modalBg = new Konva.Rect({
+			x: -380,
+			y: -170,
+			width: 760,
+			height: 340,
+			fill: 'rgba(15, 23, 42, 0.96)',
+			cornerRadius: 22,
+			stroke: 'rgba(255,255,255,0.08)',
+			strokeWidth: 2,
+		});
+		this.modalGroup.add(modalBg);
+
+		const modalTitle = new Konva.Text({
+			x: -340,
+			y: -130,
+			width: 680,
+			text: 'Venus Challenge',
+			align: 'center',
+			fontSize: 34,
+			fontFamily: theme.fontFamilyDefault,
+			fill: theme.get('text_inverse'),
+		});
+		this.modalGroup.add(modalTitle);
+
+		this.modalBody = new Konva.Text({
+			x: -340,
+			y: -70,
+			width: 680,
+			text: '',
+			align: 'center',
+			fontSize: 22,
+			fontFamily: theme.fontFamilyDefault,
+			fill: theme.get('asteroid_gray'),
+			lineHeight: 1.5,
+			letterSpacing: 1,
+		});
+		this.modalGroup.add(this.modalBody);
+
+		this.group.add(this.modalGroup);
+
 		// Return Button
 		this.returnButton = createButton({
 			x: 50,
@@ -167,16 +250,33 @@ export class VenusGameView implements View {
 		this.group.getLayer()?.batchDraw();
 	}
 
+	public setReturnButtonVisible(isVisible: boolean): void {
+		// Hide during rapid-fire summary to keep players in the finale loop.
+		this.returnButton.visible(isVisible);
+		this.returnButton.listening(isVisible);
+		this.group.getLayer()?.batchDraw();
+	}
+
+	public setSubmitLabel(text: string): void {
+		setElementText(this.submitButton, text);
+		this.group.getLayer()?.batchDraw();
+	}
+
 	public displayQuestion(
 		questionIndex: number,
 		totalQuestions: number,
-		questionText: string
+		questionText: string,
+		correctCount?: number
 	): void {
 		setElementText(this.progressLabel, `Question ${questionIndex + 1} of ${totalQuestions}`);
 		setElementText(this.questionLabel, questionText);
 		this.summaryLabel.visible(false);
+		if (typeof correctCount === 'number') {
+			this.updateCorrectCount(correctCount); // surface live tally in rapid fire
+		}
 
 		this.showMessage('Type your answer below and press submit.', theme.get('info'));
+		this.hideTimer();
 		this.group.getLayer()?.batchDraw();
 	}
 
@@ -197,6 +297,36 @@ export class VenusGameView implements View {
 			: `Incorrect. ${questionText} = ${answerText}`;
 
 		this.showMessage(message, color);
+	}
+
+	public updateCorrectCount(correctCount: number): void {
+		setElementText(this.correctCountLabel, `Correct: ${correctCount}`);
+		this.group.getLayer()?.batchDraw();
+	}
+
+	public updateTimer(text: string): void {
+		// Countdown label used exclusively in the rapid-fire finale.
+		setElementText(this.timerLabel, text);
+		this.timerLabel.visible(true);
+		this.group.getLayer()?.batchDraw();
+	}
+
+	public hideTimer(): void {
+		this.timerLabel.visible(false);
+		this.group.getLayer()?.batchDraw();
+	}
+
+	public showModal(body: string): void {
+		// Modal intro shown before the rapid-fire finale begins.
+		this.modalBody.text(body);
+		this.modalGroup.visible(true);
+		this.modalGroup.moveToTop();
+		this.group.getLayer()?.batchDraw();
+	}
+
+	public hideModal(): void {
+		this.modalGroup.visible(false);
+		this.group.getLayer()?.batchDraw();
 	}
 
 	public displaySummary(
