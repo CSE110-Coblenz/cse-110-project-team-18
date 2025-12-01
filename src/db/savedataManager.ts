@@ -158,7 +158,7 @@ export function save(userId: number): void {
 
 /**
  * Unlocks new planet for user. Call before changing current planet
- * 
+ *
  * @param userId the current user ID.
  * @param planetId the planet ID to unlock.
  */
@@ -166,9 +166,8 @@ export function unlockPlanetForUser(userId: number, planetId: number): void {
 	const unlockedPlanets = getUnlockedPlanets(userId);
 	if (planetId <= 0 || unlockedPlanets.includes(planetId)) return; // invalid or already unlocked
 
-	savePlanetScore(userId, 0, planetId); 
+	savePlanetScore(userId, 0, planetId);
 }
-
 
 // === AUTOSAVE ===
 
