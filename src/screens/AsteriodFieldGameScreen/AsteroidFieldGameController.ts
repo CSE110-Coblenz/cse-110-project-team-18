@@ -12,10 +12,23 @@ import { STAGE_WIDTH } from '../../configs/GameConfig';
 import { createPlayerManager } from '../../core/factories/PlayerManagerFactory';
 import { ScreenEntityManager } from '../../core/utils/ScreenEntityManager';
 import { CollisionManager } from '../../core/collision/CollisionManager';
+import { ProgressManager } from '../../core/managers/ProgressManager'; // Needed for Performance Dashboard
 
 /**
  * AsteroidFieldGameController - Handles asteroid field game interactions
+ Notes for the team:
+ --> currently, this game has *no end condition*. It runs forever.
+ --> a future PR can add the threshold functionality mentioned on discord
+ --> once an end condition exists, we can call ProgressManager.setResult()
+	 the same way it was done for the other games.
+
+ --> I am adding a simple "done" condition ONLY so I can retrieve score/accuracy
+	 data for the PerformanceDashboard. This is NOT the final end-condition for 
+	 the game. This placeholder exists so we can score/retrieve progress 
+	 consistently acfross all our games.
+
  */
+
 export class AsteroidFieldGameController extends ScreenController {
 	private view: AsteroidFieldGameView;
 	private screenSwitcher: ScreenSwitcher;
@@ -31,6 +44,12 @@ export class AsteroidFieldGameController extends ScreenController {
 		asteroidManager: AsteroidManager;
 		collisionManager: CollisionManager;
 	}>;
+	/**
+	 * TEMPORARY: End condition so we can record progress
+	 * Once the final design is decided, replace this.
+	 */
+	private readonly TEMP_END_THRESHOLD = 30; // Points needed to end the game
+	private hasRecordedResult = false; // Prevent double saving
 
 	/**
 	 * AsteroidFieldGameController - The controller for the asteroid field game screen
@@ -187,6 +206,9 @@ export class AsteroidFieldGameController extends ScreenController {
 			this.view.flashScreenEdge(false);
 		}
 		this.view.setScore(this.model.score);
+
+		// === TEMP END CONDITION ===
+		this.checkEndCondition();
 	}
 
 	private handleAsteroidReachedBottom(isFactor: boolean): void {
@@ -198,5 +220,37 @@ export class AsteroidFieldGameController extends ScreenController {
 			this.view.flashScreenEdge(true);
 		}
 		this.view.setScore(this.model.score);
+
+		// === TEMP END CONDITION ===
+		this.checkEndCondition();
+	}
+
+	/**
+	 * TEMP: Check if the game should end so we can save progress.
+	 * Replace this with actual end-game logic once the team decides.
+	 */
+	private checkEndCondition(): void {
+		if (this.hasRecordedResult) return; // avoid multiple triggers
+
+		if (Math.abs(this.model.score) >= this.TEMP_END_THRESHOLD) {
+			this.hasRecordedResult = true;
+
+			const score = this.model.score;
+			const maxScore = this.TEMP_END_THRESHOLD;
+
+			// === SAVE PROGRESS TO PERFORMANCE DASHBOARD ===
+			const pm = ProgressManager.getInstance();
+			pm.setResult('asteroid_factor', {
+				label: 'Asteroid Factor Field',
+				score,
+				total: maxScore,
+				accuracy: Math.min(Math.abs(score) / maxScore, 1),
+				played: true,
+				passed: score >= 0, // TEMP: passing means final score is positive
+			});
+
+			// OPTIONAL: Show a temp "Done" screen or go back to level select
+			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+		}
 	}
 }

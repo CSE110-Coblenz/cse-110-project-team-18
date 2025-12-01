@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ScreenController } from '../../types';
 import type { ScreenSwitcher } from '../../types';
 import { MilitaryTimeGameModel } from './MilTimeGameModel';
@@ -16,10 +15,7 @@ export class MilitaryTimeGameController extends ScreenController {
 		this.screenSwitcher = screenSwitcher;
 
 		this.model = new MilitaryTimeGameModel();
-		this.view = new MilitaryTimeGameView(
-			(choice) => this.handleChoice(choice),
-			() => this.screenSwitcher.switchToScreen({ type: 'menu' })
-		);
+		this.view = new MilitaryTimeGameView((choice) => this.handleChoice(choice));
 	}
 
 	getView() {

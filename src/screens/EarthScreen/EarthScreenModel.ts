@@ -1,3 +1,4 @@
+// stores data, keep simple so it's easy to extend
 export class EarthScreenModel {
 	currentQuestion = 1;
 	totalQuestions = 15;

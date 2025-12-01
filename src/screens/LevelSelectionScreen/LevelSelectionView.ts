@@ -22,7 +22,8 @@ export class LevelSelectionView implements View {
 		marsBtnClick: () => void,
 		earthBtnClick: () => void,
 		mercuryBtnClick: () => void,
-		venusBtnClick: () => void
+		venusBtnClick: () => void,
+		onCheckProgressClick: () => void
 	) {
 		this.group = new Konva.Group({
 			visible: true,
@@ -47,6 +48,82 @@ export class LevelSelectionView implements View {
 		});
 
 		this.group.add(background);
+
+		// -------------------------------------------------------
+		// CHECK PROGRESS BUTTON (bottom-right corner)
+		// -------------------------------------------------------
+		const progressBtn = createButton({
+			x: STAGE_WIDTH - 360,
+			y: STAGE_HEIGHT - 90,
+			width: 320,
+			height: 60,
+			text: 'CHECK PROGRESS',
+			colorKey: 'accent_blue',
+			hoverColorKey: 'accent_blue_hover',
+			onClick: onCheckProgressClick, // now the LAST arg
+		});
+
+		this.group.add(progressBtn);
+
+		//-------------------------------------------------------
+		// SPECIAL EFFECTS FOR PROGRESS BUTTON
+		//-------------------------------------------------------
+
+		const pulse = () => {
+			progressBtn.to({
+				scaleX: 1.07,
+				scaleY: 1.07,
+				duration: 0.6,
+				easing: Konva.Easings.EaseInOut,
+				onFinish: () => {
+					progressBtn.to({
+						scaleX: 1,
+						scaleY: 1,
+						duration: 0.6,
+						easing: Konva.Easings.EaseInOut,
+						onFinish: pulse,
+					});
+				},
+			});
+		};
+
+		pulse(); // start the loop
+
+		// Hover pop-out
+		progressBtn.on('mouseenter', () => {
+			progressBtn.to({
+				scaleX: 1.12,
+				scaleY: 1.12,
+				shadowBlur: 25,
+				duration: 0.15,
+			});
+		});
+
+		// Hover leave
+		progressBtn.on('mouseleave', () => {
+			progressBtn.to({
+				scaleX: 1,
+				scaleY: 1,
+				shadowBlur: 15,
+				duration: 0.15,
+			});
+		});
+
+		// Click bounce
+		progressBtn.on('mousedown', () => {
+			progressBtn.to({
+				scaleX: 0.92,
+				scaleY: 0.92,
+				duration: 0.1,
+			});
+		});
+		progressBtn.on('mouseup', () => {
+			progressBtn.to({
+				scaleX: 1.12,
+				scaleY: 1.12,
+				duration: 0.1,
+			});
+		});
 
 		//-------------------------------------------------------
 		// Button container

@@ -8,12 +8,10 @@ import { preloadImage } from '../../core/utils/AssetLoader';
 export class MilitaryTimeGameView implements View {
 	private group: Konva.Group;
 	private onChoice: (choice: string) => void;
-	private onMenu: () => void;
 
-	constructor(onChoice: (choice: string) => void, onMenu: () => void) {
+	constructor(onChoice: (choice: string) => void) {
 		this.group = new Konva.Group({ visible: false });
 		this.onChoice = onChoice;
-		this.onMenu = onMenu;
 	}
 
 	getGroup() {
@@ -27,7 +25,7 @@ export class MilitaryTimeGameView implements View {
 
 	hide() {
 		this.group.visible(false);
-		this.group.destroyChildren(); // FULL WIPE
+		this.group.destroyChildren(); // FULL CLEAR
 		this.group.getLayer()?.batchDraw();
 	}
 
@@ -67,42 +65,30 @@ export class MilitaryTimeGameView implements View {
 	}
 
 	// -------------------------------
-	// MAIN RENDER
+	// MAIN SLIDE RENDER
 	// -------------------------------
 	renderSlide(slide: any, index: number, total: number): void {
 		this.clear();
 
 		// BACKGROUND IMAGE
-		const background = new Konva.Image({
-			x: 0,
-			y: 0,
-			width: STAGE_WIDTH,
-			height: STAGE_HEIGHT,
-			listening: false,
-			image: new Image(),
-		});
+		const bg = new Image();
+		bg.src = '/assets/ui/EarthBG.png';
 
-		void preloadImage('/assets/ui/EarthBG.png').then((img) => {
-			background.image(img);
+		bg.onload = () => {
+			const background = new Konva.Image({
+				x: 0,
+				y: 0,
+				width: STAGE_WIDTH,
+				height: STAGE_HEIGHT,
+				image: bg,
+				listening: false,
+			});
+			this.group.add(background);
+			background.moveToBottom();
 			this.group.getLayer()?.batchDraw();
-		});
+		};
 
-		this.group.add(background);
-
-		// RETURN TO MENU
-		const returnBtn = createButton({
-			x: 30,
-			y: STAGE_HEIGHT - 90,
-			width: 240,
-			height: 55,
-			text: 'RETURN TO MENU',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			onClick: this.onMenu,
-		});
-		this.group.add(returnBtn);
-
-		// Title
+		// --- TITLE ---
 		const titleText = slide.type === 'question' ? slide.question : slide.title;
 
 		const title = new Konva.Text({
@@ -117,7 +103,7 @@ export class MilitaryTimeGameView implements View {
 		title.offsetX((STAGE_WIDTH - 60) / 2);
 		this.group.add(title);
 
-		// INFO SLIDE BODY
+		// --- INFO SLIDE ---
 		if (slide.type === 'info') {
 			const body = new Konva.Text({
 				x: STAGE_WIDTH / 2,
@@ -131,7 +117,6 @@ export class MilitaryTimeGameView implements View {
 			body.offsetX((STAGE_WIDTH - 120) / 2);
 			this.group.add(body);
 
-			// START QUIZ BUTTON
 			const startBtn = createButton({
 				x: STAGE_WIDTH / 2 - 150,
 				y: 380,
@@ -145,9 +130,8 @@ export class MilitaryTimeGameView implements View {
 			this.group.add(startBtn);
 		}
 
-		// QUESTION SLIDE
+		// --- QUESTION SLIDE ---
 		if (slide.type === 'question') {
-			// Question counter
 			const counter = new Konva.Text({
 				x: STAGE_WIDTH / 2,
 				y: 140,
@@ -160,7 +144,6 @@ export class MilitaryTimeGameView implements View {
 			counter.offsetX((STAGE_WIDTH - 60) / 2);
 			this.group.add(counter);
 
-			// Choices
 			let y = 240;
 			for (const choice of slide.choices) {
 				const btn = createButton({
@@ -184,11 +167,29 @@ export class MilitaryTimeGameView implements View {
 	}
 
 	// -------------------------------
-	// RESULT SLIDE
+	// RESULT SLIDE (FINAL SCREEN)
 	// -------------------------------
 	renderResult(passed: boolean, onTryAgain: () => void, onGoEarth: () => void) {
 		this.clear();
 
+		// === BACKGROUND IMAGE ===
+		const background = new Konva.Image({
+			x: 0,
+			y: 0,
+			width: STAGE_WIDTH,
+			height: STAGE_HEIGHT,
+			listening: false,
+			image: new Image(),
+		});
+
+		void preloadImage('/assets/ui/EarthBG.png').then((img) => {
+			background.image(img);
+			this.group.getLayer()?.batchDraw();
+		});
+
+		this.group.add(background);
+
+		// === RESULT MESSAGE ===
 		const msg = passed ? '🎉 GREAT JOB!\nYou passed!' : 'You did not pass.\nYou need 7 correct.';
 
 		const txt = new Konva.Text({
@@ -203,6 +204,7 @@ export class MilitaryTimeGameView implements View {
 		txt.offsetX((STAGE_WIDTH - 100) / 2);
 		this.group.add(txt);
 
+		// === RESULT BUTTON ===
 		const btn = createButton({
 			x: STAGE_WIDTH / 2 - 150,
 			y: 350,
