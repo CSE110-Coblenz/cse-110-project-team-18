@@ -22,7 +22,8 @@ export class LevelSelectionView implements View {
 		marsBtnClick: () => void,
 		earthBtnClick: () => void,
 		mercuryBtnClick: () => void,
-		venusBtnClick: () => void
+		venusBtnClick: () => void,
+		onCheckProgressClick: () => void
 	) {
 		this.group = new Konva.Group({
 			visible: true,
@@ -59,10 +60,9 @@ export class LevelSelectionView implements View {
 			text: 'CHECK PROGRESS',
 			colorKey: 'accent_blue',
 			hoverColorKey: 'accent_blue_hover',
-			onClick: onCheckProgressClick,
+			onClick: onCheckProgressClick, // now the LAST arg
 		});
 
-		// Add first so it stays behind the floating player / top buttons
 		this.group.add(progressBtn);
 
 		//-------------------------------------------------------
