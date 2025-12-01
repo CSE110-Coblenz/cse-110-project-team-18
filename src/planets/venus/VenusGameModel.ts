@@ -79,9 +79,9 @@ export class VenusGameModel {
 	/* ---------------- Rapid-fire Game Modified ---------------- */
 	/**
 	 * return the number of correct answers so far
-	 * 
+	 *
 	 * @returns the number of correct answers
-	*/
+	 */
 	public getCorrectAnswers(): number {
 		return this.correctAnswers;
 	}

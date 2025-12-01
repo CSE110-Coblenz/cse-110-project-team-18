@@ -265,9 +265,7 @@ export class MercuryGameController extends ScreenController {
 		this.phase = 'mainSummary';
 		this.view.setSubmitLabel(passed ? 'GO TO VENUS' : 'RETRY');
 		this.view.showMessage(
-			passed
-				? 'Nice work!'
-				: 'Score under 80%. Tap retry to try again.',
+			passed ? 'Nice work!' : 'Score under 80%. Tap retry to try again.',
 			passed ? '#A7F3D0' : '#FBBF24'
 		);
 	}

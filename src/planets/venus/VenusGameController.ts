@@ -69,9 +69,9 @@ export class VenusGameController extends ScreenController {
 	/**
 	 * update the time countdown for rapid fire game, if time is 0,
 	 * the question is automatically submitted with incorrect answer.
-	 * 
+	 *
 	 * @param deltaTimeMs the elapsed time since the update() is called
-	*/
+	 */
 	update(deltaTimeMs: number): void {
 		if (this.phase === 'challenge' && this.model.hasMoreQuestions()) {
 			if (this.challengeTimerMs > 0) {
@@ -86,7 +86,7 @@ export class VenusGameController extends ScreenController {
 
 	/**
 	 * update the timer label in view
-	*/
+	 */
 	private updateTimerLabel(): void {
 		const secondsLeft = Math.max(0, this.challengeTimerMs) / 1000;
 		this.view.updateTimer(`Time left: ${secondsLeft.toFixed(1)}s`);
@@ -95,7 +95,7 @@ export class VenusGameController extends ScreenController {
 	/**
 	 * handle challenge timeout by submitting the incorrect answer and
 	 * update current view
-	*/
+	 */
 	private handleChallengeTimeout(): void {
 		// Auto-mark incorrect if time expires mid-rapid-fire question.
 		if (this.phase !== 'challenge') return;
@@ -201,7 +201,7 @@ export class VenusGameController extends ScreenController {
 
 	private handleSubmitAnswer(): void {
 		/* ---------------- Rapid-fire Game Modified ---------------- */
-		// check phases 
+		// check phases
 		if (this.phase === 'mainSummary') {
 			if (this.lastSummary?.passed) {
 				this.startChallengeIntro();
@@ -273,7 +273,7 @@ export class VenusGameController extends ScreenController {
 	/* ---------------- Rapid-fire Game Modified ---------------- */
 	/**
 	 * start main game separating from rapid fire game
-	*/
+	 */
 	private startMainGame(): void {
 		// Reset into the untimed main flow before the rapid-fire unlock.
 		this.phase = 'main';
@@ -291,8 +291,8 @@ export class VenusGameController extends ScreenController {
 
 	/**
 	 * handle the next step, present next question and run delay time
-	 * or handle phase complete 
-	*/
+	 * or handle phase complete
+	 */
 	private scheduleNextStep(): void {
 		if (this.model.hasMoreQuestions()) {
 			window.setTimeout(() => this.presentCurrentQuestion(), 900);
@@ -304,7 +304,7 @@ export class VenusGameController extends ScreenController {
 	/**
 	 * handle phase complete decides whether main phase or challenge phase
 	 * is completed to call the correct handler
-	*/
+	 */
 	private handlePhaseComplete(): void {
 		if (this.phase === 'main') {
 			this.handleMainComplete();
@@ -316,7 +316,7 @@ export class VenusGameController extends ScreenController {
 	/**
 	 * handle main completion: display summary screen, decide whether players
 	 * can go to rapid fire game or retry the Venus game
-	*/
+	 */
 	private handleMainComplete(): void {
 		const summary = this.model.getSummary();
 		const passed = summary.correctAnswers >= summary.minNumberOfQuestionsToWin;
@@ -347,7 +347,7 @@ export class VenusGameController extends ScreenController {
 
 	/**
 	 * display the rapid-fire game introduction
-	*/
+	 */
 	private startChallengeIntro(): void {
 		this.phase = 'challengeIntro';
 		this.view.showModal(
@@ -359,7 +359,7 @@ export class VenusGameController extends ScreenController {
 
 	/**
 	 * start the rapid-fire game
-	*/
+	 */
 	private startChallengeGame(): void {
 		this.phase = 'challenge';
 		this.view.hideModal();
@@ -376,7 +376,7 @@ export class VenusGameController extends ScreenController {
 	/**
 	 * handle challenge completion: display summary screen, decide whether
 	 * players can move on to Earth or retry the rapid-fire game
-	*/
+	 */
 	private handleChallengeComplete(): void {
 		const summary = this.model.getSummary();
 		const passed = summary.correctAnswers >= summary.minNumberOfQuestionsToWin;

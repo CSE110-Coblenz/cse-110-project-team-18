@@ -141,7 +141,7 @@ export class MercuryGameView implements View {
 			fontFamily: FONT_FAMILY,
 			fill: '#FDE68A',
 			visible: false,
-			lineHeight: 1.10,
+			lineHeight: 1.1,
 			letterSpacing: 1,
 		});
 		this.summaryLabel.offsetX((STAGE_WIDTH - 200) / 2);
