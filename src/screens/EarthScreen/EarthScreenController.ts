@@ -11,6 +11,9 @@ import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { generateTimeQuestion } from '../../core/utils/timeArithmetic';
 import { ProgressManager } from '../../core/managers/ProgressManager';
 
+/** API base for progress route */
+const API_BASE = 'http://localhost:3000/api';
+
 export class EarthScreenController extends ScreenController {
 	private view: EarthScreenView;
 	private model: EarthScreenModel;
@@ -394,10 +397,40 @@ export class EarthScreenController extends ScreenController {
 		requestAnimationFrame(animate);
 	}
 
+	/** helper to save Earth score (planet_id = 3) so Mars can unlock */
+	private async saveEarthScore(finalScore: number): Promise<void> {
+		const userId = (window as any).__CURRENT_USER_ID__ as number | undefined;
+		if (!userId) {
+			console.warn('[Earth] No current user ID; skipping DB save.');
+			return;
+		}
+
+		try {
+			const res = await fetch(`${API_BASE}/progress/update-score`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId,
+					planetId: 3, // Earth = planet_id 3
+					score: finalScore, // must be > 0 to unlock Mars (4)
+				}),
+			});
+
+			if (!res.ok) {
+				console.error('[Earth] Failed to save score:', res.status, await res.text());
+			} else {
+				console.log('[Earth] Score saved successfully for user', userId);
+			}
+		} catch (err) {
+			console.error('[Earth] Error saving score:', err);
+		}
+	}
+
 	private showGameOver(): void {
 		this.clearFeedback();
 
 		const accuracy = this.model.correctAnswers / this.model.totalQuestions;
+		const passed = accuracy >= 0.7;
 
 		// =================
 		// Save progress
@@ -407,8 +440,15 @@ export class EarthScreenController extends ScreenController {
 			total: this.model.totalQuestions,
 			accuracy,
 			played: true,
-			passed: accuracy >= 0.7,
+			passed,
+			// passed: accuracy >= 0.7,
 		});
+
+		/** if passed, persist Earth score so Mars can unlock */
+		if (passed && this.model.correctAnswers > 0) {
+			void this.saveEarthScore(this.model.correctAnswers);
+		}
+
 		// ------------------------------
 		// DIM BACKGROUND
 		// ------------------------------

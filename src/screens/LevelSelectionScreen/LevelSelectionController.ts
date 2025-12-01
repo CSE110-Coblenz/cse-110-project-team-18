@@ -14,6 +14,15 @@ export class LevelSelectionController extends ScreenController {
 	private screenSwitcher: ScreenSwitcher;
 	private model: LevelSelectionModel;
 
+	private unlockedPlanets: Set<number> = new Set();
+
+	// 1 Mercury, 2 Venus, 3 Earth, 4 Mars, 5 asteroidField
+	private isPlanetUnlocked(planetId: number): boolean {
+		// Mercury is always unlocked as the first planet
+		if (planetId === 1) return true;
+		return this.unlockedPlanets.has(planetId);
+	}
+
 	private readonly initialPlayerPosition = {
 		x: STAGE_WIDTH / 4,
 		y: 250,
@@ -28,7 +37,6 @@ export class LevelSelectionController extends ScreenController {
 		super();
 		this.screenSwitcher = screenSwitcher;
 
-		// VIEW with handlers
 		this.view = new LevelSelectionView(
 			() => this.handleAsteriodFieldClick(),
 			() => this.handlePrimeGameClick(),
@@ -43,9 +51,6 @@ export class LevelSelectionController extends ScreenController {
 			this.initialPlayerPosition.y
 		);
 
-		//-------------------------------------------------------
-		// ENTITY MANAGEMENT
-		//-------------------------------------------------------
 		this.playerLifecycle = new ScreenEntityManager({
 			create: () => {
 				this.model.player = { ...this.initialPlayerPosition };
@@ -68,30 +73,77 @@ export class LevelSelectionController extends ScreenController {
 	}
 
 	// ---------------------------------------------------------
-	// BUTTON HANDLERS
+	// BUTTON HANDLERS (now respect locked/unlocked state)
 	// ---------------------------------------------------------
 	private handleAsteriodFieldClick(): void {
+		// asteroidField = planet_id 5
+		if (!this.isPlanetUnlocked(5)) {
+			console.log('Asteroid field is locked');
+			return;
+		}
 		this.screenSwitcher.switchToScreen({ type: 'asteroid field game' });
 	}
 
 	private handlePrimeGameClick(): void {
+		// assume prime game is your Mars "slot" (planet_id 4)
+		if (!this.isPlanetUnlocked(4)) {
+			console.log('Prime / Mars is locked');
+			return;
+		}
 		this.screenSwitcher.switchToScreen({ type: 'prime number game' });
 	}
 
 	private handleEarthClick(): void {
+		// Earth = planet_id 3
+		if (!this.isPlanetUnlocked(3)) {
+			console.log('Earth is locked');
+			return;
+		}
 		this.screenSwitcher.switchToScreen({ type: 'knowledge' });
 	}
 
 	private handleMercuryClick(): void {
+		// Mercury = planet_id 1 (always unlocked)
+		if (!this.isPlanetUnlocked(1)) {
+			console.log('Mercury is locked (should not happen)');
+			return;
+		}
 		this.screenSwitcher.switchToScreen({ type: 'mercury game' });
 	}
 
 	private handleVenusClick(): void {
+		// Venus = planet_id 2
+		if (!this.isPlanetUnlocked(2)) {
+			console.log('Venus is locked');
+			return;
+		}
 		this.screenSwitcher.switchToScreen({ type: 'venus game' });
 	}
 
 	private handleCheckProgressClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'performance dashboard' });
+	}
+
+	// ---------------------------------------------------------
+	// FETCH UNLOCKED PLANETS FROM BACKEND
+	// ---------------------------------------------------------
+	private async refreshLockStateForUser(userId: number): Promise<void> {
+		try {
+			const res = await fetch(`http://localhost:3000/api/progress/unlocked-planets/${userId}`);
+			if (!res.ok) {
+				console.error('Failed to fetch unlocked planets', res.statusText);
+				return;
+			}
+			const data = (await res.json()) as { unlockedPlanets: number[] };
+			console.log('Unlocked planets from server:', data.unlockedPlanets);
+
+			this.unlockedPlanets = new Set(data.unlockedPlanets);
+
+			// tell view to update visuals
+			this.view.setLockState(data.unlockedPlanets);
+		} catch (err) {
+			console.error('Error fetching unlocked planets:', err);
+		}
 	}
 
 	// ---------------------------------------------------------
@@ -105,6 +157,13 @@ export class LevelSelectionController extends ScreenController {
 		super.show();
 		this.playerLifecycle.ensure();
 		this.view.ensureButtonsOnTop();
+
+		const currentUserId = (window as any).__CURRENT_USER_ID__ as number | undefined;
+		if (currentUserId) {
+			void this.refreshLockStateForUser(currentUserId);
+		} else {
+			console.warn('No current user ID set; only Mercury will be logically unlocked.');
+		}
 	}
 
 	override hide(): void {
