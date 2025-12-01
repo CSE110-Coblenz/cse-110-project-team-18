@@ -69,6 +69,16 @@ Gets the user's `current_planet` as a `planet_id`.
 **Arguments**
 `userId`: the current user ID
 
+## **Unlocking new planet for user**
+
+**Description**
+Unlocks a specified planet for the user. **This method should be called before the planet is switched to using `changeUserCurrentPlanet()`**
+**Usage**
+`unlockPlanetForUser(userId: number, planetId: number)`
+**Arguments**
+`userId`: the current user ID
+`planetId`: the planet ID to be unlocked
+
 # **Autosave Methods (`savedataManager.ts`)**
 
 **Usage:** `import { startAutoSave, stopAutoSave } from src/db/savedataManager.ts`
