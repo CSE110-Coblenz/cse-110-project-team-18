@@ -16,7 +16,7 @@ const activeAutoSaves: Map<number, NodeJS.Timeout> = new Map(); // store active 
  */
 function savePlanetScore(userId: number, score: number, planet_id: number): void {
 	const stmt = db.prepare('UPDATE user_progress SET score = ? WHERE id = ? AND planet_id = ?');
-	stmt.run(score, planet_id, userId);
+	stmt.run(score, userId, planet_id);
 }
 
 /**
