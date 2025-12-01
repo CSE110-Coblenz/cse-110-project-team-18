@@ -15,11 +15,8 @@ export class MercuryGameView implements View {
 	private questionLabel: Konva.Text;
 	private feedbackLabel: Konva.Text;
 	private correctCountLabel: Konva.Text;
-	private timerLabel: Konva.Text;
 	private summaryLabel: Konva.Text;
 	private submitButton: Konva.Group;
-	private modalGroup: Konva.Group;
-	private modalBody: Konva.Text;
 	private returnButton: Konva.Group;
 
 	/**
@@ -132,66 +129,7 @@ export class MercuryGameView implements View {
 		});
 		questionPanel.add(this.feedbackLabel);
 
-		this.timerLabel = new Konva.Text({
-			x: 20,
-			y: 16,
-			width: 200,
-			text: '',
-			align: 'left',
-			fontSize: 20,
-			fontFamily: FONT_FAMILY,
-			fill: '#FCD34D',
-			visible: false,
-		});
-		questionPanel.add(this.timerLabel);
-
 		this.group.add(questionPanel);
-
-		this.modalGroup = new Konva.Group({
-			visible: false,
-			x: STAGE_WIDTH / 2,
-			y: STAGE_HEIGHT / 2,
-		});
-
-		const modalBg = new Konva.Rect({
-			x: -380,
-			y: -170,
-			width: 760,
-			height: 340,
-			fill: 'rgba(15, 23, 42, 0.96)',
-			cornerRadius: 22,
-			stroke: 'rgba(255,255,255,0.08)',
-			strokeWidth: 2,
-		});
-		this.modalGroup.add(modalBg);
-
-		const modalTitle = new Konva.Text({
-			x: -340,
-			y: -130,
-			width: 680,
-			text: 'Mercury Challenge',
-			align: 'center',
-			fontSize: 34,
-			fontFamily: FONT_FAMILY,
-			fill: '#E5ECFF',
-		});
-		this.modalGroup.add(modalTitle);
-
-		this.modalBody = new Konva.Text({
-			x: -340,
-			y: -70,
-			width: 680,
-			text: '',
-			align: 'center',
-			fontSize: 22,
-			fontFamily: FONT_FAMILY,
-			fill: '#C7D7F9',
-			lineHeight: 1.5,
-			letterSpacing: 1,
-		});
-		this.modalGroup.add(this.modalBody);
-
-		this.group.add(this.modalGroup);
 
 		this.summaryLabel = new Konva.Text({
 			x: STAGE_WIDTH / 2,
@@ -286,7 +224,6 @@ export class MercuryGameView implements View {
 		this.questionLabel.text(questionText);
 		this.updateCorrectCount(correctCount);
 		this.summaryLabel.visible(false);
-		this.hideTimer();
 		this.showMessage('');
 		this.group.getLayer()?.batchDraw();
 	}
@@ -317,29 +254,6 @@ export class MercuryGameView implements View {
 	 */
 	public setSubmitLabel(text: string): void {
 		setElementText(this.submitButton, text);
-		this.group.getLayer()?.batchDraw();
-	}
-
-	public updateTimer(text: string): void {
-		this.timerLabel.text(text);
-		this.timerLabel.visible(true);
-		this.group.getLayer()?.batchDraw();
-	}
-
-	public hideTimer(): void {
-		this.timerLabel.visible(false);
-		this.group.getLayer()?.batchDraw();
-	}
-
-	public showModal(body: string): void {
-		this.modalBody.text(body);
-		this.modalGroup.visible(true);
-		this.modalGroup.moveToTop();
-		this.group.getLayer()?.batchDraw();
-	}
-
-	public hideModal(): void {
-		this.modalGroup.visible(false);
 		this.group.getLayer()?.batchDraw();
 	}
 
