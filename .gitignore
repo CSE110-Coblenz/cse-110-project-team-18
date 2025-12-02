@@ -29,3 +29,7 @@ docs/design/
 
 # Ignore local test files
 src/db/testDB.ts
+
+# SQLite database files (generated at runtime)
+*.db-shm
+*.db-wal
