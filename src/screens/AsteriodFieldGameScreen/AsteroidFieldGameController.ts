@@ -48,11 +48,11 @@ export class AsteroidFieldGameController extends ScreenController {
 		collisionManager: CollisionManager;
 	}>;
 	/**
-	 * TEMPORARY: End condition so we can record progress
-	 * Once the final design is decided, replace this.
+	 * End condition: game ends when score reaches or exceeds this value
 	 */
-	private readonly TEMP_END_THRESHOLD = 30; // Points needed to end the game
+	public static readonly END_SCORE = 30; // Points needed to end the game
 	private hasRecordedResult = false; // Prevent double saving
+	private isGameStopped = false; // Track if game has been stopped
 
 	/**
 	 * AsteroidFieldGameController - The controller for the asteroid field game screen
@@ -71,8 +71,11 @@ export class AsteroidFieldGameController extends ScreenController {
 			create: () => {
 				this.targetNumber = this.getRandomTargetNumber();
 				this.model.score = 0;
+				this.isGameStopped = false;
+				this.hasRecordedResult = false;
 				this.view.setTargetNumber(this.targetNumber);
 				this.view.setScore(this.model.score);
+				this.view.hideReturnButton();
 
 				this.model.player = { ...this.initialPlayerPosition };
 				const collisionManager = new CollisionManager();
@@ -125,13 +128,6 @@ export class AsteroidFieldGameController extends ScreenController {
 	}
 
 	/**
-	 * Handle the return to menu click
-	 */
-	private handleReturnToMenuClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'menu' });
-	}
-
-	/**
 	 * Get the view of the asteroid field game screen
 	 * @returns The view of the asteroid field game screen
 	 */
@@ -161,6 +157,15 @@ export class AsteroidFieldGameController extends ScreenController {
 	 */
 	override update(deltaTime: number): void {
 		if (!this.view.getGroup().visible()) return;
+		
+		// Stop game updates if game is stopped
+		if (this.isGameStopped) {
+			this.view.update(deltaTime);
+			this.view.ensureButtonsOnTop();
+			this.view.getGroup().getLayer()?.draw();
+			return;
+		}
+
 		const entities = this.entityLifecycle.get();
 		if (!entities) return;
 
@@ -258,18 +263,18 @@ export class AsteroidFieldGameController extends ScreenController {
 	}
 
 	/**
-	 * TEMP: Check if the game should end so we can save progress.
-	 * Replace this with actual end-game logic once the team decides.
+	 * Check if the game should end when score reaches or exceeds 30
 	 */
 	private checkEndCondition(): void {
 		if (this.hasRecordedResult) return; // avoid multiple triggers
 
-		if (Math.abs(this.model.score) >= this.TEMP_END_THRESHOLD) {
+		if (this.model.score >= AsteroidFieldGameController.END_SCORE) {
 			this.hasRecordedResult = true;
+			this.isGameStopped = true;
 
 			const score = this.model.score;
-			const maxScore = this.TEMP_END_THRESHOLD;
-			const passed = score >= 0; // your current pass rule
+			const maxScore = AsteroidFieldGameController.END_SCORE;
+			const passed = score >= AsteroidFieldGameController.END_SCORE;
 
 			// === SAVE PROGRESS TO PERFORMANCE DASHBOARD ===
 			const pm = ProgressManager.getInstance();
@@ -277,7 +282,7 @@ export class AsteroidFieldGameController extends ScreenController {
 				label: 'Asteroid Factor Field',
 				score,
 				total: maxScore,
-				accuracy: Math.min(Math.abs(score) / maxScore, 1),
+				accuracy: Math.min(score / maxScore, 1),
 				played: true,
 				passed,
 			});
@@ -287,7 +292,10 @@ export class AsteroidFieldGameController extends ScreenController {
 				void this.saveAsteroidScore(score);
 			}
 
-			this.screenSwitcher.switchToScreen({ type: 'level selection' });
+			// Show return button instead of automatically switching
+			this.view.showReturnButton(() => {
+				this.screenSwitcher.switchToScreen({ type: 'level selection' });
+			});
 		}
 	}
 }

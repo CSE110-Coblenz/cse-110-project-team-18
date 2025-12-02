@@ -2,6 +2,8 @@ import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { preloadImage } from '../../core/utils/AssetLoader';
+import { createButton } from '../../ui';
+import { AsteroidFieldGameController } from './AsteroidFieldGameController.ts';
 
 /**
  * AsteroidFieldGameView - Renders the asteroid field game screen
@@ -13,6 +15,7 @@ export class AsteroidFieldGameView implements View {
 	private edgeFlashRect?: Konva.Rect;
 	private flashUntil?: number;
 	private elapsedTime = 0;
+	private returnButton?: Konva.Group;
 
 	/**
 	 * Constructor for the AsteroidFieldGameView
@@ -90,6 +93,43 @@ export class AsteroidFieldGameView implements View {
 		if (this.edgeFlashRect) {
 			this.edgeFlashRect.moveToTop();
 		}
+		if (this.returnButton) {
+			this.returnButton.moveToTop();
+		}
+	}
+
+	/**
+	 * Show the return to level selector button
+	 * @param onClick - Callback when button is clicked
+	 */
+	showReturnButton(onClick: () => void): void {
+		if (this.returnButton) {
+			this.returnButton.visible(true);
+			return;
+		}
+
+		this.returnButton = createButton({
+			x: STAGE_WIDTH / 2 - 150,
+			y: STAGE_HEIGHT / 2 + 50,
+			width: 400,
+			height: 60,
+			text: 'RETURN TO LEVEL SELECTOR',
+			colorKey: 'accent_blue',
+			hoverColorKey: 'accent_blue_hover',
+			onClick,
+		});
+
+		this.group.add(this.returnButton);
+		this.returnButton.moveToTop();
+	}
+
+	/**
+	 * Hide the return button
+	 */
+	hideReturnButton(): void {
+		if (this.returnButton) {
+			this.returnButton.visible(false);
+		}
 	}
 
 	/**
@@ -105,6 +145,7 @@ export class AsteroidFieldGameView implements View {
 	 */
 	hide(): void {
 		this.group.visible(false);
+		this.hideReturnButton();
 		this.group.getLayer()?.draw();
 	}
 
@@ -122,7 +163,7 @@ export class AsteroidFieldGameView implements View {
 	}
 
 	setScore(score: number): void {
-		this.scoreLabel.text(`Score: ${score}`);
+		this.scoreLabel.text(`Score: ${score}/${AsteroidFieldGameController.END_SCORE}`);
 		this.scoreLabel.moveToTop();
 	}
 
