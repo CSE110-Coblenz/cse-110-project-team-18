@@ -19,17 +19,11 @@ const API_BASE = 'http://localhost:3000/api';
 
 /**
  * AsteroidFieldGameController - Handles asteroid field game interactions
- Notes for the team:
- --> currently, this game has *no end condition*. It runs forever.
- --> a future PR can add the threshold functionality mentioned on discord
- --> once an end condition exists, we can call ProgressManager.setResult()
-	 the same way it was done for the other games.
-
- --> I am adding a simple "done" condition ONLY so I can retrieve score/accuracy
-	 data for the PerformanceDashboard. This is NOT the final end-condition for 
-	 the game. This placeholder exists so we can score/retrieve progress 
-	 consistently acfross all our games.
-
+ * 
+ * Game ends when the player reaches or exceeds END_SCORE (30 points).
+ * When the end condition is met, the game stops and displays a button to
+ * return to the level selector. Progress is saved to the Performance Dashboard
+ * and the database.
  */
 
 export class AsteroidFieldGameController extends ScreenController {
@@ -53,6 +47,8 @@ export class AsteroidFieldGameController extends ScreenController {
 	public static readonly END_SCORE = 30; // Points needed to end the game
 	private hasRecordedResult = false; // Prevent double saving
 	private isGameStopped = false; // Track if game has been stopped
+	private correctActions = 0; // Track number of correct actions
+	private incorrectActions = 0; // Track number of incorrect actions
 
 	/**
 	 * AsteroidFieldGameController - The controller for the asteroid field game screen
@@ -73,6 +69,8 @@ export class AsteroidFieldGameController extends ScreenController {
 				this.model.score = 0;
 				this.isGameStopped = false;
 				this.hasRecordedResult = false;
+				this.correctActions = 0;
+				this.incorrectActions = 0;
 				this.view.setTargetNumber(this.targetNumber);
 				this.view.setScore(this.model.score);
 				this.view.hideReturnButton();
@@ -207,10 +205,14 @@ export class AsteroidFieldGameController extends ScreenController {
 
 	private handleAsteroidHit(isFactor: boolean): void {
 		if (isFactor) {
+			// Correct: shooting a factor asteroid
 			this.model.score += 2;
+			this.correctActions++;
 			this.view.flashScreenEdge(true);
 		} else {
+			// Incorrect: shooting a non-factor asteroid
 			this.model.score -= 2;
+			this.incorrectActions++;
 			this.view.flashScreenEdge(false);
 		}
 		this.view.setScore(this.model.score);
@@ -221,10 +223,14 @@ export class AsteroidFieldGameController extends ScreenController {
 
 	private handleAsteroidReachedBottom(isFactor: boolean): void {
 		if (isFactor) {
+			// Incorrect: letting a factor asteroid reach bottom
 			this.model.score -= 1;
+			this.incorrectActions++;
 			this.view.flashScreenEdge(false);
 		} else {
+			// Correct: letting a non-factor asteroid reach bottom
 			this.model.score += 1;
+			this.correctActions++;
 			this.view.flashScreenEdge(true);
 		}
 		this.view.setScore(this.model.score);
@@ -234,7 +240,7 @@ export class AsteroidFieldGameController extends ScreenController {
 	}
 
 	/** helper to save Asteroid Field score (planet_id = 5) */
-	private async saveAsteroidScore(finalScore: number): Promise<void> {
+	private async saveAsteroidScore(finalScore: number, accuracy: number): Promise<void> {
 		const userId = (window as any).__CURRENT_USER_ID__ as number | undefined;
 		if (!userId) {
 			console.warn('[Asteroid] No current user ID; skipping DB save.');
@@ -249,6 +255,7 @@ export class AsteroidFieldGameController extends ScreenController {
 					userId,
 					planetId: 5, // Asteroid Field = planet_id 5
 					score: finalScore, // must be > 0 if you want "completed"
+					accuracy: accuracy, // accuracy based on correct/incorrect actions
 				}),
 			});
 
@@ -276,20 +283,26 @@ export class AsteroidFieldGameController extends ScreenController {
 			const maxScore = AsteroidFieldGameController.END_SCORE;
 			const passed = score >= AsteroidFieldGameController.END_SCORE;
 
+			// Calculate accuracy based on correct/incorrect actions
+			const totalActions = this.correctActions + this.incorrectActions;
+			const accuracy = totalActions > 0 
+				? this.correctActions / totalActions 
+				: 0;
+
 			// === SAVE PROGRESS TO PERFORMANCE DASHBOARD ===
 			const pm = ProgressManager.getInstance();
 			pm.setResult('asteroid_factor', {
 				label: 'Asteroid Factor Field',
 				score,
 				total: maxScore,
-				accuracy: Math.min(score / maxScore, 1),
+				accuracy: accuracy,
 				played: true,
 				passed,
 			});
 
 			// === SAVE TO DB so this level counts as completed ===
 			if (passed && score > 0) {
-				void this.saveAsteroidScore(score);
+				void this.saveAsteroidScore(score, accuracy);
 			}
 
 			// Show return button instead of automatically switching
