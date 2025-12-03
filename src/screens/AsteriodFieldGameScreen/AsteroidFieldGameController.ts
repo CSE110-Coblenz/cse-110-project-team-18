@@ -14,6 +14,9 @@ import { ScreenEntityManager } from '../../core/utils/ScreenEntityManager';
 import { CollisionManager } from '../../core/collision/CollisionManager';
 import { ProgressManager } from '../../core/managers/ProgressManager'; // Needed for Performance Dashboard
 
+/** same API base pattern as other controllers */
+const API_BASE = 'http://localhost:3000/api';
+
 /**
  * AsteroidFieldGameController - Handles asteroid field game interactions
  Notes for the team:
@@ -225,6 +228,35 @@ export class AsteroidFieldGameController extends ScreenController {
 		this.checkEndCondition();
 	}
 
+	/** helper to save Asteroid Field score (planet_id = 5) */
+	private async saveAsteroidScore(finalScore: number): Promise<void> {
+		const userId = (window as any).__CURRENT_USER_ID__ as number | undefined;
+		if (!userId) {
+			console.warn('[Asteroid] No current user ID; skipping DB save.');
+			return;
+		}
+
+		try {
+			const res = await fetch(`${API_BASE}/progress/update-score`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId,
+					planetId: 5, // Asteroid Field = planet_id 5
+					score: finalScore, // must be > 0 if you want "completed"
+				}),
+			});
+
+			if (!res.ok) {
+				console.error('[Asteroid] Failed to save score:', res.status, await res.text());
+			} else {
+				console.log('[Asteroid] Score saved successfully for user', userId);
+			}
+		} catch (err) {
+			console.error('[Asteroid] Error saving score:', err);
+		}
+	}
+
 	/**
 	 * TEMP: Check if the game should end so we can save progress.
 	 * Replace this with actual end-game logic once the team decides.
@@ -237,6 +269,7 @@ export class AsteroidFieldGameController extends ScreenController {
 
 			const score = this.model.score;
 			const maxScore = this.TEMP_END_THRESHOLD;
+			const passed = score >= 0; // your current pass rule
 
 			// === SAVE PROGRESS TO PERFORMANCE DASHBOARD ===
 			const pm = ProgressManager.getInstance();
@@ -246,10 +279,14 @@ export class AsteroidFieldGameController extends ScreenController {
 				total: maxScore,
 				accuracy: Math.min(Math.abs(score) / maxScore, 1),
 				played: true,
-				passed: score >= 0, // TEMP: passing means final score is positive
+				passed,
 			});
 
-			// OPTIONAL: Show a temp "Done" screen or go back to level select
+			// === SAVE TO DB so this level counts as completed ===
+			if (passed && score > 0) {
+				void this.saveAsteroidScore(score);
+			}
+
 			this.screenSwitcher.switchToScreen({ type: 'level selection' });
 		}
 	}

@@ -8,15 +8,42 @@ const activeAutoSaves: Map<number, NodeJS.Timeout> = new Map(); // store active 
 
 // === USER PROGRESS MANAGEMENT ===
 /**
- * Saves the current score and planet ID for a user.
+ * Saves the current score for a specific planet for a user.
+ *
+ * Semantics:
+ *   score = NULL  -> planet is locked
+ *   score = 0     -> planet is unlocked but not completed
+ *   score > 0     -> planet completed; next planet should unlock (score=0)
  *
  * @param userId the current user ID.
  * @param score the current score to save.
- * @param planet_id the current planet ID.
+ * @param planet_id the planet ID being updated.
  */
-function savePlanetScore(userId: number, score: number, planet_id: number): void {
+export function savePlanetScore(userId: number, score: number, planet_id: number): void {
+	console.log(`[savePlanetScore] user=${userId}, planet_id=${planet_id}, score=${score}`);
+
 	const stmt = db.prepare('UPDATE user_progress SET score = ? WHERE id = ? AND planet_id = ?');
-	stmt.run(score, planet_id, userId);
+	// IMPORTANT: parameter order is score, id, planet_id
+	stmt.run(score, userId, planet_id);
+
+	// If this planet is now completed (score > 0), unlock the next planet.
+	if (score > 0) {
+		const nextPlanetId = planet_id + 1;
+
+		console.log(
+			`[savePlanetScore] attempting to unlock next planet (${nextPlanetId}) for user ${userId}`
+		);
+
+		const unlockNextStmt = db.prepare(
+			`UPDATE user_progress
+             SET score = 0
+             WHERE id = ?
+               AND planet_id = ?
+               AND score IS NULL`
+		);
+
+		unlockNextStmt.run(userId, nextPlanetId);
+	}
 }
 
 /**
@@ -44,16 +71,37 @@ export function getCurrentPlanetScore(userId: number): { score: number; planet_i
  *
  * @param userId the current user ID.
  * @returns an array of unlocked planet IDs.
+ *
+ * NOTE:
+ *   This considers planets "unlocked" if score IS NOT NULL
+ *   (i.e., score = 0 or score > 0).
  */
 export function getUnlockedPlanets(userId: number): number[] {
 	const stmt = db.prepare(
-		`SELECT DISTINCT up.planet_id
-         FROM user_progress up
-         WHERE up.id = ? AND up.score IS NOT NULL
-         ORDER BY up.planet_id`
+		`SELECT planet_id, score
+         FROM user_progress
+         WHERE id = ?
+         ORDER BY planet_id`
 	);
-	const rows = stmt.all(userId) as { planet_id: number }[];
-	return rows.map((r) => r.planet_id);
+	const rows = stmt.all(userId) as { planet_id: number; score: number | null }[];
+
+	const unlocked = new Set<number>();
+
+	// Mercury is always unlocked as the starting planet
+	unlocked.add(1);
+
+	for (const row of rows) {
+		// only counts as "cleared" if score is > 0
+		if (row.score !== null && row.score > 0) {
+			const nextPlanet = row.planet_id + 1;
+			unlocked.add(nextPlanet);
+		}
+	}
+
+	// You can optionally also add the cleared planet itself:
+	// if (row.score !== null && row.score > 0) unlocked.add(row.planet_id);
+
+	return Array.from(unlocked).sort((a, b) => a - b);
 }
 
 /**
@@ -81,7 +129,9 @@ export function initializeUserProgress(userId: number): void {
 	const stmt = db.prepare('INSERT INTO user_progress (id, planet_id, score) VALUES (?, ?, ?)');
 
 	planets.forEach((planets, index) => {
-		const score = index === 0 ? 0 : null; // Unlock first planet with score 0
+		// Mercury (planet_id=1, index=0) is unlocked with score 0.
+		// All others start locked (score = NULL).
+		const score = index === 0 ? 0 : null;
 		stmt.run(userId, planets.planet_id, score);
 	});
 }
@@ -90,11 +140,15 @@ export function initializeUserProgress(userId: number): void {
  * Saves the current user's progress.
  * Manual call when switching planets or logging out.
  *
+ * IMPORTANT:
+ *   This assumes your game logic has already updated the score
+ *   for the current planet in the DB or in memory before calling save().
+ *
  * @param userId the current user ID.
  */
 export function save(userId: number): void {
 	const currentPlanet = getUserCurrentPlanet(userId);
-	if (currentPlanet === null) return; // erronious call
+	if (currentPlanet === null) return; // erroneous call
 
 	const currentData = getCurrentPlanetScore(userId);
 	if (currentData === null) return; // no data to save
@@ -125,7 +179,7 @@ export function startAutoSave(userId: number): void {
 }
 
 /**
- * Stops the auto-save inteerval for the current user.
+ * Stops the auto-save interval for the current user.
  * Manually called on logout.
  *
  * @param userId the current user ID.

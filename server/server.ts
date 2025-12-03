@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 
 import { createUser, loginUser } from '../src/db/userManager.ts';
+import { getUnlockedPlanets, savePlanetScore } from '../src/db/savedataManager.ts';
 
 const app = express();
 const PORT = 3000;
@@ -98,6 +99,38 @@ app.post('/api/login', async (req, res) => {
 			message: 'Server error while logging in',
 		});
 	}
+});
+
+// ---------- PROGRESS: GET UNLOCKED PLANETS ----------
+app.get('/api/progress/unlocked-planets/:userId', (req, res) => {
+	const userId = Number(req.params.userId);
+	if (!userId) {
+		return res.status(400).json({ error: 'Invalid user ID' });
+	}
+
+	const unlocked = getUnlockedPlanets(userId);
+	console.log(`[unlocked-planets] user=${userId} =>`, unlocked);
+
+	return res.json({ unlockedPlanets: unlocked });
+});
+
+// ---------- PROGRESS: UPDATE SCORE FOR A PLANET ----------
+app.post('/api/progress/update-score', (req, res) => {
+	const { userId, planetId, score } = req.body ?? {};
+
+	const uid = Number(userId);
+	const pid = Number(planetId);
+	const sc = Number(score);
+
+	if (!uid || !pid || Number.isNaN(sc)) {
+		return res.status(400).json({ success: false, message: 'Invalid userId / planetId / score' });
+	}
+
+	console.log(`[/api/progress/update-score] user=${uid}, planetId=${pid}, score=${sc}`);
+
+	savePlanetScore(uid, sc, pid);
+
+	return res.json({ success: true });
 });
 
 // ---------- START SERVER ----------

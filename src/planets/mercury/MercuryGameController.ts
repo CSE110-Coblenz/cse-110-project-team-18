@@ -5,6 +5,9 @@ import { MercuryGameView } from './MercuryGameView';
 import { MercuryGameModel } from './MercuryGameModel';
 import { ProgressManager } from '../../core/managers/ProgressManager';
 
+/** same API base pattern as your other controllers */
+const API_BASE = 'http://localhost:3000/api';
+
 type MercuryPhase = 'main' | 'mainSummary';
 
 /**
@@ -238,6 +241,35 @@ export class MercuryGameController extends ScreenController {
 		}
 	}
 
+	/** helper to save Mercury score + unlock Venus (planet 2) */
+	private async saveMercuryScore(finalScore: number): Promise<void> {
+		const userId = (window as any).__CURRENT_USER_ID__ as number | undefined;
+		if (!userId) {
+			console.warn('[Mercury] No current user ID; skipping DB save.');
+			return;
+		}
+
+		try {
+			const res = await fetch(`${API_BASE}/progress/update-score`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId,
+					planetId: 1, // Mercury = planet_id 1
+					score: finalScore, // must be > 0 to unlock Venus
+				}),
+			});
+
+			if (!res.ok) {
+				console.error('[Mercury] Failed to save score:', res.status, await res.text());
+			} else {
+				console.log('[Mercury] Score saved successfully for user', userId);
+			}
+		} catch (err) {
+			console.error('[Mercury] Error saving score:', err);
+		}
+	}
+
 	/**
 	 * finalize the main game, show summary, and offer retry/challenge
 	 */
@@ -255,6 +287,11 @@ export class MercuryGameController extends ScreenController {
 			played: true,
 			passed: passed,
 		});
+
+		/** if they passed, persist score to DB to unlock Venus */
+		if (passed && summary.correctAnswers > 0) {
+			void this.saveMercuryScore(summary.correctAnswers);
+		}
 
 		this.view.displaySummary(
 			summary.correctAnswers,
