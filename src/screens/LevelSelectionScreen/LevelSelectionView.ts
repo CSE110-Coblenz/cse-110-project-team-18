@@ -139,7 +139,7 @@ export class LevelSelectionView implements View {
 			fontSize: LS_FONT,
 			width: LS_WIDTH,
 			height: LS_HEIGHT,
-			text: 'ASTROID',
+			text: 'ASTEROID',
 			colorKey: 'alien_green',
 			hoverColorKey: 'success_hover',
 			onClick: astroidBtnClick,

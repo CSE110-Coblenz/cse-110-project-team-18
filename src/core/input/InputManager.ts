@@ -6,8 +6,10 @@ export class InputManager {
 	private handleKeyUpBound: (e: KeyboardEvent) => void;
 	private initialized = false;
 
+	/**
+	 * Constructor for the InputManager
+	 */
 	private constructor() {
-		// Bind methods once
 		this.handleKeyDownBound = (e: KeyboardEvent) => this.handleKeyDown(e);
 		this.handleKeyUpBound = (e: KeyboardEvent) => this.handleKeyUp(e);
 	}
@@ -74,7 +76,13 @@ export class InputManager {
 		}
 
 		this.keys.delete(key);
-		this.keyStates.delete(key);
+		
+		// Ensures cooldown persists across key releases, preventing rapid tapping
+		const state = this.keyStates.get(key);
+		if (state) {
+			const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+			state.lastConsumedTime = now;
+		}
 	}
 
 	/**

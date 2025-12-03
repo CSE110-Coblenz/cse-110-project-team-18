@@ -145,6 +145,7 @@ export class ProjectileManager {
 		this.projectiles.push(projectile);
 
 		projectile.onCollision = (other) => {
+			// Prevent collision with the player
 			if (this.playerCollidable && other === this.playerCollidable.owner) {
 				return;
 			}
@@ -155,6 +156,7 @@ export class ProjectileManager {
 				other.destroy();
 				return;
 			}
+			// Call the onCollision callback if provided
 			if (options.onCollision) {
 				options.onCollision(projectile, other);
 			}
