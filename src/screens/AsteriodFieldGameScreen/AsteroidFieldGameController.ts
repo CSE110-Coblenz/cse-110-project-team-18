@@ -47,7 +47,7 @@ export class AsteroidFieldGameController extends ScreenController {
 	/**
 	 * End condition: game ends when score reaches or exceeds this value
 	 */
-	public static readonly END_SCORE = 5; // Points needed to end the game
+	public static readonly END_SCORE = 30; // Points needed to end the game
 	private hasRecordedResult = false; // Prevent double saving
 	private isGameStopped = false; // Track if game has been stopped
 
