@@ -32,9 +32,7 @@ export class MercuryGameController extends ScreenController {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.model = new MercuryGameModel();
-		this.view = new MercuryGameView(
-			() => this.handleSubmitAnswer()
-		);
+		this.view = new MercuryGameView(() => this.handleSubmitAnswer());
 	}
 
 	/**
@@ -69,8 +67,7 @@ export class MercuryGameController extends ScreenController {
 	/**
 	 * default is empty
 	 */
-	update(): void {
-	}
+	update(): void {}
 
 	/**
 	 * reset state and launch the main (untimed) quiz flow
