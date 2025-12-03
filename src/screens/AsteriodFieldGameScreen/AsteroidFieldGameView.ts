@@ -2,17 +2,20 @@ import Konva from 'konva';
 import type { View } from '../../types.ts';
 import { STAGE_WIDTH, STAGE_HEIGHT } from '../../configs/GameConfig';
 import { preloadImage } from '../../core/utils/AssetLoader';
+import { createButton } from '../../ui';
 
 /**
  * AsteroidFieldGameView - Renders the asteroid field game screen
  */
 export class AsteroidFieldGameView implements View {
 	private group: Konva.Group;
+	private returnButton?: Konva.Group;
 	private targetLabel: Konva.Text;
 	private scoreLabel: Konva.Text;
 	private edgeFlashRect?: Konva.Rect;
 	private flashUntil?: number;
 	private elapsedTime = 0;
+	private maxScore: number = 30; // Default, will be set via setMaxScore
 
 	/**
 	 * Constructor for the AsteroidFieldGameView
@@ -23,7 +26,7 @@ export class AsteroidFieldGameView implements View {
 			id: 'asteroidFieldGameScreen',
 		});
 
-		// BACKGROUND IMAGE
+		// Background image
 		const background = new Konva.Image({
 			x: 0,
 			y: 0,
@@ -32,14 +35,13 @@ export class AsteroidFieldGameView implements View {
 			listening: false,
 			image: new Image(),
 		});
-
 		void preloadImage('/assets/ui/AsteroidBG.png').then((img) => {
 			background.image(img);
 			this.group.getLayer()?.batchDraw();
 		});
-
 		this.group.add(background);
 
+		// Target label
 		this.targetLabel = new Konva.Text({
 			text: 'Target: --',
 			x: 30,
@@ -53,6 +55,7 @@ export class AsteroidFieldGameView implements View {
 		});
 		this.group.add(this.targetLabel);
 
+		// Score label
 		this.scoreLabel = new Konva.Text({
 			text: 'Score: 0',
 			x: 35,
@@ -87,9 +90,40 @@ export class AsteroidFieldGameView implements View {
 	ensureButtonsOnTop(): void {
 		this.targetLabel.moveToTop();
 		this.scoreLabel.moveToTop();
-		if (this.edgeFlashRect) {
-			this.edgeFlashRect.moveToTop();
+		this.edgeFlashRect?.moveToTop();
+		this.returnButton?.moveToTop();
+	}
+
+	/**
+	 * Show the return to level selector button
+	 * @param onClick - Callback when button is clicked
+	 */
+	showReturnButton(onClick: () => void): void {
+		if (this.returnButton) {
+			this.returnButton.visible(true);
+			return;
 		}
+
+		this.returnButton = createButton({
+			x: STAGE_WIDTH / 2 - 150,
+			y: STAGE_HEIGHT / 2,
+			width: 400,
+			height: 60,
+			text: 'RETURN TO LEVEL SELECTOR',
+			colorKey: 'accent_blue',
+			hoverColorKey: 'accent_blue_hover',
+			onClick,
+		});
+
+		this.group.add(this.returnButton);
+		this.returnButton.visible(true);
+	}
+
+	/**
+	 * Hide the return button
+	 */
+	hideReturnButton(): void {
+		this.returnButton?.visible(false);
 	}
 
 	/**
@@ -116,16 +150,35 @@ export class AsteroidFieldGameView implements View {
 		return this.group;
 	}
 
+	/**
+	 * Set the target number for display purposes
+	 * @param target - The target number to display
+	 */
 	setTargetNumber(target: number): void {
 		this.targetLabel.text(`Target: ${target}`);
-		this.targetLabel.moveToTop();
 	}
 
+	/**
+	 * Set the maximum score for display purposes
+	 * @param maxScore - The maximum score to display
+	 */
+	setMaxScore(maxScore: number): void {
+		this.maxScore = maxScore;
+	}
+
+	/**
+	 * Set the score for display purposes
+	 * @param score - The score to display
+	 */
 	setScore(score: number): void {
-		this.scoreLabel.text(`Score: ${score}`);
-		this.scoreLabel.moveToTop();
+		this.scoreLabel.text(`Score: ${score}/${this.maxScore}`);
 	}
 
+	/**
+	 * Flash the screen edge
+	 * @param isPositive - Whether the flash is positive or negative
+	 * @param durationMs - The duration of the flash in milliseconds
+	 */
 	flashScreenEdge(isPositive: boolean, durationMs: number = 300): void {
 		if (!this.edgeFlashRect) return;
 
@@ -133,9 +186,12 @@ export class AsteroidFieldGameView implements View {
 		this.edgeFlashRect.stroke(color);
 		this.edgeFlashRect.visible(true);
 		this.flashUntil = this.elapsedTime + durationMs;
-		this.edgeFlashRect.moveToTop();
 	}
 
+	/**
+	 * Update the asteroid field game view
+	 * @param deltaTimeMs - The time since the last frame in milliseconds
+	 */
 	update(deltaTimeMs: number): void {
 		this.elapsedTime += deltaTimeMs;
 

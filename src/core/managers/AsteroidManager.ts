@@ -33,6 +33,8 @@ const FACTOR_FONT_SIZE = 36;
 const FACTOR_FONT_COLOR = '#FFFFFF';
 const FACTOR_FONT_STROKE = '#000000';
 const FACTOR_FONT_STROKE_WIDTH = 2;
+const FLASH_DURATION_MS = 250; // Duration of flash effect after hit
+const GUARANTEED_CORRECT_INTERVAL = 3; // Every Nth asteroid is guaranteed correct
 
 function randomInt(min: number, max: number): number {
 	const lower = Math.ceil(min);
@@ -70,7 +72,6 @@ export class AsteroidManager {
 	private maxValue: number;
 	private onAsteroidHit?: (isFactor: boolean) => void;
 	private onAsteroidReachedBottom?: (isFactor: boolean) => void;
-	private factorCount = 0; // Track how many factors we've spawned
 	private totalSpawned = 0; // Track total asteroids spawned
 
 	constructor(options: AsteroidManagerOptions) {
@@ -101,7 +102,7 @@ export class AsteroidManager {
 	private generateAsteroidValue(): number {
 		// Make 1/3 correct (factors or multiples), 2/3 purely random (could be correct or incorrect)
 		// We want exactly 1/3 to be guaranteed correct values
-		const shouldBeCorrect = this.totalSpawned % 3 === 0;
+		const shouldBeCorrect = this.totalSpawned % GUARANTEED_CORRECT_INTERVAL == 0;
 
 		if (shouldBeCorrect) {
 			const correctValues = this.getCorrectValues();
@@ -115,9 +116,10 @@ export class AsteroidManager {
 	}
 
 	private isCorrectValue(value: number): boolean {
+		// If target number is 0, return false (should be impossible to happen)
 		if (this.targetNumber === 0) return false;
-		// Check if value is a factor of targetNumber (targetNumber % value === 0)
-		// OR if value is a multiple of targetNumber (value % targetNumber === 0)
+
+		// Check if value is a factor or multiple of targetNumber
 		return this.targetNumber % value === 0 || value % this.targetNumber === 0;
 	}
 
@@ -164,17 +166,19 @@ export class AsteroidManager {
 			return;
 		}
 
-		// Random x position within screen bounds
+		// Calculate frame dimensions
 		const frameWidth = this.frameWidth;
 		const frameHeight = this.frameHeight;
-		const randomFrameIndex = Math.floor(Math.random() * this.frameCount);
-		const frameX = randomFrameIndex * frameWidth;
-		const frameY = 0;
 		const scaledWidth = frameWidth * this.scale;
 		const scaledHeight = frameHeight * this.scale;
+		const randomFrameIndex = Math.floor(Math.random() * this.frameCount);
+		const frameX = randomFrameIndex * frameWidth;
 
 		// Calculate center position for the asteroid
-		const centerX = Math.random() * (STAGE_WIDTH - scaledWidth) + scaledWidth / 2;
+		const centerX = Math.max(
+			10,
+			Math.min(STAGE_WIDTH - 10, Math.random() * (STAGE_WIDTH - scaledWidth) + scaledWidth / 2)
+		);
 		const centerY = scaledHeight / 2; // Start at top with center at half height
 
 		// Create asteroid as a projectile moving downward (model position is at center)
@@ -188,9 +192,6 @@ export class AsteroidManager {
 		this.totalSpawned++;
 		const asteroidValue = this.generateAsteroidValue();
 		const isCorrect = this.isCorrectValue(asteroidValue);
-		if (isCorrect) {
-			this.factorCount++;
-		}
 
 		// Create Konva image and crop to the selected frame
 		// Position node at top-left, then offset to center it
@@ -205,7 +206,7 @@ export class AsteroidManager {
 
 		asteroidNode.crop({
 			x: frameX,
-			y: frameY,
+			y: 0,
 			width: frameWidth,
 			height: frameHeight,
 		});
@@ -223,8 +224,7 @@ export class AsteroidManager {
 		asteroid.attachNode(asteroidNode);
 
 		// Set collision boundary as a circle with radius = frame width / 2 (scaled)
-		const scaledFrameWidth = frameWidth * this.scale;
-		const radius = scaledFrameWidth / 2;
+		const radius = scaledWidth / 2;
 		if (asteroid.collidable) {
 			asteroid.collidable.setCircle(asteroid.model.x, asteroid.model.y, radius);
 		}
@@ -238,11 +238,7 @@ export class AsteroidManager {
 			x: numberLabel.width() / 2,
 			y: numberLabel.height() / 2,
 		});
-		numberLabel.scale({ x: 1, y: 1 });
-		numberLabel.fill(FACTOR_FONT_COLOR);
-		numberLabel.stroke(FACTOR_FONT_STROKE);
 		numberLabel.moveToTop();
-		// this.group.add(collisionEllipse);
 
 		const asteroidData: AsteroidData = {
 			projectile: asteroid,
@@ -277,7 +273,7 @@ export class AsteroidManager {
 			this.onAsteroidHit(isCorrect);
 		}
 
-		asteroidData.flashUntil = this.elapsedTime + 250;
+		asteroidData.flashUntil = this.elapsedTime + FLASH_DURATION_MS;
 
 		projectile.destroy();
 		other.destroy();
@@ -312,10 +308,9 @@ export class AsteroidManager {
 			}
 
 			// Update collision circle position
-			if (asteroid.collidable && asteroid.collidable.shape) {
-				const shape = asteroid.collidable.shape as any;
+			if (asteroid.collidable?.shape) {
+				const shape = asteroid.collidable.shape as { x?: number; y?: number; r?: number };
 				if (shape.r !== undefined) {
-					// Update circle position
 					shape.x = asteroid.model.x;
 					shape.y = asteroid.model.y;
 				}
@@ -331,24 +326,22 @@ export class AsteroidManager {
 			asteroidData.label.moveToTop();
 		}
 
-		// Remove destroyed asteroids
-		const asteroidsToRemove = this.asteroids.filter(
-			(asteroidData) =>
-				asteroidData.projectile.isDestroyed() &&
-				(asteroidData.flashUntil === undefined || this.elapsedTime >= asteroidData.flashUntil)
-		);
-		for (const asteroidData of asteroidsToRemove) {
+		// Remove destroyed asteroids (iterate backwards for efficient removal)
+		for (let i = this.asteroids.length - 1; i >= 0; i--) {
+			const asteroidData = this.asteroids[i];
 			const asteroid = asteroidData.projectile;
-			if (this.collisionManager && asteroid.collidable) {
-				this.collisionManager.unregister(asteroid.collidable);
+
+			if (
+				asteroid.isDestroyed() &&
+				(asteroidData.flashUntil === undefined || this.elapsedTime >= asteroidData.flashUntil)
+			) {
+				if (this.collisionManager && asteroid.collidable) {
+					this.collisionManager.unregister(asteroid.collidable);
+				}
+				asteroidData.label.destroy();
+				asteroid.dispose();
+				this.asteroids.splice(i, 1);
 			}
-			// Dispose of the collision ellipse
-			const index = this.asteroids.indexOf(asteroidData);
-			if (index > -1) {
-				this.asteroids.splice(index, 1);
-			}
-			asteroidData.label.destroy();
-			asteroid.dispose();
 		}
 	}
 
@@ -377,7 +370,6 @@ export class AsteroidManager {
 		this.asteroids = [];
 		this.timeSinceLastSpawn = 0;
 		this.elapsedTime = 0;
-		this.factorCount = 0;
 		this.totalSpawned = 0;
 	}
 
