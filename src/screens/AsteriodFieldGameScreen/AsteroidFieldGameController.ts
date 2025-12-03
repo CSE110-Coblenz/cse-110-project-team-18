@@ -23,7 +23,7 @@ const API_BASE = 'http://localhost:3000/api';
 
 /**
  * AsteroidFieldGameController - Handles asteroid field game interactions
- * 
+ *
  * Game ends when the player reaches or exceeds END_SCORE.
  * When the end condition is met, the game stops and displays a button to
  * return to the level selector. Progress is saved to the Performance Dashboard
@@ -76,7 +76,7 @@ export class AsteroidFieldGameController extends ScreenController {
 				this.view.setTargetNumber(this.model.targetNumber);
 				this.view.setScore(this.model.score);
 				this.view.hideReturnButton();
-				
+
 				// Create player
 				this.model.player = { ...this.initialPlayerPosition };
 				const collisionManager = new CollisionManager();
@@ -89,7 +89,7 @@ export class AsteroidFieldGameController extends ScreenController {
 					movementConfig: createHorizontalMovementConfig(800),
 					collisionManager,
 				});
-				
+
 				// Create projectile manager
 				const projectileManager = new ProjectileManager({
 					group: this.view.getGroup(),
@@ -163,7 +163,7 @@ export class AsteroidFieldGameController extends ScreenController {
 	 */
 	override update(deltaTime: number): void {
 		if (!this.view.getGroup().visible()) return;
-		
+
 		// Stop game updates if game is stopped
 		if (this.isGameStopped) {
 			this.view.update(deltaTime);
@@ -189,7 +189,10 @@ export class AsteroidFieldGameController extends ScreenController {
 		}
 
 		// Shoot projectile
-		if (this.model.player && this.inputManager.consumePress(' ', this.projectilePreset.fireCooldownMs)) {
+		if (
+			this.model.player &&
+			this.inputManager.consumePress(' ', this.projectilePreset.fireCooldownMs)
+		) {
 			entities.projectileManager.shoot({
 				x: this.model.player.x,
 				y: this.model.player.y + this.projectilePreset.offsetY,
@@ -311,7 +314,7 @@ export class AsteroidFieldGameController extends ScreenController {
 			this.hasRecordedResult = true;
 			this.isGameStopped = true;
 
-			const score = this.model.score
+			const score = this.model.score;
 			const maxScore = AsteroidFieldGameController.END_SCORE;
 			const passed = score === maxScore;
 			const accuracy = this.model.getAccuracy();

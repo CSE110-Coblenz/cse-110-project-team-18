@@ -119,7 +119,7 @@ export class AsteroidManager {
 		// If target number is 0, return false (should be impossible to happen)
 		if (this.targetNumber === 0) return false;
 
-		// Check if value is a factor or multiple of targetNumber 
+		// Check if value is a factor or multiple of targetNumber
 		return this.targetNumber % value === 0 || value % this.targetNumber === 0;
 	}
 
@@ -175,7 +175,10 @@ export class AsteroidManager {
 		const frameX = randomFrameIndex * frameWidth;
 
 		// Calculate center position for the asteroid
-		const centerX = Math.max(10, Math.min(STAGE_WIDTH - 10, Math.random() * (STAGE_WIDTH - scaledWidth) + scaledWidth / 2));
+		const centerX = Math.max(
+			10,
+			Math.min(STAGE_WIDTH - 10, Math.random() * (STAGE_WIDTH - scaledWidth) + scaledWidth / 2)
+		);
 		const centerY = scaledHeight / 2; // Start at top with center at half height
 
 		// Create asteroid as a projectile moving downward (model position is at center)
@@ -327,7 +330,7 @@ export class AsteroidManager {
 		for (let i = this.asteroids.length - 1; i >= 0; i--) {
 			const asteroidData = this.asteroids[i];
 			const asteroid = asteroidData.projectile;
-			
+
 			if (
 				asteroid.isDestroyed() &&
 				(asteroidData.flashUntil === undefined || this.elapsedTime >= asteroidData.flashUntil)

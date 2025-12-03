@@ -76,7 +76,7 @@ export class InputManager {
 		}
 
 		this.keys.delete(key);
-		
+
 		// Ensures cooldown persists across key releases, preventing rapid tapping
 		const state = this.keyStates.get(key);
 		if (state) {
