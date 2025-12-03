@@ -17,7 +17,6 @@ export class MercuryGameView implements View {
 	private correctCountLabel: Konva.Text;
 	private summaryLabel: Konva.Text;
 	private submitButton: Konva.Group;
-	private returnButton: Konva.Group;
 
 	/**
 	 * constructor designs the background, buttons, textbox, texts
@@ -25,7 +24,7 @@ export class MercuryGameView implements View {
 	 * @param onSubmitAnswer move to next question
 	 * @param onReturnToLevel move out to level selection
 	 */
-	constructor(onSubmitAnswer: () => void, onReturnToLevel: () => void) {
+	constructor(onSubmitAnswer: () => void) {
 		this.group = new Konva.Group({
 			visible: false,
 			id: 'mercuryGameScreen',
@@ -158,18 +157,6 @@ export class MercuryGameView implements View {
 			onClick: onSubmitAnswer,
 		});
 		this.group.add(this.submitButton);
-
-		this.returnButton = createButton({
-			x: 50,
-			y: 50,
-			width: 275,
-			height: 60,
-			text: 'RETURN TO LEVEL',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			onClick: onReturnToLevel,
-		});
-		this.group.add(this.returnButton);
 	}
 
 	/**
@@ -179,15 +166,6 @@ export class MercuryGameView implements View {
 	 */
 	getGroup(): Konva.Group {
 		return this.group;
-	}
-
-	/**
-	 * show/hide the return button (used after mini-game)
-	 */
-	public setReturnButtonVisible(isVisible: boolean): void {
-		this.returnButton.visible(isVisible);
-		this.returnButton.listening(isVisible);
-		this.group.getLayer()?.batchDraw();
 	}
 
 	/**

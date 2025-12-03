@@ -18,16 +18,22 @@ const mercuryHelpSlides: string[] = [
 			</defs>
 			<rect width="1200" height="800" fill="url(#bg)"/>
 			<rect x="40" y="40" width="1120" height="720" rx="28" fill="#16233d" stroke="#4b6fa8" stroke-width="5"/>
-			<text x="600" y="150" fill="#e5ecff" font-size="54" font-family="Arial" font-weight="700" text-anchor="middle" letter-spacing="1">
+			<text x="600" y="150" fill="#e5ecff" font-size="70" font-family="'Comic Sans MS', Arial, sans-serif" font-weight="700" text-anchor="middle" letter-spacing="1">
 				Mercury Quick Guide
 			</text>
-			<text x="160" y="260" fill="#dce7ff" font-size="28" font-family="Arial" letter-spacing="0.8">
-				• Read the question in the box and enter a whole-number answer.
+			<text x="160" y="280" fill="#dce7ff" font-size="44" font-family="'Comic Sans MS', Arial, sans-serif" letter-spacing="0.8">
+				• Read the question in the box and
+			</text> 
+			<text x="190" y="360" fill="#dce7ff" font-size="44" font-family="'Comic Sans MS', Arial, sans-serif" letter-spacing="0.8">
+				Enter a whole-number answer.
+			</text> 
+			<text x="160" y="460" fill="#dce7ff" font-size="44" font-family="'Comic Sans MS', Arial, sans-serif" letter-spacing="0.8">
+				• Press Submit (or Enter) and
 			</text>
-			<text x="160" y="330" fill="#dce7ff" font-size="28" font-family="Arial" letter-spacing="0.8">
-				• Press Submit (or Enter) and We will track your wins.
+			<text x="190" y="540" fill="#dce7ff" font-size="44" font-family="'Comic Sans MS', Arial, sans-serif" letter-spacing="0.8">
+				We will track your wins.
 			</text>
-			<text x="160" y="400" fill="#dce7ff" font-size="28" font-family="Arial" letter-spacing="0.8">
+			<text x="160" y="640" fill="#dce7ff" font-size="44" font-family="'Comic Sans MS', Arial, sans-serif" letter-spacing="0.8">
 				• Score 80% to go to Venus.
 			</text>
 		</svg>

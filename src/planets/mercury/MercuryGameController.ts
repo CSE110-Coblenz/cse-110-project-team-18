@@ -32,10 +32,7 @@ export class MercuryGameController extends ScreenController {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.model = new MercuryGameModel();
-		this.view = new MercuryGameView(
-			() => this.handleSubmitAnswer(),
-			() => this.handleReturnToLevelClick()
-		);
+		this.view = new MercuryGameView(() => this.handleSubmitAnswer());
 	}
 
 	/**
@@ -70,17 +67,7 @@ export class MercuryGameController extends ScreenController {
 	/**
 	 * default is empty
 	 */
-	update(): void {
-		// no-op
-	}
-
-	/**
-	 * handle return to menu's button that returns to menu
-	 * screen when clicked
-	 */
-	private handleReturnToLevelClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'level selection' });
-	}
+	update(): void {}
 
 	/**
 	 * reset state and launch the main (untimed) quiz flow
@@ -89,7 +76,6 @@ export class MercuryGameController extends ScreenController {
 		this.phase = 'main';
 		this.model.reset();
 		this.view.setSubmitLabel('SUBMIT');
-		this.view.setReturnButtonVisible(true);
 		this.ensureInputBox();
 		this.view.showMessage('');
 		this.view.updateCorrectCount(0);
