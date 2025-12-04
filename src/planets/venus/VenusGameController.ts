@@ -287,7 +287,6 @@ export class VenusGameController extends ScreenController {
 		this.view.setSubmitLabel('SUBMIT');
 		this.view.hideModal();
 		this.view.hideTimer();
-		this.view.setReturnButtonVisible(true);
 		this.ensureInputBox();
 		this.view.showMessage('');
 		this.view.updateCorrectCount(0);
@@ -446,7 +445,6 @@ export class VenusGameController extends ScreenController {
 		this.removeInputBox();
 		this.phase = 'challengeSummary';
 		this.view.setSubmitLabel(passed ? 'GO TO EARTH' : 'RETRY');
-		this.view.setReturnButtonVisible(false);
 		this.view.showMessage(
 			passed
 				? 'Challenge complete! Next stop: Earth.'
@@ -454,5 +452,14 @@ export class VenusGameController extends ScreenController {
 			passed ? theme.get('success') : theme.get('warning')
 		);
 	}
+
+	public setInputVisible(isVisible: boolean): void {
+        if (!this.inputBox) return;
+        this.inputBox.style.display = isVisible ? 'block' : 'none';
+        if (isVisible) {
+            this.focusInput();
+        }
+    }
 }
-/* ---------------- End Rapid-fire Game Modified ---------------- */
+
+

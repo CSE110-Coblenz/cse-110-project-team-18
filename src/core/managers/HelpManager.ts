@@ -377,6 +377,8 @@ export class HelpManager {
 				return 'Knowledge';
 			case 'military time game':
 				return 'Military Time';
+			case 'venus game':
+				return 'Venus';
 			case 'game':
 				return 'Game';
 			case 'result':
@@ -392,6 +394,10 @@ export class HelpManager {
 				return ['/assets/ui/AsteroidFieldHelp1.png', '/assets/ui/AsteroidFieldHelp2.png'];
 			case 'Mercury':
 				return mercuryHelpSlides;
+			case 'Prime Number':
+				return ['/assets/ui/PrimeHelp1.png', '/assets/ui/PrimeHelp2.png'];
+			case 'Venus':
+				return ['/assets/ui/VenusHelp1.png'];
 			default:
 				return [];
 		}
