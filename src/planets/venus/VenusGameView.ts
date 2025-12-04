@@ -224,18 +224,17 @@ export class VenusGameView implements View {
 		this.modalGroup.add(this.modalBody);
 
 		this.group.add(this.modalGroup);
-
 	}
 
 	/**
-     * Helper to remove the stroke (border) from a text box group
-     */
-    private removeBorder(group: Konva.Group): void {
-        const bg = group.findOne<Konva.Rect>('Rect');
-        if (bg) {
-            bg.strokeWidth(0);
-        }
-    }
+	 * Helper to remove the stroke (border) from a text box group
+	 */
+	private removeBorder(group: Konva.Group): void {
+		const bg = group.findOne<Konva.Rect>('Rect');
+		if (bg) {
+			bg.strokeWidth(0);
+		}
+	}
 
 	getGroup(): Konva.Group {
 		return this.group;
@@ -250,7 +249,6 @@ export class VenusGameView implements View {
 		this.group.visible(false);
 		this.group.getLayer()?.batchDraw();
 	}
-
 
 	public setSubmitLabel(text: string): void {
 		setElementText(this.submitButton, text);

@@ -52,7 +52,7 @@ export class PrimeNumberGameView implements View {
 			fill: theme.get('mars_red'),
 			align: 'center',
 		});
-		
+
 		title.offsetX(title.width() / 2);
 		this.group.add(title);
 

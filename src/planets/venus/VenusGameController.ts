@@ -454,12 +454,10 @@ export class VenusGameController extends ScreenController {
 	}
 
 	public setInputVisible(isVisible: boolean): void {
-        if (!this.inputBox) return;
-        this.inputBox.style.display = isVisible ? 'block' : 'none';
-        if (isVisible) {
-            this.focusInput();
-        }
-    }
+		if (!this.inputBox) return;
+		this.inputBox.style.display = isVisible ? 'block' : 'none';
+		if (isVisible) {
+			this.focusInput();
+		}
+	}
 }
-
-
