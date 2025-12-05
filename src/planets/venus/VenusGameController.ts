@@ -39,10 +39,7 @@ export class VenusGameController extends ScreenController {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.model = new VenusGameModel();
-		this.view = new VenusGameView(
-			() => this.handleSubmitAnswer(),
-			() => this.handleReturnToLevelClick()
-		);
+		this.view = new VenusGameView(() => this.handleSubmitAnswer());
 	}
 
 	getView(): VenusGameView {
@@ -104,10 +101,6 @@ export class VenusGameController extends ScreenController {
 		if (this.inputBox) this.inputBox.value = '';
 		this.challengeTimerMs = 0;
 		this.scheduleNextStep();
-	}
-
-	private handleReturnToLevelClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'level selection' });
 	}
 
 	private ensureInputBox(): void {
