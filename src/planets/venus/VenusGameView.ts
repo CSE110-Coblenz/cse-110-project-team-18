@@ -2,23 +2,25 @@ import Konva from 'konva';
 import type { View } from '../../types';
 import { STAGE_HEIGHT, STAGE_WIDTH } from '../../configs/GameConfig';
 import { theme } from '../../configs/ThemeConfig.ts';
-import { createButton, createTextBox, setElementText } from '../../ui/factory/ElementFactory.ts';
+import { createButton, setElementText } from '../../ui/factory/ElementFactory.ts';
 import { preloadImage } from '../../core/utils/AssetLoader';
+
+const FONT_FAMILY = 'Comic Sans MS, Arial, sans-serif';
 
 /**
  * VenusGameView renders the UI for the Venus math challenge.
+ * Layout mirrors Mercury's panel/counter placement but keeps Venus colors and guidance.
  */
 export class VenusGameView implements View {
 	private group: Konva.Group;
 
-	// UI Elements (includes rapid-fire HUD pieces)
-	private progressLabel: Konva.Group;
-	private correctCountLabel: Konva.Group; // live correct counter for speed round
-	private questionLabel: Konva.Group;
-	private feedbackLabel: Konva.Group;
-	private summaryLabel: Konva.Group;
+	private progressLabel: Konva.Text;
+	private correctCountLabel: Konva.Text; // live correct counter for speed round
+	private questionLabel: Konva.Text;
+	private feedbackLabel: Konva.Text;
+	private summaryLabel: Konva.Text;
 	private submitButton: Konva.Group;
-	private timerLabel: Konva.Group; // countdown for rapid-fire
+	private timerLabel: Konva.Text; // countdown for rapid-fire
 	private modalGroup: Konva.Group; // intro overlay for rapid-fire
 	private modalBody: Konva.Text;
 
@@ -45,125 +47,123 @@ export class VenusGameView implements View {
 
 		this.group.add(background);
 
+		const panelWidth = STAGE_WIDTH - 850;
+		const panelHeight = 240;
+		const panelX = (STAGE_WIDTH - panelWidth) / 2;
+		const panelY = 200;
+		const answerBoxTop = STAGE_HEIGHT - 230;
+
 		// Title
 		const title = new Konva.Text({
 			x: STAGE_WIDTH / 2,
 			y: 80,
 			width: STAGE_WIDTH - 120,
-			text: 'Venus Math Mission',
+			text: 'Escape from Venus',
 			align: 'center',
 			fontSize: 48,
-			fontFamily: theme.fontFamilyDefault,
-			fill: theme.get('meteor_orange'),
+			fontFamily: FONT_FAMILY,
+			fill: 'rgba(255, 173, 94, 0.9)',
 		});
 		title.offsetX((STAGE_WIDTH - 120) / 2);
 		this.group.add(title);
 
-		// Progress Label
-		this.progressLabel = createTextBox(
-			{
-				x: STAGE_WIDTH / 2 - (STAGE_WIDTH - 120) / 2,
-				y: 170,
-				width: STAGE_WIDTH - 120,
-				height: 30,
-				text: 'Question 1 of 10',
-				colorKey: 'transparent',
-				fontColorKey: 'warning',
-				fontSize: 26,
-				padding: 0,
-			},
-			theme
-		);
-		this.removeBorder(this.progressLabel);
-		this.group.add(this.progressLabel);
+		// Panel for question/feedback (mirrors Mercury placement).
+		const questionPanel = new Konva.Group({
+			x: panelX,
+			y: panelY,
+		});
 
-		this.correctCountLabel = createTextBox(
-			{
-				x: 0,
-				y: 20,
-				width: 200,
-				height: 30,
-				text: 'Correct: 0',
-				colorKey: 'transparent',
-				fontColorKey: 'info',
-				fontSize: 22,
-				padding: 0,
-			},
-			theme
-		);
-		this.removeBorder(this.correctCountLabel);
-		this.group.add(this.correctCountLabel);
+		const questionPanelBg = new Konva.Rect({
+			width: panelWidth,
+			height: panelHeight,
+			fill: 'rgba(15, 23, 42, 0.75)',
+			stroke: 'rgba(255, 173, 94, 0.6)',
+			strokeWidth: 2.5,
+			cornerRadius: 18,
+		});
+		questionPanel.add(questionPanelBg);
 
-		// Question Label
-		this.questionLabel = createTextBox(
-			{
-				x: STAGE_WIDTH / 2 - (STAGE_WIDTH - 160) / 2,
-				y: 230,
-				width: STAGE_WIDTH - 160,
-				height: 40,
-				text: 'Solve the equation to continue your mission.',
-				colorKey: 'transparent',
-				fontColorKey: 'text_inverse',
-				fontSize: 36,
-				padding: 0,
-			},
-			theme
-		);
-		this.removeBorder(this.questionLabel);
-		this.group.add(this.questionLabel);
+		this.progressLabel = new Konva.Text({
+			x: 100,
+			y: 16,
+			width: panelWidth - 220,
+			text: 'Question 1 of 10',
+			align: 'center',
+			fontSize: 26,
+			fontFamily: FONT_FAMILY,
+			fill: '#FFD8A0',
+		});
+		questionPanel.add(this.progressLabel);
 
-		// Feedback Label
-		this.feedbackLabel = createTextBox(
-			{
-				x: STAGE_WIDTH / 2 - (STAGE_WIDTH - 160) / 2,
-				y: 320,
-				width: STAGE_WIDTH - 160,
-				height: 30,
-				text: 'Type your answer below and press submit.',
-				colorKey: 'transparent',
-				fontColorKey: 'info',
-				fontSize: 24,
-				padding: 0,
-			},
-			theme
-		);
-		this.removeBorder(this.feedbackLabel);
-		this.group.add(this.feedbackLabel);
+		// Keep the correct counter aligned like Mercury's UI.
+		this.correctCountLabel = new Konva.Text({
+			x: panelWidth - 200,
+			y: 16,
+			width: 180,
+			text: 'Correct: 0',
+			align: 'right',
+			fontSize: 20,
+			fontFamily: FONT_FAMILY,
+			fill: '#B7E5FF',
+		});
+		questionPanel.add(this.correctCountLabel);
 
-		this.timerLabel = createTextBox(
-			{
-				x: 50,
-				y: 170,
-				width: 200,
-				height: 30,
-				text: '',
-				colorKey: 'transparent',
-				fontColorKey: 'warning',
-				fontSize: 20,
-				padding: 0,
-			},
-			theme
-		);
-		this.timerLabel.visible(false);
+		this.questionLabel = new Konva.Text({
+			x: 20,
+			y: panelHeight / 2 - 28,
+			width: panelWidth - 40,
+			text: 'Solve the equation to continue your mission.',
+			align: 'center',
+			fontSize: 36,
+			fontFamily: FONT_FAMILY,
+			fill: '#F6FBFF',
+		});
+		questionPanel.add(this.questionLabel);
+
+		this.feedbackLabel = new Konva.Text({
+			x: 20,
+			y: panelHeight / 2 + 36,
+			width: panelWidth - 40,
+			text: 'Type your answer below and press submit.',
+			align: 'center',
+			fontSize: 24,
+			fontFamily: FONT_FAMILY,
+			fill: '#C8E7FF',
+			lineHeight: 1.4,
+		});
+		questionPanel.add(this.feedbackLabel);
+
+		this.group.add(questionPanel);
+
+		// Timer above the panel (only visible during rapid fire).
+		this.timerLabel = new Konva.Text({
+			x: panelX + 20,
+			y: panelY + 16,
+			width: 200,
+			text: '',
+			align: 'left',
+			fontSize: 20,
+			fontFamily: FONT_FAMILY,
+			fill: '#FFE6B3',
+			visible: false,
+		});
 		this.group.add(this.timerLabel);
 
-		// Summary Label
-		this.summaryLabel = createTextBox(
-			{
-				x: STAGE_WIDTH / 2 - (STAGE_WIDTH - 200) / 2,
-				y: 400,
-				width: STAGE_WIDTH - 200,
-				height: 60,
-				text: '',
-				colorKey: 'transparent',
-				fontColorKey: 'warning',
-				fontSize: 24,
-				padding: 0,
-			},
-			theme
-		);
-		this.summaryLabel.visible(false);
-		this.removeBorder(this.summaryLabel);
+		// Summary label between the panel and the input bar.
+		this.summaryLabel = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: panelY + panelHeight + (answerBoxTop - (panelY + panelHeight)) / 2,
+			width: STAGE_WIDTH - 200,
+			text: '',
+			align: 'center',
+			fontSize: 24,
+			fontFamily: FONT_FAMILY,
+			fill: '#FCD77F',
+			visible: false,
+			lineHeight: 1.2,
+			letterSpacing: 1,
+		});
+		this.summaryLabel.offsetX((STAGE_WIDTH - 200) / 2);
 		this.group.add(this.summaryLabel);
 
 		// Submit Button
@@ -204,36 +204,26 @@ export class VenusGameView implements View {
 			text: 'Venus Challenge',
 			align: 'center',
 			fontSize: 34,
-			fontFamily: theme.fontFamilyDefault,
-			fill: theme.get('text_inverse'),
+			fontFamily: FONT_FAMILY,
+			fill: '#F6FBFF',
 		});
 		this.modalGroup.add(modalTitle);
 
 		this.modalBody = new Konva.Text({
 			x: -340,
-			y: -70,
+			y: -40,
 			width: 680,
 			text: '',
 			align: 'center',
-			fontSize: 22,
-			fontFamily: theme.fontFamilyDefault,
+			fontSize: 24,
+			fontFamily: FONT_FAMILY,
 			fill: theme.get('asteroid_gray'),
-			lineHeight: 1.5,
+			lineHeight: 2,
 			letterSpacing: 1,
 		});
 		this.modalGroup.add(this.modalBody);
 
 		this.group.add(this.modalGroup);
-	}
-
-	/**
-	 * Helper to remove the stroke (border) from a text box group
-	 */
-	private removeBorder(group: Konva.Group): void {
-		const bg = group.findOne<Konva.Rect>('Rect');
-		if (bg) {
-			bg.strokeWidth(0);
-		}
 	}
 
 	getGroup(): Konva.Group {
@@ -261,25 +251,21 @@ export class VenusGameView implements View {
 		questionText: string,
 		correctCount?: number
 	): void {
-		setElementText(this.progressLabel, `Question ${questionIndex + 1} of ${totalQuestions}`);
-		setElementText(this.questionLabel, questionText);
+		this.progressLabel.text(`Question ${questionIndex + 1} of ${totalQuestions}`);
+		this.questionLabel.text(questionText);
 		this.summaryLabel.visible(false);
 		if (typeof correctCount === 'number') {
 			this.updateCorrectCount(correctCount); // surface live tally in rapid fire
 		}
 
-		this.showMessage('Type your answer below and press submit.', theme.get('info'));
+		this.showMessage('Type your answer below\nPress submit.', theme.get('info'));
 		this.hideTimer();
 		this.group.getLayer()?.batchDraw();
 	}
 
 	public showMessage(message: string, color?: string): void {
-		setElementText(this.feedbackLabel, message);
-
-		const txt = this.feedbackLabel.findOne<Konva.Text>('Text');
-		if (txt) {
-			txt.fill(color || theme.get('info'));
-		}
+		this.feedbackLabel.text(message);
+		this.feedbackLabel.fill(color || theme.get('info'));
 		this.group.getLayer()?.batchDraw();
 	}
 
@@ -293,13 +279,13 @@ export class VenusGameView implements View {
 	}
 
 	public updateCorrectCount(correctCount: number): void {
-		setElementText(this.correctCountLabel, `Correct: ${correctCount}`);
+		this.correctCountLabel.text(`Correct: ${correctCount}`);
 		this.group.getLayer()?.batchDraw();
 	}
 
 	public updateTimer(text: string): void {
 		// Countdown label used exclusively in the rapid-fire finale.
-		setElementText(this.timerLabel, text);
+		this.timerLabel.text(text);
 		this.timerLabel.visible(true);
 		this.group.getLayer()?.batchDraw();
 	}
@@ -334,15 +320,8 @@ export class VenusGameView implements View {
 				: `Keep practicing until you reach ${minNumberOfQuestionsToWin}.`
 		}`;
 
-		setElementText(this.summaryLabel, summary);
-
-		const color = passed ? theme.get('success') : theme.get('warning');
-
-		const txt = this.summaryLabel.findOne<Konva.Text>('Text');
-		if (txt) {
-			txt.fill(color);
-		}
-
+		this.summaryLabel.text(summary);
+		this.summaryLabel.fill(passed ? theme.get('success') : theme.get('warning'));
 		this.summaryLabel.visible(true);
 		this.group.getLayer()?.batchDraw();
 	}
