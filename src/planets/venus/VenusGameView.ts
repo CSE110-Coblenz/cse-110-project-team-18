@@ -58,7 +58,7 @@ export class VenusGameView implements View {
 			x: STAGE_WIDTH / 2,
 			y: 80,
 			width: STAGE_WIDTH - 120,
-			text: 'Venus Math Mission',
+			text: 'Escape from Venus',
 			align: 'center',
 			fontSize: 48,
 			fontFamily: FONT_FAMILY,
@@ -129,7 +129,7 @@ export class VenusGameView implements View {
 			fontSize: 24,
 			fontFamily: FONT_FAMILY,
 			fill: '#C8E7FF',
-			lineHeight: 1.4
+			lineHeight: 1.4,
 		});
 		questionPanel.add(this.feedbackLabel);
 
@@ -211,14 +211,14 @@ export class VenusGameView implements View {
 
 		this.modalBody = new Konva.Text({
 			x: -340,
-			y: -70,
+			y: -40,
 			width: 680,
 			text: '',
 			align: 'center',
-			fontSize: 22,
+			fontSize: 24,
 			fontFamily: FONT_FAMILY,
 			fill: theme.get('asteroid_gray'),
-			lineHeight: 1.5,
+			lineHeight: 2,
 			letterSpacing: 1,
 		});
 		this.modalGroup.add(this.modalBody);
