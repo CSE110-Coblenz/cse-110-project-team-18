@@ -41,7 +41,6 @@ export class VenusGameController extends ScreenController {
 		this.model = new VenusGameModel();
 		this.view = new VenusGameView(
 			() => this.handleSubmitAnswer(),
-			() => this.handleReturnToLevelClick()
 		);
 	}
 
