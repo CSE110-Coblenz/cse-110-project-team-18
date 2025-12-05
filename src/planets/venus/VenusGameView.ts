@@ -22,7 +22,7 @@ export class VenusGameView implements View {
 	private modalGroup: Konva.Group; // intro overlay for rapid-fire
 	private modalBody: Konva.Text;
 
-	constructor(onSubmitAnswer: () => void, onReturnToMenu: () => void) {
+	constructor(onSubmitAnswer: () => void) {
 		this.group = new Konva.Group({
 			visible: false,
 			id: 'venusGameScreen',
