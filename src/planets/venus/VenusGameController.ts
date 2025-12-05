@@ -9,17 +9,15 @@ import { ProgressManager } from '../../core/managers/ProgressManager';
 /* same API base pattern as MenuScreenController */
 const API_BASE = 'http://localhost:3000/api';
 
-/* ---------------- Rapid-fire Game Modified ---------------- */
 // add phases
 type VenusPhase = 'main' | 'mainSummary' | 'challengeIntro' | 'challenge' | 'challengeSummary';
-/* ---------------- End Rapid-fire Game Modified ---------------- */
 
 export class VenusGameController extends ScreenController {
 	private readonly screenSwitcher: ScreenSwitcher;
 	private readonly view: VenusGameView;
 	private readonly model: VenusGameModel;
 	private inputBox: HTMLInputElement | null = null;
-	/* ---------------- Rapid-fire Game Modified ---------------- */
+
 	// These fields drive the Venus timed finale that unlocks after
 	// the main round: we track the current phase, per-question timer,
 	// duration, and shorter question count for the speed round.
@@ -36,7 +34,6 @@ export class VenusGameController extends ScreenController {
 				phase: 'main' | 'challenge';
 		  }
 		| undefined;
-	/* ---------------- End Rapid-fire Game Modified ---------------- */
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
@@ -54,23 +51,18 @@ export class VenusGameController extends ScreenController {
 
 	override show(): void {
 		super.show();
-		/* ---------------- Rapid-fire Game Modified ---------------- */
 		// start the main game
 		this.startMainGame();
-		/* ---------------- End Rapid-fire Game Modified ---------------- */
 	}
 
 	override hide(): void {
 		super.hide();
 		this.removeInputBox();
-		/* ---------------- Rapid-fire Game Modified ---------------- */
 		// hide the time and pop-up dialog before the rapid game game starts
 		this.view.hideModal();
 		this.view.hideTimer();
-		/* ---------------- End Rapid-fire Game Modified ---------------- */
 	}
 
-	/* ---------------- Rapid-fire Game Modified ---------------- */
 	/**
 	 * update the time countdown for rapid fire game, if time is 0,
 	 * the question is automatically submitted with incorrect answer.
@@ -113,7 +105,6 @@ export class VenusGameController extends ScreenController {
 		this.challengeTimerMs = 0;
 		this.scheduleNextStep();
 	}
-	/* ---------------- End Rapid-fire Game Modified ---------------- */
 
 	private handleReturnToLevelClick(): void {
 		this.screenSwitcher.switchToScreen({ type: 'level selection' });
@@ -175,24 +166,24 @@ export class VenusGameController extends ScreenController {
 	}
 
 	private presentCurrentQuestion(): void {
-		/* ---------------- Rapid-fire Game Modified ---------------- */
 		// check if main game/rapid-fire game still have questions
 		if (!this.model.hasMoreQuestions()) {
 			this.handlePhaseComplete();
 			return;
 		}
-		/* ---------------- End Rapid-fire Game Modified ---------------- */
+
 		const question = this.model.getCurrentQuestion();
+
 		if (!question) return;
+
 		this.view.displayQuestion(
 			this.model.getCurrentQuestionIndex(),
 			this.model.getTotalQuestions(),
 			`${question.text} = ?`,
-			/* ---------------- Rapid-fire Game Modified ---------------- */
 			// get the number of correct answers
 			this.model.getCorrectAnswers()
 		);
-		/* ---------------- Rapid-fire Game Modified ---------------- */
+
 		// If we're in rapid fire, restart the per-question timer.
 		if (this.phase === 'challenge') {
 			this.challengeTimerMs = this.challengeDurationMs;
@@ -200,12 +191,11 @@ export class VenusGameController extends ScreenController {
 		} else {
 			this.view.hideTimer();
 		}
-		/* ---------------- End Rapid-fire Game Modified ---------------- */
+
 		this.focusInput();
 	}
 
 	private handleSubmitAnswer(): void {
-		/* ---------------- Rapid-fire Game Modified ---------------- */
 		// check phases
 		if (this.phase === 'mainSummary') {
 			if (this.lastSummary?.passed) {
@@ -223,18 +213,17 @@ export class VenusGameController extends ScreenController {
 
 		if (this.phase === 'challengeSummary') {
 			if (this.lastSummary?.passed) {
-				this.screenSwitcher.switchToScreen({ type: 'earth' });
+				this.screenSwitcher.switchToScreen({ type: 'knowledge' });
 			} else {
 				this.startChallengeGame();
 			}
 			return;
 		}
 
-		if (!this.inputBox) return; // NOT in the modification
-		if (this.phase === 'challenge' && this.challengeTimerMs <= 0) {
-			return;
-		}
-		/* ---------------- End Rapid-fire Game Modified ---------------- */
+		if (!this.inputBox) return;
+
+		if (this.phase === 'challenge' && this.challengeTimerMs <= 0) return;
+
 		if (!this.model.hasMoreQuestions()) {
 			this.view.showMessage('All questions answered! Review your summary.');
 			return;
@@ -259,12 +248,9 @@ export class VenusGameController extends ScreenController {
 		const result = this.model.submitAnswer(parsedAnswer);
 
 		this.view.displayResult(result.isCorrect, question.text, result.correctAnswer);
-		/* ---------------- Rapid-fire Game Modified ---------------- */
 		// send the correct answers' count to view for updating
 		this.view.updateCorrectCount(this.model.getCorrectAnswers());
-		/* ---------------- End Rapid-fire Game Modified ---------------- */
 		this.inputBox.value = '';
-		/* ---------------- Rapid-fire Game Modified ---------------- */
 		// handle submit answer in rapid fire game
 		if (this.phase === 'challenge') {
 			this.challengeTimerMs = 0;
@@ -272,10 +258,8 @@ export class VenusGameController extends ScreenController {
 		}
 		// set delay time between questions
 		this.scheduleNextStep();
-		/* ---------------- End Rapid-fire Game Modified ---------------- */
 	}
 
-	/* ---------------- Rapid-fire Game Modified ---------------- */
 	/**
 	 * start main game separating from rapid fire game
 	 */
@@ -353,7 +337,7 @@ export class VenusGameController extends ScreenController {
 		this.view.setSubmitLabel(passed ? 'CHALLENGE' : 'RETRY'); // invite rapid fire if passed
 		this.view.showMessage(
 			passed
-				? 'Ready for a 5-second speed round on Venus?'
+				? 'Ready for a 15-second speed round on Venus?'
 				: 'Score under 80%. Tap retry to try again.',
 			passed ? theme.get('success') : theme.get('warning')
 		);
@@ -365,7 +349,7 @@ export class VenusGameController extends ScreenController {
 	private startChallengeIntro(): void {
 		this.phase = 'challengeIntro';
 		this.view.showModal(
-			'Rapid-fire finale: 5 seconds per question.\nStay sharp to reach Earth.\nPress Start to begin.'
+			'Rapid-fire finale: 15 seconds per question.\nStay sharp to reach Earth.\nPress Start to begin.'
 		);
 		this.view.setSubmitLabel('START');
 		this.view.hideTimer();
