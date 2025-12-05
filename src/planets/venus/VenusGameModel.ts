@@ -30,7 +30,7 @@ export class VenusGameModel {
 	public reset(questionCount: number = this.defaultMaxNumberOfQuestions): void {
 		// allow to choose the max number of questions; default is 10
 		this.maxNumberOfQuestions = questionCount;
-		this.minNumberOfQuestionsToWin = Math.ceil(this.maxNumberOfQuestions * 0.8);
+		this.minNumberOfQuestionsToWin = Math.ceil(this.maxNumberOfQuestions * 0);
 		this.questionsBank = this.generateQuestions();
 		this.questionIndex = 0;
 		this.correctAnswers = 0;
