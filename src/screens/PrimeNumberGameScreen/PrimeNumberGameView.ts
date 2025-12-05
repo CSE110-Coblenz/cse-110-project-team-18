@@ -16,9 +16,11 @@ export class PrimeNumberGameView implements View {
 	private questionNumber: Konva.Group;
 	private questionText: Konva.Group;
 	private feedbackText: Konva.Group;
+	private summaryLabel: Konva.Group;
 
 	private yesButton: Konva.Group;
 	private noButton: Konva.Group;
+	private gameOverButton: Konva.Group | null = null;
 
 	constructor() {
 		this.group = new Konva.Group({
@@ -125,6 +127,27 @@ export class PrimeNumberGameView implements View {
 			feedbackBg.strokeWidth(0);
 		}
 
+		// Summary Label
+		this.summaryLabel = createTextBox(
+			{
+				x: 50,
+				y: 400,
+				width: STAGE_WIDTH - 100,
+				height: 80,
+				text: ' ',
+				colorKey: 'transparent',
+				fontColorKey: 'text_inverse',
+				fontSize: 24,
+				padding: 10,
+			},
+			theme
+		);
+		this.summaryLabel.visible(false);
+		const summaryBg = this.summaryLabel.findOne<Konva.Rect>('Rect');
+		if (summaryBg) {
+			summaryBg.strokeWidth(0);
+		}
+
 		// Buttons
 		this.yesButton = createButton(
 			{
@@ -157,6 +180,7 @@ export class PrimeNumberGameView implements View {
 			this.questionNumber,
 			this.questionText,
 			this.feedbackText,
+			this.summaryLabel,
 			this.yesButton,
 			this.noButton
 		);
@@ -221,53 +245,81 @@ export class PrimeNumberGameView implements View {
 		});
 	}
 
-	public showGameOverScreen(onDone: () => void): void {
-		// Clear feedback + disable buttons
+	public displaySummary(correctAnswers: number, maxNumberOfQuestions: number, minNumberOfQuestionsToWin: number): void {
+		const passed = correctAnswers >= minNumberOfQuestionsToWin;
+		const summary = `You answered ${correctAnswers / 10} / ${maxNumberOfQuestions / 10} correctly.\n${
+			passed
+				? 'Great job! Ready for the asteroid field!'
+				: 'Keep practicing until you reach 80%.'
+		}`;
+
+		setElementText(this.summaryLabel, summary);
+
+		const txt = this.summaryLabel.findOne<Konva.Text>('Text');
+		if (txt) {
+			txt.fill(passed ? theme.get('success') : theme.get('warning'));
+		}
+
+		// Hide the yes/no buttons
+		this.yesButton.visible(false);
+		this.noButton.visible(false);
+		this.summaryLabel.visible(true);
+		this.group.getLayer()?.batchDraw();
+	}
+
+	public showGameOverScreen(onRetry: (() => void) | null, onSuccess: (() => void) | null): void {
+		if (onSuccess) {
+			const continueBtn = createButton(
+				{
+					x: STAGE_WIDTH / 2 - 150,
+					y: 510,
+					width: 300,
+					height: 70,
+					text: 'CONTINUE',
+					colorKey: 'primary',
+					hoverColorKey: 'primary_hover',
+					onClick: onSuccess,
+				},
+				theme
+			);
+			this.group.add(continueBtn);
+			this.gameOverButton = continueBtn;
+		} else if (onRetry) {
+			const retryBtn = createButton(
+				{
+					x: STAGE_WIDTH / 2 - 150,
+					y: 510,
+					width: 300,
+					height: 70,
+					text: 'RETRY',
+					colorKey: 'primary',
+					hoverColorKey: 'primary_hover',
+					onClick: onRetry,
+				},
+				theme
+			);
+			this.group.add(retryBtn);
+			this.gameOverButton = retryBtn;
+		}
+
+		this.group.getLayer()?.batchDraw();
+	}
+
+	public resetUI(): void {
+		// Remove the retry if it exists
+		if (this.gameOverButton) {
+			this.gameOverButton.destroy();
+			this.gameOverButton = null;
+		}
+		// Show buttons again
+		this.yesButton.visible(true);
+		this.noButton.visible(true);
+		// Hide summary label
+		this.summaryLabel.visible(false);
+		// Clear feedback
 		setElementText(this.feedbackText, ' ');
-
-		this.setAnswerButtonsDisabled(true);
-
-		// Dark overlay
-		const overlay = new Konva.Rect({
-			x: 0,
-			y: 0,
-			width: STAGE_WIDTH,
-			height: STAGE_HEIGHT,
-			fill: 'black',
-			opacity: 0.65,
-		});
-		this.group.add(overlay);
-
-		// Game Over text
-		const msg = new Konva.Text({
-			x: STAGE_WIDTH / 2,
-			y: STAGE_HEIGHT / 2 - 40,
-			text: 'GAME OVER!',
-			fontSize: 48,
-			fontFamily: 'Arial',
-			fill: 'white',
-			align: 'center',
-		});
-		msg.offsetX(msg.width() / 2);
-		this.group.add(msg);
-
-		// BIG DONE BUTTON
-		const doneBtn = createButton(
-			{
-				x: STAGE_WIDTH / 2 - 150,
-				y: STAGE_HEIGHT / 2 + 20,
-				width: 300,
-				height: 70,
-				text: 'DONE',
-				colorKey: 'primary',
-				hoverColorKey: 'primary_hover',
-				onClick: onDone,
-			},
-			theme
-		);
-
-		this.group.add(doneBtn);
-
+		// Reset button states
+		this.setAnswerButtonsDisabled(false);
 		this.group.getLayer()?.batchDraw();
 	}
 }
