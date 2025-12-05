@@ -105,10 +105,6 @@ export class VenusGameController extends ScreenController {
 		this.scheduleNextStep();
 	}
 
-	private handleReturnToLevelClick(): void {
-		this.screenSwitcher.switchToScreen({ type: 'level selection' });
-	}
-
 	private ensureInputBox(): void {
 		if (this.inputBox) {
 			this.inputBox.value = '';
