@@ -101,7 +101,7 @@ export class PrimeNumberGameController implements ScreenController {
 			if (result.isGameOver) {
 				const { score, maxScore } = this.model.getFinalScore();
 				const accuracy = score / maxScore;
-				const passed = accuracy >= 0.7;
+				const passed = accuracy >= 0.8;
 
 				// Save for performance dashboard
 				ProgressManager.getInstance().setResult('mars_prime', {
@@ -113,18 +113,40 @@ export class PrimeNumberGameController implements ScreenController {
 					passed,
 				});
 
-				/** 🔹 If passed, persist Mars score so Asteroid Field (5) can unlock */
+				/** If passed, persist Mars score so Asteroid Field (5) can unlock */
 				if (passed && score > 0) {
 					void this.saveMarsScore(score);
 				}
 
-				this.view.showGameOverScreen(() => {
-					this.screenSwitcher.switchToScreen({ type: 'level selection' });
-				});
+				// Display summary first
+				const summary = this.model.getSummary();
+				this.view.displaySummary(
+					summary.correctAnswers,
+					summary.totalQuestions,
+					summary.minNumberOfQuestionsToWin
+				);
+
+				// Show game over screen
+				if (passed) {
+					this.view.showGameOverScreen(null, () => {
+						this.screenSwitcher.switchToScreen({ type: 'asteroid field game' });
+					});
+				} else {
+					this.view.showGameOverScreen(() => {
+						this.resetAndRetry();
+					}, null);
+				}
 			} else {
 				this.showNextQuestion();
 			}
-		}, 1500);
+		}, 900);
+	}
+
+	private resetAndRetry(): void {
+		// Reset the UI
+		this.view.resetUI();
+		// Reset the model and start a new game
+		void this.startGame();
 	}
 
 	private showNextQuestion(): void {

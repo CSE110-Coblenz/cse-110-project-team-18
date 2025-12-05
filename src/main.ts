@@ -101,11 +101,17 @@ class App implements ScreenSwitcher {
 				if (this.activeController === this.mercuryGameController) {
 					this.mercuryGameController.setInputVisible(false);
 				}
+				if (this.activeController === this.venusGameController) {
+					this.venusGameController.setInputVisible(false);
+				}
 			},
 			() => {
 				this.pauseMenuController.hide();
 				if (this.activeController === this.mercuryGameController) {
 					this.mercuryGameController.setInputVisible(true);
+				}
+				if (this.activeController === this.venusGameController) {
+					this.venusGameController.setInputVisible(true);
 				}
 				this.helpManager.showHelpButton();
 			}
