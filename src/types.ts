@@ -49,4 +49,6 @@ export abstract class ScreenController {
 
 export interface ScreenSwitcher {
 	switchToScreen(screen: Screen): void;
+	/** Optional helper to toggle global ambient effects (e.g., shooting stars). */
+	toggleAmbientStars?(enabled: boolean): void;
 }

@@ -16,6 +16,7 @@ let LS_WIDTH = 110;
 export class LevelSelectionView implements View {
 	private group: Konva.Group;
 	private buttonGroup?: Konva.Group;
+	private starsToggleBtn?: Konva.Group;
 
 	// ⭐ keep references so we can lock/unlock later
 	private asteroidBtn!: Konva.Group;
@@ -126,6 +127,22 @@ export class LevelSelectionView implements View {
 		});
 
 		//-------------------------------------------------------
+		// SHOOTING STARS TOGGLE (bottom-left)
+		//-------------------------------------------------------
+		const starsToggleBtn = createButton({
+			x: 40,
+			y: STAGE_HEIGHT - 90,
+			width: 260,
+			height: 60,
+			text: 'STARS: ON',
+			colorKey: 'primary',
+			hoverColorKey: 'primary_hover',
+			onClick: () => undefined, // replaced by controller
+		});
+		this.starsToggleBtn = starsToggleBtn;
+		this.group.add(starsToggleBtn);
+
+		//-------------------------------------------------------
 		// Button container
 		//-------------------------------------------------------
 		const buttonGroup = new Konva.Group({ listening: true });
@@ -231,6 +248,8 @@ export class LevelSelectionView implements View {
 		if (this.buttonGroup) {
 			this.buttonGroup.moveToTop();
 		}
+		// Keep toggles/progress above background effects.
+		this.starsToggleBtn?.moveToTop();
 	}
 
 	//-------------------------------------------------------
@@ -267,6 +286,19 @@ export class LevelSelectionView implements View {
 		// Asteroid field
 		setLocked(this.asteroidBtn, !set.has(5));
 
+		this.group.getLayer()?.batchDraw();
+	}
+
+	setStarsToggleHandler(handler: () => void): void {
+		this.starsToggleBtn?.off('click');
+		this.starsToggleBtn?.on('click', handler);
+	}
+
+	setStarsToggleLabel(enabled: boolean): void {
+		if (!this.starsToggleBtn) return;
+		const label = enabled ? 'STARS: ON' : 'STARS: OFF';
+		const txt = this.starsToggleBtn.findOne<Konva.Text>('Text');
+		if (txt) txt.text(label);
 		this.group.getLayer()?.batchDraw();
 	}
 }
