@@ -21,7 +21,6 @@ export class VenusGameView implements View {
 	private timerLabel: Konva.Group; // countdown for rapid-fire
 	private modalGroup: Konva.Group; // intro overlay for rapid-fire
 	private modalBody: Konva.Text;
-	private returnButton: Konva.Group;
 
 	constructor(onSubmitAnswer: () => void, onReturnToMenu: () => void) {
 		this.group = new Konva.Group({
@@ -75,12 +74,13 @@ export class VenusGameView implements View {
 			},
 			theme
 		);
+		this.removeBorder(this.progressLabel);
 		this.group.add(this.progressLabel);
 
 		this.correctCountLabel = createTextBox(
 			{
-				x: STAGE_WIDTH - 250,
-				y: 170,
+				x: 0,
+				y: 20,
 				width: 200,
 				height: 30,
 				text: 'Correct: 0',
@@ -91,6 +91,7 @@ export class VenusGameView implements View {
 			},
 			theme
 		);
+		this.removeBorder(this.correctCountLabel);
 		this.group.add(this.correctCountLabel);
 
 		// Question Label
@@ -108,6 +109,7 @@ export class VenusGameView implements View {
 			},
 			theme
 		);
+		this.removeBorder(this.questionLabel);
 		this.group.add(this.questionLabel);
 
 		// Feedback Label
@@ -125,6 +127,7 @@ export class VenusGameView implements View {
 			},
 			theme
 		);
+		this.removeBorder(this.feedbackLabel);
 		this.group.add(this.feedbackLabel);
 
 		this.timerLabel = createTextBox(
@@ -160,6 +163,7 @@ export class VenusGameView implements View {
 			theme
 		);
 		this.summaryLabel.visible(false);
+		this.removeBorder(this.summaryLabel);
 		this.group.add(this.summaryLabel);
 
 		// Submit Button
@@ -220,20 +224,16 @@ export class VenusGameView implements View {
 		this.modalGroup.add(this.modalBody);
 
 		this.group.add(this.modalGroup);
+	}
 
-		// Return Button
-		this.returnButton = createButton({
-			x: 50,
-			y: 50,
-			width: 275,
-			height: 60,
-			text: 'RETURN TO MENU',
-			colorKey: 'alien_green',
-			hoverColorKey: 'success_hover',
-			fontColorKey: 'text_inverse',
-			onClick: onReturnToMenu,
-		});
-		this.group.add(this.returnButton);
+	/**
+	 * Helper to remove the stroke (border) from a text box group
+	 */
+	private removeBorder(group: Konva.Group): void {
+		const bg = group.findOne<Konva.Rect>('Rect');
+		if (bg) {
+			bg.strokeWidth(0);
+		}
 	}
 
 	getGroup(): Konva.Group {
@@ -247,13 +247,6 @@ export class VenusGameView implements View {
 
 	hide(): void {
 		this.group.visible(false);
-		this.group.getLayer()?.batchDraw();
-	}
-
-	public setReturnButtonVisible(isVisible: boolean): void {
-		// Hide during rapid-fire summary to keep players in the finale loop.
-		this.returnButton.visible(isVisible);
-		this.returnButton.listening(isVisible);
 		this.group.getLayer()?.batchDraw();
 	}
 

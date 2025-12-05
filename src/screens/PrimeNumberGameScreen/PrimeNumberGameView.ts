@@ -43,6 +43,19 @@ export class PrimeNumberGameView implements View {
 
 		this.group.add(background);
 
+		const title = new Konva.Text({
+			x: STAGE_WIDTH / 2,
+			y: 50,
+			text: 'Is that Prime!',
+			fontSize: 48,
+			fontFamily: theme.fontFamilyDefault,
+			fill: theme.get('mars_red'),
+			align: 'center',
+		});
+
+		title.offsetX(title.width() / 2);
+		this.group.add(title);
+
 		// Score Number
 		this.scoreDisplay = createTextBox(
 			{
@@ -52,7 +65,7 @@ export class PrimeNumberGameView implements View {
 				height: 30,
 				text: 'Score: 0',
 				colorKey: 'surface_alt',
-				fontColorKey: 'text_inverse',
+				fontColorKey: 'info',
 				fontSize: 20,
 				padding: 5,
 			},
@@ -62,13 +75,13 @@ export class PrimeNumberGameView implements View {
 		// Question Number
 		this.questionNumber = createTextBox(
 			{
-				x: STAGE_WIDTH - 200,
-				y: 30,
+				x: 20,
+				y: 70,
 				width: 180,
 				height: 30,
 				text: 'Question: 1 / 10',
 				colorKey: 'surface_alt',
-				fontColorKey: 'text_inverse',
+				fontColorKey: 'warning',
 				fontSize: 20,
 				padding: 5,
 			},
@@ -106,6 +119,11 @@ export class PrimeNumberGameView implements View {
 			},
 			theme
 		);
+
+		const feedbackBg = this.feedbackText.findOne<Konva.Rect>('Rect');
+		if (feedbackBg) {
+			feedbackBg.strokeWidth(0);
+		}
 
 		// Buttons
 		this.yesButton = createButton(

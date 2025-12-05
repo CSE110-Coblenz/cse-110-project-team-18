@@ -23,6 +23,7 @@ export const theme = new Theme({
 		info_hover: '#0EA5E9',
 
 		// --- Game-specific or themed colors ---
+		mars_red: '#f62c2cff',
 		alien_green: '#4CBB17', // bright sci-fi "alien" green
 		cosmic_purple: '#8B5CF6',
 		cosmic_purple_hover: '#523790ff',
