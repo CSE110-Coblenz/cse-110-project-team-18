@@ -120,7 +120,11 @@ export class PrimeNumberGameController implements ScreenController {
 
 				// Display summary first
 				const summary = this.model.getSummary();
-				this.view.displaySummary(summary.correctAnswers, summary.totalQuestions, summary.minNumberOfQuestionsToWin);
+				this.view.displaySummary(
+					summary.correctAnswers,
+					summary.totalQuestions,
+					summary.minNumberOfQuestionsToWin
+				);
 
 				// Show game over screen
 				if (passed) {

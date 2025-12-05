@@ -67,7 +67,11 @@ export class PrimeNumberGameModel {
 		};
 	}
 
-	public getSummary(): { correctAnswers: number; totalQuestions: number; minNumberOfQuestionsToWin: number } {
+	public getSummary(): {
+		correctAnswers: number;
+		totalQuestions: number;
+		minNumberOfQuestionsToWin: number;
+	} {
 		const maxScore = this.questions.reduce((sum, q) => sum + q.scoreWeight, 0);
 		const minNumberOfQuestionsToWin = Math.ceil(maxScore * 0.8);
 		return {

@@ -245,12 +245,14 @@ export class PrimeNumberGameView implements View {
 		});
 	}
 
-	public displaySummary(correctAnswers: number, maxNumberOfQuestions: number, minNumberOfQuestionsToWin: number): void {
+	public displaySummary(
+		correctAnswers: number,
+		maxNumberOfQuestions: number,
+		minNumberOfQuestionsToWin: number
+	): void {
 		const passed = correctAnswers >= minNumberOfQuestionsToWin;
 		const summary = `You answered ${correctAnswers / 10} / ${maxNumberOfQuestions / 10} correctly.\n${
-			passed
-				? 'Great job! Ready for the asteroid field!'
-				: 'Keep practicing until you reach 80%.'
+			passed ? 'Great job! Ready for the asteroid field!' : 'Keep practicing until you reach 80%.'
 		}`;
 
 		setElementText(this.summaryLabel, summary);
