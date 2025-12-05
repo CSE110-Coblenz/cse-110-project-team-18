@@ -35,7 +35,7 @@ export class VenusGameModel {
 		/* ---------------- Rapid-fire Game Modified ---------------- */
 		// allow to choose the max number of questions; default is 10
 		this.maxNumberOfQuestions = questionCount;
-		this.minNumberOfQuestionsToWin = Math.ceil(this.maxNumberOfQuestions * 0.8);
+		this.minNumberOfQuestionsToWin = Math.ceil(this.maxNumberOfQuestions * 0);
 		/* ---------------- Rapid-fire Game Modified ---------------- */
 		this.questionsBank = this.generateQuestions();
 		this.questionIndex = 0;
