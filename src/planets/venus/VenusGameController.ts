@@ -39,9 +39,7 @@ export class VenusGameController extends ScreenController {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.model = new VenusGameModel();
-		this.view = new VenusGameView(
-			() => this.handleSubmitAnswer()
-		);
+		this.view = new VenusGameView(() => this.handleSubmitAnswer());
 	}
 
 	getView(): VenusGameView {
