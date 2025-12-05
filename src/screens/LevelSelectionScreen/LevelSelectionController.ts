@@ -13,6 +13,7 @@ export class LevelSelectionController extends ScreenController {
 	private view: LevelSelectionView;
 	private screenSwitcher: ScreenSwitcher;
 	private model: LevelSelectionModel;
+	private starsEnabled = true;
 
 	private unlockedPlanets: Set<number> = new Set();
 
@@ -52,6 +53,8 @@ export class LevelSelectionController extends ScreenController {
 			() => this.handleVenusClick(),
 			() => this.handleCheckProgressClick()
 		);
+		this.view.setStarsToggleHandler(() => this.handleStarsToggle());
+		this.view.setStarsToggleLabel(this.starsEnabled);
 
 		this.model = new LevelSelectionModel(
 			this.initialPlayerPosition.x,
@@ -131,6 +134,14 @@ export class LevelSelectionController extends ScreenController {
 		this.screenSwitcher.switchToScreen({ type: 'performance dashboard' });
 	}
 
+	private handleStarsToggle(): void {
+		this.starsEnabled = !this.starsEnabled;
+		this.view.setStarsToggleLabel(this.starsEnabled);
+		if (typeof this.screenSwitcher.toggleAmbientStars === 'function') {
+			this.screenSwitcher.toggleAmbientStars(this.starsEnabled);
+		}
+	}
+
 	// ---------------------------------------------------------
 	// FETCH UNLOCKED PLANETS FROM BACKEND
 	// ---------------------------------------------------------
@@ -164,6 +175,7 @@ export class LevelSelectionController extends ScreenController {
 		super.show();
 		this.playerLifecycle.ensure();
 		this.view.ensureButtonsOnTop();
+		this.view.setStarsToggleLabel(this.starsEnabled);
 
 		const currentUserId = (window as any).__CURRENT_USER_ID__ as number | undefined;
 		if (currentUserId) {

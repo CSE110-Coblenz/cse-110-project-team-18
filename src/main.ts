@@ -16,6 +16,7 @@ import { PerformanceDashboardController } from './screens/PerformanceDashboardSc
 
 import { LevelSelectionController } from './screens/LevelSelectionScreen/LevelSelectionController.ts';
 import { VenusGameController } from './planets/venus/VenusGameController.ts';
+import { ShootingStarsLayer } from './core/effects/ShootingStarsLayer';
 // Space Math Adventure - Main Entry Point
 /**
  * Main Application - Coordinates all screens
@@ -31,6 +32,9 @@ import { VenusGameController } from './planets/venus/VenusGameController.ts';
 class App implements ScreenSwitcher {
 	private stage: Konva.Stage;
 	private layer: Konva.Layer;
+	private shootingStars: ShootingStarsLayer;
+	private ambientStarsEnabled = true;
+	private activeScreenType: Screen['type'] = 'menu';
 
 	private activeController?: ScreenController | null;
 
@@ -68,6 +72,9 @@ class App implements ScreenSwitcher {
 		// Create a layer (screens will be added to this layer)
 		this.layer = new Konva.Layer();
 		this.stage.add(this.layer);
+
+		// Ambient shooting stars layer (hidden on login/menu screen)
+		this.shootingStars = new ShootingStarsLayer(this.stage);
 
 		// Initialize all screen controllers
 		// Each controller manages a Model, View, and handles user interactions
@@ -186,6 +193,8 @@ class App implements ScreenSwitcher {
 			if (!this.pauseManager.isGamePaused() && this.activeController) {
 				this.activeController.update(dt);
 			}
+			// Ambient stars run whenever enabled (not on login screen)
+			this.shootingStars.update(dt);
 
 			requestAnimationFrame(loop);
 		};
@@ -207,6 +216,8 @@ class App implements ScreenSwitcher {
 		this.pauseMenuController.hide();
 		this.pauseManager.reset();
 
+		this.activeScreenType = screen.type;
+
 		// Hide all screens first by setting their Groups to invisible
 		this.menuController.hide();
 		this.primeNumberGameController.hide();
@@ -220,6 +231,8 @@ class App implements ScreenSwitcher {
 		this.militaryController.hide();
 		this.levelSelectionController.hide();
 		this.performanceDashboardController.hide(); // hide perf dashboard
+
+		this.applyAmbientStarsVisibility();
 
 		// Show the requested screen based on the screen type
 		switch (screen.type) {
@@ -292,6 +305,20 @@ class App implements ScreenSwitcher {
 
 		// force redraw after switching screens
 		this.layer.batchDraw();
+	}
+
+	toggleAmbientStars(enabled: boolean): void {
+		this.ambientStarsEnabled = enabled;
+		this.applyAmbientStarsVisibility();
+	}
+
+	private applyAmbientStarsVisibility(): void {
+		const shouldShow = this.activeScreenType !== 'menu' && this.ambientStarsEnabled;
+		if (shouldShow) {
+			this.shootingStars.show();
+		} else {
+			this.shootingStars.hide();
+		}
 	}
 }
 
