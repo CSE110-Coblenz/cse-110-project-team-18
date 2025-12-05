@@ -190,8 +190,8 @@ export class VenusGameController extends ScreenController {
 			this.updateTimerLabel();
 		} else {
 			this.view.hideTimer();
-		}		
-		
+		}
+
 		this.focusInput();
 	}
 
@@ -220,7 +220,7 @@ export class VenusGameController extends ScreenController {
 			return;
 		}
 
-		if (!this.inputBox) return; 
+		if (!this.inputBox) return;
 
 		if (this.phase === 'challenge' && this.challengeTimerMs <= 0) return;
 
