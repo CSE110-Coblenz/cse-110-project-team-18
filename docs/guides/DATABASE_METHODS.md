@@ -145,3 +145,24 @@ Gets the planet's ID from the name (_non-case sensitive_)
 `planetName`: the planet name
 **Return**
 An `int` of the associated `planet_id`, or `null` if the planet name does not exist (refer to the database reference `planets` (shown above) for `planet_id`-`name` pairs).
+
+## **Changing user's percent correct for current planet**
+
+**Description**
+Updates user's percentage correct score for the current planet. **Percentages must be saved as a number from 0-1.**
+**Usage**
+`saveUserCurrentPercentageCorrect(userId: number, percentage: number)`
+**Arguments**
+`userId`: the current user ID
+`percentage`: the percentage correct as a number from 0 to 1
+
+## **Getting a user's total percentages correct for all planets**
+
+**Description**
+Returns user's total percentages correct for all planets.
+**Usage**
+`getUserPercentageCorrect(userId: number)`
+**Arguments**
+`userId`: the current user ID
+**Return**
+An `Map<number, number>` formatted as `{ planetId => percentage_correct}`. Each planet has a default score of 0.
